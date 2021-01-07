@@ -1,4 +1,4 @@
-from PyQt5 import QtWidgets, uic
+from PyQt5 import QtWidgets, uic, QtGui
 from PyQt5.QtWidgets import *
 import sys
 import os
@@ -13,6 +13,11 @@ class ProfileWindown(QtWidgets.QMainWindow):
 		self.btnEdit.clicked.connect(self.on_btnEdit_clicked)
 		self.btnDelete.clicked.connect(self.on_btnDelete_clicked)
 		self.btnDeleteAll.clicked.connect(self.on_btnDeleteAll_clicked)
+
+		# create table header
+		model = QtGui.QStandardItemModel()
+		model.setHorizontalHeaderLabels(['ID', 'NAME', 'EMAIL', 'PHONE', 'CARD TYPE'])
+		self.tbProfile.setModel(model)
 
 	def on_btnAdd_clicked(self):
 		self.createProfileFrm = CreateProfileWindown()

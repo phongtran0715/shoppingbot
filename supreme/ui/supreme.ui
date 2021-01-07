@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
-    <height>627</height>
+    <width>1164</width>
+    <height>625</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -21,8 +21,8 @@
     <normaloff>../../../../../.designer/backup/images/supreme-icon.png</normaloff>../../../../../.designer/backup/images/supreme-icon.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QGridLayout" name="gridLayout_2">
-    <item row="0" column="0">
+   <layout class="QHBoxLayout" name="horizontalLayout">
+    <item>
      <widget class="QTabWidget" name="tabWidget">
       <property name="enabled">
        <bool>true</bool>
@@ -35,10 +35,57 @@
         <string>Keywords</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout">
-        <item row="3" column="2">
+        <item row="2" column="4">
+         <widget class="QPushButton" name="btnDelete">
+          <property name="text">
+           <string>Delete</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="2">
          <widget class="QPushButton" name="btnStartAll">
           <property name="text">
            <string>Start All</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1" rowspan="2" colspan="8">
+         <widget class="QGroupBox" name="groupBox_3">
+          <property name="title">
+           <string>Tasks</string>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_5">
+           <item row="0" column="0">
+            <widget class="QTableView" name="tbListTask"/>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item row="2" column="6">
+         <widget class="QPushButton" name="btnDeleteAll">
+          <property name="text">
+           <string>Delete All</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="7">
+         <widget class="QPushButton" name="btnExit">
+          <property name="text">
+           <string>Exit</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="3">
+         <widget class="QPushButton" name="btnStopAll">
+          <property name="text">
+           <string>Stop All</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="5">
+         <widget class="QPushButton" name="btnEdit">
+          <property name="text">
+           <string>Edit</string>
           </property>
          </widget>
         </item>
@@ -46,6 +93,12 @@
          <widget class="QGroupBox" name="groupBox">
           <property name="enabled">
            <bool>true</bool>
+          </property>
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
           </property>
           <property name="layoutDirection">
            <enum>Qt::LeftToRight</enum>
@@ -60,28 +113,17 @@
            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
           </property>
           <layout class="QGridLayout" name="gridLayout_3">
-           <property name="horizontalSpacing">
+           <property name="sizeConstraint">
+            <enum>QLayout::SetDefaultConstraint</enum>
+           </property>
+           <property name="leftMargin">
+            <number>9</number>
+           </property>
+           <property name="spacing">
             <number>6</number>
            </property>
-           <item row="8" column="2">
-            <widget class="QPushButton" name="btnCreateTask">
-             <property name="text">
-              <string>Create</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="0">
-            <widget class="QLabel" name="label_2">
-             <property name="text">
-              <string>Keywords</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="2">
-            <widget class="QComboBox" name="cbSize"/>
+           <item row="6" column="2">
+            <widget class="QComboBox" name="cbProfile"/>
            </item>
            <item row="4" column="0">
             <widget class="QLabel" name="label_6">
@@ -93,16 +135,39 @@
              </property>
             </widget>
            </item>
+           <item row="4" column="2">
+            <widget class="QLineEdit" name="lineEdit_2"/>
+           </item>
+           <item row="8" column="2">
+            <widget class="QPushButton" name="btnCreateTask">
+             <property name="text">
+              <string>Create</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QLabel" name="label_4">
+             <property name="text">
+              <string>Catagory</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="2">
+            <widget class="QLineEdit" name="lineEdit"/>
+           </item>
+           <item row="2" column="2">
+            <widget class="QComboBox" name="cbCatagory"/>
+           </item>
            <item row="3" column="2">
             <widget class="QComboBox" name="cbColour"/>
            </item>
-           <item row="6" column="2">
-            <widget class="QComboBox" name="cbProfile"/>
-           </item>
-           <item row="3" column="0">
-            <widget class="QLabel" name="label_5">
+           <item row="0" column="0">
+            <widget class="QLabel" name="label_2">
              <property name="text">
-              <string>Colour</string>
+              <string>Keywords</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -119,16 +184,13 @@
              </property>
             </widget>
            </item>
-           <item row="2" column="2">
-            <widget class="QComboBox" name="cbCatagory"/>
+           <item row="1" column="2">
+            <widget class="QComboBox" name="cbSize"/>
            </item>
-           <item row="4" column="2">
-            <widget class="QLineEdit" name="lineEdit_2"/>
-           </item>
-           <item row="2" column="0">
-            <widget class="QLabel" name="label_4">
+           <item row="3" column="0">
+            <widget class="QLabel" name="label_5">
              <property name="text">
-              <string>Catagory</string>
+              <string>Colour</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -145,81 +207,10 @@
              </property>
             </widget>
            </item>
-           <item row="0" column="2">
-            <widget class="QLineEdit" name="lineEdit"/>
-           </item>
-          </layout>
-         </widget>
-        </item>
-        <item row="3" column="4">
-         <widget class="QPushButton" name="btnDelete">
-          <property name="text">
-           <string>Delete</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="0">
-         <widget class="QGroupBox" name="groupBox_2">
-          <property name="title">
-           <string>GroupBox</string>
-          </property>
-          <layout class="QGridLayout" name="gridLayout_4">
-           <item row="0" column="0">
-            <widget class="QTextBrowser" name="textBrowser">
-             <property name="verticalScrollBarPolicy">
-              <enum>Qt::ScrollBarAlwaysOn</enum>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </widget>
-        </item>
-        <item row="3" column="5">
-         <widget class="QPushButton" name="btnEdit">
-          <property name="text">
-           <string>Edit</string>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="6">
-         <widget class="QPushButton" name="btnDeleteAll">
-          <property name="text">
-           <string>Delete All</string>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="3">
-         <widget class="QPushButton" name="btnStopAll">
-          <property name="text">
-           <string>Stop All</string>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="7">
-         <widget class="QPushButton" name="btnExit">
-          <property name="text">
-           <string>Exit</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="1" rowspan="3" colspan="7">
-         <widget class="QGroupBox" name="groupBox_3">
-          <property name="title">
-           <string>Tasks</string>
-          </property>
-          <layout class="QGridLayout" name="gridLayout_5">
-           <item row="0" column="0">
-            <widget class="QTableView" name="tbListTask"/>
-           </item>
           </layout>
          </widget>
         </item>
        </layout>
-      </widget>
-      <widget class="QWidget" name="tab_2">
-       <attribute name="title">
-        <string/>
-       </attribute>
       </widget>
      </widget>
     </item>
@@ -230,7 +221,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>800</width>
+     <width>1164</width>
      <height>25</height>
     </rect>
    </property>
