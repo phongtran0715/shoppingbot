@@ -1,6 +1,8 @@
 from PyQt5 import QtWidgets, uic, QtGui, QtCore
 from PyQt5.QtWidgets import *
-from profile_manager import ProfileWindown
+from keywords import KeywordManager
+from profiles import ProfileManager
+from links import LinkManager
 from PyQt5.QtSql import QSqlDatabase, QSqlTableModel, QSqlQuery
 import sys
 import os
@@ -10,10 +12,12 @@ class MainWindow(QtWidgets.QMainWindow):
 	def __init__(self):
 		super(MainWindow, self).__init__()
 		uic.loadUi(os.path.join("ui", "supreme.ui"), self)
+		self.center()
 
 		# create connection for button
 		self.actionProfile_Manager.triggered.connect(self.actionProfileManaget_triggered)
 		self.btnAddKeyword.clicked.connect(self.btnAddKeyword_clicked)
+		self.btnAddLink.clicked.connect(self.btnAddLink_clicked)
 		
 		self.btnStart.clicked.connect(self.btnStart_clicked)
 		self.btnStartAll.clicked.connect(self.btnStartAll_clicked)
@@ -29,10 +33,20 @@ class MainWindow(QtWidgets.QMainWindow):
 		self.btnExit.clicked.connect(self.btnExit_clicked)
 
 		# create table header
-		self.tbListTask.setColumnCount(9)
 		self.tbListTask.setHorizontalHeaderLabels(["ID", "ITEM", "CATEGORY", "COLOUR", "SIZE", "PROFILE", "TYPE", "PROXY", "STATUS"])
 		self.tbListTask.setSelectionBehavior(QAbstractItemView.SelectRows)
+		self.tbListTask.setEditTriggers(QtWidgets.QTableWidget.NoEditTriggers)
 		self.loadTaskData()
+
+	def center(self):
+		# geometry of the main window
+		qr = self.frameGeometry()
+		# center point of screen
+		cp = QDesktopWidget().availableGeometry().center()
+		# move rectangle's center point to screen's center point
+		qr.moveCenter(cp)
+		# top left of rectangle becomes top left of window centering it
+		self.move(qr.topLeft())
 
 	def loadTaskData(self):
 		self.tbListTask.setRowCount(0)
@@ -51,8 +65,13 @@ class MainWindow(QtWidgets.QMainWindow):
 			self.tbListTask.setItem(rows, 8, QTableWidgetItem(query.value(8)))
 
 	def btnAddKeyword_clicked(self):
-		self.keywordFrm = Keywords()
+		self.keywordFrm = KeywordManager()
 		self.keywordFrm.show()
+		self.loadTaskData()
+
+	def btnAddLink_clicked(self):
+		self.linkFrm = LinkManager()
+		self.linkFrm.show()
 		self.loadTaskData()
 
 	def actionProfileManaget_triggered(self):
@@ -137,7 +156,7 @@ class MainWindow(QtWidgets.QMainWindow):
 				self.tbListTask.item(index, 7).text(),
 				self.tbListTask.item(index, 8).text(),
 				)
-			self.keywordFrm = Keywords('modify', task_index)
+			self.keywordFrm = KeywordManager('modify', task_index)
 			self.keywordFrm.loadData(task_data)
 			self.keywordFrm.show()
 		else:
@@ -171,108 +190,6 @@ class MainWindow(QtWidgets.QMainWindow):
 		self.close()
 
 
-class Keywords(QtWidgets.QMainWindow):
-	def __init__(self, mode='new', task_id=None):
-		super(Keywords, self).__init__()
-		uic.loadUi(os.path.join("ui", "add_keywords.ui"), self)
-		self.mode = mode
-		self.task_id = task_id
-
-		self.btnCancel.clicked.connect(self.btnCancel_clicked)
-		self.btnKeywordOK.clicked.connect(self.btnKeywordOK_clicked)
-
-		query = QSqlQuery("SELECT * FROM profile", db_conn)
-		while query.next():
-			self.cbProfile.addItem(query.value(1))
-
-	def loadData(self, task_data):
-		self.txtKeyword.setText(task_data[0])
-
-		index = self.cbCategory.findText(task_data[1], QtCore.Qt.MatchFixedString)
-		if index >= 0:
-			self.cbCategory.setCurrentIndex(index)
-
-		index = self.cbSize.findText(task_data[2], QtCore.Qt.MatchFixedString)
-		if index >= 0:
-			self.cbSize.setCurrentIndex(index)
-
-		index = self.cbColor.findText(task_data[3], QtCore.Qt.MatchFixedString)
-		if index >= 0:
-			self.cbColor.setCurrentIndex(index)
-
-		index = self.cbProfile.findText(task_data[4], QtCore.Qt.MatchFixedString)
-		if index >= 0:
-			self.cbProfile.setCurrentIndex(index)
-
-		self.txtProxy.setText(task_data[5])
-
-		index = self.cbStatus.findText(task_data[6], QtCore.Qt.MatchFixedString)
-		if index >= 0:
-			self.cbStatus.setCurrentIndex(index)
-
-	def btnKeywordOK_clicked(self):
-		if self.mode == 'new':
-			query = QSqlQuery(db_conn)
-			query.prepare(
-					"""
-					INSERT INTO task (
-						items,
-						category,
-						size,
-						colour,
-						billing_profile,
-						type,
-						proxy,
-						status
-					)
-					VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-					"""
-				)
-			query.addBindValue(self.txtKeyword.text())
-			query.addBindValue(self.cbCategory.currentText())
-			query.addBindValue(self.cbSize.currentText())
-			query.addBindValue(self.cbColor.currentText())
-			query.addBindValue(self.cbProfile.currentText())
-			query.addBindValue('Keywords')
-			query.addBindValue(self.txtProxy.text())
-			query.addBindValue('Stop')
-			if not query.exec():
-				QMessageBox.critical(self, "Supreme - Error!", 'Database Error: %s' % db_conn.lastError().databaseText(),)
-		else:
-			query = QSqlQuery(db_conn)
-			query.prepare(
-					"""
-					UPDATE task SET 
-						items = ?, 
-						category = ?, 
-						size = ?, 
-						colour =?, 
-						billing_profile =?, 
-						type = ?, 
-						proxy = ?, 
-						status = ? 
-						WHERE id = ?
-					"""
-				)
-			query.addBindValue(self.txtKeyword.text())
-			query.addBindValue(self.cbCategory.currentText())
-			query.addBindValue(self.cbSize.currentText())
-			query.addBindValue(self.cbColor.currentText())
-			query.addBindValue(self.cbProfile.currentText())
-			query.addBindValue('Keywords')
-			query.addBindValue(self.txtProxy.text())
-			query.addBindValue(self.cbStatus.currentText())
-			query.addBindValue(self.task_id)
-			if not query.exec():
-				QMessageBox.critical(self, "Supreme - Error!", 'Database Error: %s' % db_conn.lastError().databaseText(),)
-			pass
-
-		self.close()
-
-	def btnCancel_clicked(self):
-		self.close()
-
-
 if __name__ == "__main__":
 	app = QtWidgets.QApplication(sys.argv)
 	db_file = os.path.join('data', 'supreme_db.sqlite')
@@ -284,7 +201,7 @@ if __name__ == "__main__":
 			'Can not find database file: %s' % db_file,
 			)
 		sys.exit(1)
-	db_conn = QSqlDatabase.addDatabase("QSQLITE")
+	db_conn = QSqlDatabase.addDatabase("QSQLITE", "supreme_db_conn")
 	db_conn.setDatabaseName(os.path.join('data', 'supreme_db.sqlite'))
 	if not db_conn.open():
 		QMessageBox.critical(

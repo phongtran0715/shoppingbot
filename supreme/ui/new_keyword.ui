@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>addKeyword</class>
- <widget class="QMainWindow" name="addKeyword">
+ <class>addKeywordFrm</class>
+ <widget class="QMainWindow" name="addKeywordFrm">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -94,6 +94,9 @@
       <property name="margin">
        <number>5</number>
       </property>
+      <property name="indent">
+       <number>5</number>
+      </property>
      </widget>
     </item>
     <item row="4" column="1" colspan="2">
@@ -167,6 +170,9 @@
       <property name="margin">
        <number>5</number>
       </property>
+      <property name="indent">
+       <number>5</number>
+      </property>
      </widget>
     </item>
     <item row="5" column="1" colspan="2">
@@ -204,6 +210,9 @@
       <property name="margin">
        <number>5</number>
       </property>
+      <property name="indent">
+       <number>5</number>
+      </property>
      </widget>
     </item>
     <item row="5" column="0">
@@ -212,6 +221,9 @@
        <string>Proxy</string>
       </property>
       <property name="margin">
+       <number>5</number>
+      </property>
+      <property name="indent">
        <number>5</number>
       </property>
      </widget>
@@ -224,6 +236,9 @@
       <property name="margin">
        <number>5</number>
       </property>
+      <property name="indent">
+       <number>5</number>
+      </property>
      </widget>
     </item>
     <item row="4" column="0">
@@ -234,12 +249,21 @@
       <property name="margin">
        <number>5</number>
       </property>
+      <property name="indent">
+       <number>5</number>
+      </property>
      </widget>
     </item>
     <item row="6" column="0">
      <widget class="QLabel" name="label_7">
       <property name="text">
        <string>Status</string>
+      </property>
+      <property name="margin">
+       <number>5</number>
+      </property>
+      <property name="indent">
+       <number>5</number>
       </property>
      </widget>
     </item>
@@ -274,5 +298,22 @@
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>btnCancel</sender>
+   <signal>clicked()</signal>
+   <receiver>addKeywordFrm</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>249</x>
+     <y>272</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>152</x>
+     <y>160</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

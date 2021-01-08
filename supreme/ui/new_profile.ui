@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>CreateProfile</class>
- <widget class="QMainWindow" name="CreateProfile">
+ <class>createProfileFrm</class>
+ <widget class="QMainWindow" name="createProfileFrm">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -219,5 +219,22 @@
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>btnCancel</sender>
+   <signal>clicked()</signal>
+   <receiver>createProfileFrm</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>306</x>
+     <y>533</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>187</x>
+     <y>295</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>
