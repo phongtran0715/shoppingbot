@@ -32,13 +32,103 @@
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
-        <string>Keywords</string>
+        <string>Supreme</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout">
+        <item row="2" column="8">
+         <widget class="Line" name="line">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+         </widget>
+        </item>
         <item row="2" column="6">
+         <widget class="QPushButton" name="btnEdit">
+          <property name="text">
+           <string>Edit</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="2" rowspan="2" colspan="15">
+         <widget class="QGroupBox" name="groupBox_3">
+          <property name="title">
+           <string>Tasks</string>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_5">
+           <item row="0" column="0">
+            <widget class="QTableWidget" name="tbListTask">
+             <property name="enabled">
+              <bool>true</bool>
+             </property>
+             <property name="editTriggers">
+              <set>QAbstractItemView::NoEditTriggers</set>
+             </property>
+             <property name="selectionBehavior">
+              <enum>QAbstractItemView::SelectRows</enum>
+             </property>
+             <property name="sortingEnabled">
+              <bool>true</bool>
+             </property>
+             <property name="cornerButtonEnabled">
+              <bool>true</bool>
+             </property>
+             <property name="columnCount">
+              <number>9</number>
+             </property>
+             <attribute name="horizontalHeaderVisible">
+              <bool>true</bool>
+             </attribute>
+             <attribute name="horizontalHeaderHighlightSections">
+              <bool>true</bool>
+             </attribute>
+             <attribute name="horizontalHeaderStretchLastSection">
+              <bool>true</bool>
+             </attribute>
+             <attribute name="verticalHeaderVisible">
+              <bool>false</bool>
+             </attribute>
+             <attribute name="verticalHeaderHighlightSections">
+              <bool>true</bool>
+             </attribute>
+             <column/>
+             <column/>
+             <column/>
+             <column/>
+             <column/>
+             <column/>
+             <column/>
+             <column/>
+             <column/>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item row="2" column="9">
          <widget class="QPushButton" name="btnStartAll">
           <property name="text">
            <string>Start All</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="10">
+         <widget class="QPushButton" name="btnStopAll">
+          <property name="text">
+           <string>Stop All</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="11">
+         <widget class="QPushButton" name="btnDeleteAll">
+          <property name="text">
+           <string>Delete All</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="4">
+         <widget class="QPushButton" name="btnStart">
+          <property name="text">
+           <string>Start</string>
           </property>
          </widget>
         </item>
@@ -54,7 +144,7 @@
            <bool>false</bool>
           </property>
           <property name="title">
-           <string>Inputs</string>
+           <string>Actions</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
@@ -66,109 +156,68 @@
            <property name="leftMargin">
             <number>9</number>
            </property>
-           <item row="0" column="0">
-            <widget class="QPushButton" name="btnAddKeyword">
-             <property name="text">
-              <string>Add Keywords</string>
+           <item row="3" column="0">
+            <widget class="QTextEdit" name="txtConsole">
+             <property name="toolTip">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Console log&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
              </property>
             </widget>
            </item>
-           <item row="1" column="0">
+           <item row="2" column="0">
             <widget class="QPushButton" name="btnAddLink">
+             <property name="toolTip">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add new monitoring link&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
              <property name="text">
               <string>Add Links</string>
              </property>
             </widget>
            </item>
-           <item row="2" column="0">
-            <widget class="QTextEdit" name="txtConsole"/>
+           <item row="1" column="0">
+            <widget class="QPushButton" name="btnAddKeyword">
+             <property name="toolTip">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add new monitoring keyword&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+             <property name="text">
+              <string>Add Keywords</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="0">
+            <widget class="QPushButton" name="btnProfileManager">
+             <property name="text">
+              <string>Profile Manager</string>
+             </property>
+            </widget>
            </item>
           </layout>
          </widget>
         </item>
-        <item row="2" column="5">
-         <widget class="QPushButton" name="btnDelete">
+        <item row="2" column="13">
+         <widget class="QPushButton" name="btnExit">
           <property name="text">
-           <string>Delete</string>
+           <string>Exit</string>
           </property>
          </widget>
         </item>
-        <item row="2" column="3">
+        <item row="2" column="5">
          <widget class="QPushButton" name="btnStop">
           <property name="text">
            <string>Stop</string>
           </property>
          </widget>
         </item>
-        <item row="0" column="2" rowspan="2" colspan="13">
-         <widget class="QGroupBox" name="groupBox_3">
-          <property name="title">
-           <string>Tasks</string>
-          </property>
-          <layout class="QGridLayout" name="gridLayout_5">
-           <item row="0" column="0">
-            <widget class="QTableWidget" name="tbListTask">
-             <property name="enabled">
-              <bool>true</bool>
-             </property>
-             <property name="cornerButtonEnabled">
-              <bool>true</bool>
-             </property>
-             <property name="columnCount">
-              <number>9</number>
-             </property>
-             <attribute name="horizontalHeaderStretchLastSection">
-              <bool>true</bool>
-             </attribute>
-             <attribute name="verticalHeaderVisible">
-              <bool>false</bool>
-             </attribute>
-             <column/>
-             <column/>
-             <column/>
-             <column/>
-             <column/>
-             <column/>
-             <column/>
-             <column/>
-             <column/>
-            </widget>
-           </item>
-          </layout>
-         </widget>
-        </item>
-        <item row="2" column="2">
-         <widget class="QPushButton" name="btnStart">
-          <property name="text">
-           <string>Start</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="4">
-         <widget class="QPushButton" name="btnEdit">
-          <property name="text">
-           <string>Edit</string>
-          </property>
-         </widget>
-        </item>
         <item row="2" column="7">
-         <widget class="QPushButton" name="btnStopAll">
+         <widget class="QPushButton" name="btnDelete">
           <property name="text">
-           <string>Stop All</string>
+           <string>Delete</string>
           </property>
          </widget>
         </item>
-        <item row="2" column="8">
-         <widget class="QPushButton" name="btnDeleteAll">
-          <property name="text">
-           <string>Delete All</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="9">
-         <widget class="QPushButton" name="btnExit">
-          <property name="text">
-           <string>Exit</string>
+        <item row="2" column="12">
+         <widget class="Line" name="line_2">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
           </property>
          </widget>
         </item>
@@ -232,6 +281,38 @@
    </property>
   </action>
  </widget>
+ <tabstops>
+  <tabstop>btnAddKeyword</tabstop>
+  <tabstop>btnAddLink</tabstop>
+  <tabstop>txtConsole</tabstop>
+  <tabstop>btnStart</tabstop>
+  <tabstop>btnStop</tabstop>
+  <tabstop>btnEdit</tabstop>
+  <tabstop>btnDelete</tabstop>
+  <tabstop>btnStartAll</tabstop>
+  <tabstop>btnStopAll</tabstop>
+  <tabstop>btnDeleteAll</tabstop>
+  <tabstop>btnExit</tabstop>
+  <tabstop>tabWidget</tabstop>
+  <tabstop>tbListTask</tabstop>
+ </tabstops>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>actionExit</sender>
+   <signal>triggered()</signal>
+   <receiver>mainWindow</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>619</x>
+     <y>312</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

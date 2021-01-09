@@ -4,16 +4,14 @@ from PyQt5.QtSql import QSqlDatabase, QSqlTableModel, QSqlQuery
 import os
 
 
-class KeywordManager(QtWidgets.QMainWindow):
+class KeywordManager(QtWidgets.QDialog):
 	def __init__(self, mode='new', task_id=None):
 		super(KeywordManager, self).__init__()
-		uic.loadUi(os.path.join("ui", "new_keyword.ui"), self)
+		uic.loadUi(os.path.join("ui", "new_keyword_dialog.ui"), self)
 		self.center()
 		self.mode = mode
 		self.task_id = task_id
 		self.db_conn = QSqlDatabase.database("supreme_db_conn", open=False)
-
-		self.btnKeywordOK.clicked.connect(self.btnKeywordOK_clicked)
 
 		query = QSqlQuery("SELECT * FROM profile", self.db_conn)
 		while query.next():
@@ -25,8 +23,8 @@ class KeywordManager(QtWidgets.QMainWindow):
 		qr.moveCenter(cp)
 		self.move(qr.topLeft())
 
-	def loadData(self, task_data):
-		self.txtKeyword.setText(task_data[0])
+	def loadKeywordData(self, task_data):
+		self.txtKeyword.setPlainText(task_data[0])
 
 		index = self.cbCategory.findText(task_data[1], QtCore.Qt.MatchFixedString)
 		if index >= 0:
@@ -50,7 +48,7 @@ class KeywordManager(QtWidgets.QMainWindow):
 		if index >= 0:
 			self.cbStatus.setCurrentIndex(index)
 
-	def btnKeywordOK_clicked(self):
+	def updateKeyword(self):
 		if self.mode == 'new':
 			query = QSqlQuery(self.db_conn)
 			query.prepare(
@@ -68,7 +66,7 @@ class KeywordManager(QtWidgets.QMainWindow):
 					VALUES (?, ?, ?, ?, ?, ?, ?, ?)
 					"""
 				)
-			query.addBindValue(self.txtKeyword.text())
+			query.addBindValue(self.txtKeyword.toPlainText())
 			query.addBindValue(self.cbCategory.currentText())
 			query.addBindValue(self.cbSize.currentText())
 			query.addBindValue(self.cbColor.currentText())
@@ -78,6 +76,8 @@ class KeywordManager(QtWidgets.QMainWindow):
 			query.addBindValue('Stop')
 			if not query.exec():
 				QMessageBox.critical(self, "Supreme - Error!", 'Database Error: %s' % self.db_conn.lastError().databaseText(),)
+			else:
+				self.close()
 		else:
 			query = QSqlQuery(self.db_conn)
 			query.prepare(
@@ -94,7 +94,7 @@ class KeywordManager(QtWidgets.QMainWindow):
 						WHERE id = ?
 					"""
 				)
-			query.addBindValue(self.txtKeyword.text())
+			query.addBindValue(self.txtKeyword.toPlainText())
 			query.addBindValue(self.cbCategory.currentText())
 			query.addBindValue(self.cbSize.currentText())
 			query.addBindValue(self.cbColor.currentText())
@@ -105,6 +105,5 @@ class KeywordManager(QtWidgets.QMainWindow):
 			query.addBindValue(self.task_id)
 			if not query.exec():
 				QMessageBox.critical(self, "Supreme - Error!", 'Database Error: %s' % self.db_conn.lastError().databaseText(),)
-			pass
-
-		self.close()
+			else:
+				self.close()

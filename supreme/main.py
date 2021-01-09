@@ -16,6 +16,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
 		# create connection for button
 		self.actionProfile_Manager.triggered.connect(self.actionProfileManaget_triggered)
+		self.btnProfileManager.clicked.connect(self.btnProfileManager_clicked)
 		self.btnAddKeyword.clicked.connect(self.btnAddKeyword_clicked)
 		self.btnAddLink.clicked.connect(self.btnAddLink_clicked)
 		
@@ -34,8 +35,6 @@ class MainWindow(QtWidgets.QMainWindow):
 
 		# create table header
 		self.tbListTask.setHorizontalHeaderLabels(["ID", "ITEM", "CATEGORY", "COLOUR", "SIZE", "PROFILE", "TYPE", "PROXY", "STATUS"])
-		self.tbListTask.setSelectionBehavior(QAbstractItemView.SelectRows)
-		self.tbListTask.setEditTriggers(QtWidgets.QTableWidget.NoEditTriggers)
 		self.loadTaskData()
 
 	def center(self):
@@ -64,19 +63,25 @@ class MainWindow(QtWidgets.QMainWindow):
 			self.tbListTask.setItem(rows, 7, QTableWidgetItem(query.value(7)))
 			self.tbListTask.setItem(rows, 8, QTableWidgetItem(query.value(8)))
 
+	def btnProfileManager_clicked(self):
+		self.profileFrm = ProfileManager()
+		self.profileFrm.show()
+
+	def actionProfileManaget_triggered(self):
+		self.profileFrm = ProfileManager()
+		self.profileFrm.show()
+
 	def btnAddKeyword_clicked(self):
 		self.keywordFrm = KeywordManager()
-		self.keywordFrm.show()
-		self.loadTaskData()
+		if self.keywordFrm.exec_() == QtWidgets.QDialog.Accepted:
+			self.keywordFrm.updateKeyword()
+			self.loadTaskData()
 
 	def btnAddLink_clicked(self):
 		self.linkFrm = LinkManager()
-		self.linkFrm.show()
-		self.loadTaskData()
-
-	def actionProfileManaget_triggered(self):
-		self.profileFrm = ProfileWindown()
-		self.profileFrm.show()
+		if self.linkFrm.exec_() == QtWidgets.QDialog.Accepted:
+			self.linkFrm.updateLink()
+			self.loadTaskData()
 
 	def btnStart_clicked(self):
 		index = self.tbListTask.currentRow()
@@ -146,8 +151,9 @@ class MainWindow(QtWidgets.QMainWindow):
 
 	def btnEdit_clicked(self):
 		index = self.tbListTask.currentRow()
-		task_index = self.tbListTask.item(index, 0).text()
 		if index >= 0:
+			task_index = self.tbListTask.item(index, 0).text()
+			task_type = self.tbListTask.item(index, 6).text()
 			task_data = (self.tbListTask.item(index, 1).text(),
 				self.tbListTask.item(index, 2).text(),
 				self.tbListTask.item(index, 3).text(),
@@ -156,9 +162,20 @@ class MainWindow(QtWidgets.QMainWindow):
 				self.tbListTask.item(index, 7).text(),
 				self.tbListTask.item(index, 8).text(),
 				)
-			self.keywordFrm = KeywordManager('modify', task_index)
-			self.keywordFrm.loadData(task_data)
-			self.keywordFrm.show()
+			if task_type == 'Keywords':
+				self.keywordFrm = KeywordManager('modify', task_index)
+				self.keywordFrm.loadKeywordData(task_data)
+				if self.keywordFrm.exec_() == QtWidgets.QDialog.Accepted:
+					self.keywordFrm.updateKeyword()
+					self.loadTaskData()
+			elif task_type == 'Links':
+				self.linkFrm = LinkManager('modify', task_index)
+				self.linkFrm.loadLinkData(task_data)
+				if self.linkFrm.exec_() == QtWidgets.QDialog.Accepted:
+					self.linkFrm.updateLink()
+					self.loadTaskData()
+			else:
+				pass
 		else:
 			QMessageBox.critical(self, "Supreme", 'You must select one task!',)
 
