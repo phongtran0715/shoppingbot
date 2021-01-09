@@ -156,20 +156,10 @@
            <property name="leftMargin">
             <number>9</number>
            </property>
-           <item row="3" column="0">
-            <widget class="QTextEdit" name="txtConsole">
-             <property name="toolTip">
-              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Console log&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="0">
-            <widget class="QPushButton" name="btnAddLink">
-             <property name="toolTip">
-              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add new monitoring link&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-             </property>
+           <item row="0" column="0">
+            <widget class="QPushButton" name="btnProfileManager">
              <property name="text">
-              <string>Add Links</string>
+              <string>Profile Manager</string>
              </property>
             </widget>
            </item>
@@ -183,10 +173,20 @@
              </property>
             </widget>
            </item>
-           <item row="0" column="0">
-            <widget class="QPushButton" name="btnProfileManager">
+           <item row="2" column="0">
+            <widget class="QPushButton" name="btnAddLink">
+             <property name="toolTip">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add new monitoring link&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
              <property name="text">
-              <string>Profile Manager</string>
+              <string>Add Links</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="0">
+            <widget class="QPlainTextEdit" name="txtConsole">
+             <property name="autoFillBackground">
+              <bool>true</bool>
              </property>
             </widget>
            </item>
@@ -284,7 +284,6 @@
  <tabstops>
   <tabstop>btnAddKeyword</tabstop>
   <tabstop>btnAddLink</tabstop>
-  <tabstop>txtConsole</tabstop>
   <tabstop>btnStart</tabstop>
   <tabstop>btnStop</tabstop>
   <tabstop>btnEdit</tabstop>
@@ -311,6 +310,22 @@
     <hint type="destinationlabel">
      <x>619</x>
      <y>312</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>tbListTask</sender>
+   <signal>itemDoubleClicked(QTableWidgetItem*)</signal>
+   <receiver>btnEdit</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>762</x>
+     <y>321</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>602</x>
+     <y>565</y>
     </hint>
    </hints>
   </connection>

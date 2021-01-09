@@ -116,5 +116,21 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>tbProfile</sender>
+   <signal>itemDoubleClicked(QTableWidgetItem*)</signal>
+   <receiver>btnEdit</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>402</x>
+     <y>201</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>244</x>
+     <y>367</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
 </ui>

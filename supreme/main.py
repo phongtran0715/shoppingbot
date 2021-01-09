@@ -6,6 +6,18 @@ from links import LinkManager
 from PyQt5.QtSql import QSqlDatabase, QSqlTableModel, QSqlQuery
 import sys
 import os
+import logging
+
+
+class QTextEditLogger(logging.Handler):
+	def __init__(self, parent):
+		super().__init__()
+		self.widget = QtWidgets.QPlainTextEdit(parent)
+		self.widget.setReadOnly(True)
+
+	def emit(self, record):
+		msg = self.format(record)
+		self.widget.appendPlainText(msg)
 
 
 class MainWindow(QtWidgets.QMainWindow):
@@ -13,6 +25,15 @@ class MainWindow(QtWidgets.QMainWindow):
 		super(MainWindow, self).__init__()
 		uic.loadUi(os.path.join("ui", "supreme.ui"), self)
 		self.center()
+
+		# custom console text box
+		self.txtConsole = QTextEditLogger(self.groupBox)
+		self.gridLayout_2.addWidget(self.txtConsole.widget, 3, 0, 1, 1)
+		self.txtConsole.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
+		logging.getLogger().addHandler(self.txtConsole)
+		# You can control the logging level
+		logging.getLogger().setLevel(logging.INFO)
+
 
 		# create connection for button
 		self.actionProfile_Manager.triggered.connect(self.actionProfileManaget_triggered)
@@ -98,7 +119,9 @@ class MainWindow(QtWidgets.QMainWindow):
 				query.addBindValue(task_index)
 				if not query.exec():
 					QMessageBox.critical(self, "Supreme - Error!", 'Database Error: %s' % db_conn.lastError().databaseText(),)
+					logging.info("Start task id {} false".format(task_index))
 				else:
+					logging.info("Start task id {} successful".format(task_index))
 					self.loadTaskData()
 		else:
 			QMessageBox.critical(self, "Supreme", 'You must select one row!',)
@@ -114,6 +137,11 @@ class MainWindow(QtWidgets.QMainWindow):
 					query.prepare("UPDATE task SET status = ? WHERE id = ?")
 					query.addBindValue('Running')
 					query.addBindValue(task_index)
+					if not query.exec():
+						QMessageBox.critical(self, "Supreme - Error!", 'Database Error: %s' % db_conn.lastError().databaseText(),)
+						logging.info("Start task id {} false".format(task_index))
+					else:
+						logging.info("Start task id {} successful".format(task_index))
 			self.loadTaskData()
 						
 
@@ -131,7 +159,9 @@ class MainWindow(QtWidgets.QMainWindow):
 				query.addBindValue(task_index)
 				if not query.exec():
 					QMessageBox.critical(self, "Supreme - Error!", 'Database Error: %s' % db_conn.lastError().databaseText(),)
+					logging.info("Start task id {} false".format(task_index))
 				else:
+					logging.info("Stop task id {} successful".format(task_index))
 					self.loadTaskData()
 		else:
 			QMessageBox.critical(self, "Supreme", 'You must select one task!',)
@@ -147,6 +177,11 @@ class MainWindow(QtWidgets.QMainWindow):
 					query.prepare("UPDATE task SET status = ? WHERE id = ?")
 					query.addBindValue('Stop')
 					query.addBindValue(task_index)
+					if not query.exec():
+						QMessageBox.critical(self, "Supreme - Error!", 'Database Error: %s' % db_conn.lastError().databaseText(),)
+						logging.info("Start task id {} false".format(task_index))
+					else:
+						logging.info("Stop task id {} successful".format(task_index))
 			self.loadTaskData()
 
 	def btnEdit_clicked(self):
@@ -188,7 +223,9 @@ class MainWindow(QtWidgets.QMainWindow):
 			query.addBindValue(task_id)
 			if not query.exec():
 				QMessageBox.critical(self, "Supreme - Error!", 'Database Error: %s' % db_conn.lastError().databaseText(),)
+				logging.info("Delete task id {} false".format(task_index))
 			else:
+				logging.info("Delete task id {} successful".format(task_index))
 				self.loadTaskData()
 		else:
 			QMessageBox.critical(self, "Supreme - Error!", 'You must select one task to delete!',)
@@ -200,7 +237,9 @@ class MainWindow(QtWidgets.QMainWindow):
 			query.prepare("DELETE FROM task")
 			if not query.exec():
 				QMessageBox.critical(self, "Supreme - Error!", 'Database Error: %s' % db_conn.lastError().databaseText(),)
+				logging.info("Delete task id {} false".format(task_index))
 			else:
+				logging.info("Delete task id {} successful".format(task_index))
 				self.loadTaskData()
 
 	def btnExit_clicked(self):
