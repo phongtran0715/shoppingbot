@@ -5,14 +5,19 @@ from selenium import webdriver
 
 class Productions:
 	def __init__(self):
-		pass
+		self.checkout_url = 'https://www.supremenewyork.com/checkout'
+		self.webdriver_path="C:\\Users\\anhphong\\Downloads\\chromedriver.exe"
 
-	def check_product_status(self):
-		pass
+	def add_to_cart(self, url):
+		# check link is active or sold-out
+		page = requests.get(url)
+		soup = BeautifulSoup(page.content, 'html.parser')
+		results = soup.find(id='add-remove-buttons')
+		if content.find('sold-out') != -1 or content.find('sold out') != -1:
+			print('This product is sold-out')
+			return
 
-	def add_to_cart(self):
-		pass
-	
 	def checkout(self):
-		pass
+		driver = webdriver.Chrome(executable_path=self.webdriver_path)
+		driver.get(self.checkout_url)
 

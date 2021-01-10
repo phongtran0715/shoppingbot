@@ -9,7 +9,7 @@ class SupremeTaskManager:
 		self.db_conn = QSqlDatabase.database("supreme_db_conn", open=False)
 		self.threadDict = {}
 		self.create_thread()
-	
+
 	def create_thread(self):
 		query = QSqlQuery("SELECT * FROM task WHERE status = 'Running'" , self.db_conn)
 		while query.next():
@@ -24,7 +24,7 @@ class SupremeTaskManager:
 			task_data['type'] = query.value(6)
 			task_data['proxy'] = query.value(7)
 			task_data['status'] = query.value(8)
-			
+
 			thread = threading.Thread(target=self.do_task, args=(task_data))
 			thread.deamon = True
 			self.threadDict[task_id] = thread
@@ -40,8 +40,6 @@ class SupremeTaskManager:
 
 	def do_task(self, task_data):
 		print('Start task id: ' + str(task_data['id']))
-		while True:
-			pass
 
 	def add_new_task(self, task_id):
 		thread = threading.Thread(target=self.do_task, args=())
