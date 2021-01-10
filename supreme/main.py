@@ -1,9 +1,10 @@
 from PyQt5 import QtWidgets, uic, QtGui, QtCore
 from PyQt5.QtWidgets import *
+from PyQt5.QtSql import QSqlDatabase, QSqlTableModel, QSqlQuery
 from keywords import KeywordManager
 from profiles import ProfileManager
 from links import LinkManager
-from PyQt5.QtSql import QSqlDatabase, QSqlTableModel, QSqlQuery
+from tasks import SupremeTaskManager
 import sys
 import os
 import logging
@@ -57,6 +58,11 @@ class MainWindow(QtWidgets.QMainWindow):
 		# create table header
 		self.tbListTask.setHorizontalHeaderLabels(["ID", "ITEM", "CATEGORY", "COLOUR", "SIZE", "PROFILE", "TYPE", "PROXY", "STATUS"])
 		self.loadTaskData()
+
+		# Start existing task
+		self.task_manager = SupremeTaskManager()
+		self.task_manager.run_all_task()
+
 
 	def center(self):
 		# geometry of the main window
