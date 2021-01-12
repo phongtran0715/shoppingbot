@@ -22,6 +22,8 @@ class ProfileManager(QtWidgets.QMainWindow):
 		self.tbProfile.setSelectionBehavior(QAbstractItemView.SelectRows)
 		self.tbProfile.setEditTriggers(QtWidgets.QTableWidget.NoEditTriggers)
 
+		self.tbProfile.setColumnHidden(0, True);
+
 		self.loadProfileData()
 
 	def center(self):

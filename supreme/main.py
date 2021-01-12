@@ -56,7 +56,9 @@ class MainWindow(QtWidgets.QMainWindow):
 		self.btnExit.clicked.connect(self.btnExit_clicked)
 
 		# create table header
-		self.tbListTask.setHorizontalHeaderLabels(["ID", "ITEM", "CATEGORY", "COLOUR", "SIZE", "PROFILE", "TYPE", "PROXY", "STATUS"])
+		self.tbListTask.setHorizontalHeaderLabels(["ID", "ITEM", "CATEGORY", "COLOUR", "SIZE", "PROFILE", "TYPE", "PROXY", "STATUS", "DETAILS"])
+		self.tbListTask.setColumnHidden(0, True);
+		self.tbListTask.setColumnHidden(9, True);
 		self.loadTaskData()
 
 		# Start existing task
@@ -89,6 +91,7 @@ class MainWindow(QtWidgets.QMainWindow):
 			self.tbListTask.setItem(rows, 6, QTableWidgetItem(query.value(6)))
 			self.tbListTask.setItem(rows, 7, QTableWidgetItem(query.value(7)))
 			self.tbListTask.setItem(rows, 8, QTableWidgetItem(query.value(8)))
+			self.tbListTask.setItem(rows, 9, QTableWidgetItem(query.value(9)))
 
 	def btnProfileManager_clicked(self):
 		self.profileFrm = ProfileManager()

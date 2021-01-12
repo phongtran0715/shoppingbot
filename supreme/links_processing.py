@@ -5,13 +5,14 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import Select
 
 
-class Productions:
+class LinksProcessing:
 	def __init__(self):
 		self.checkout_url = 'https://www.supremenewyork.com/checkout'
-		self.webdriver_path="C:\\Users\\anhphong\\Downloads\\chromedriver.exe"
-		self.driver = webdriver.Chrome(executable_path=self.webdriver_path)
 
-	def process(self, url):
+	def process_links(self, url):
+		print("process link : " + str(url))
+		self.webdriver_path="C:\\Users\\anhphong\\Downloads\\chromedriver.exe"
+
 		# check link is active or sold-out
 		page = requests.get(url)
 		soup = BeautifulSoup(page.content, 'html.parser')
@@ -20,8 +21,9 @@ class Productions:
 		if str(results).find('sold-out') != -1:
 			print('This product is sold-out')
 			self.driver.close()
-			return False
+			return False, 'sold-out'
 
+		self.driver = webdriver.Chrome(executable_path=self.webdriver_path)
 		#  add to cart
 		self.driver.get(url)
 		add_button= self.driver.find_element_by_name('commit')
@@ -53,7 +55,11 @@ class Productions:
 		self.driver.find_elements_by_class_name('iCheck-helper')[1].click()
 		self.driver.find_element_by_name('commit').click()
 
+		delay = 3 # seconds
 		# TODO : validate checkout successful
+		self.driver.close()
+		return True, 'Success'
+
 
 
 
