@@ -4,10 +4,10 @@ from PyQt5.QtSql import QSqlDatabase, QSqlTableModel, QSqlQuery
 import os
 
 
-class ProfileManager(QtWidgets.QMainWindow):
+class ProfileController(QtWidgets.QMainWindow):
 	def __init__(self):
-		super(ProfileManager, self).__init__()
-		uic.loadUi(os.path.join("ui", "profile_manager.ui"), self)
+		super(ProfileController, self).__init__()
+		uic.loadUi(os.path.join("view", "profile_manager.ui"), self)
 		self.center()
 
 		self.db_conn = QSqlDatabase.database("supreme_db_conn", open=False)
@@ -70,7 +70,7 @@ class ProfileManager(QtWidgets.QMainWindow):
 			query.prepare("DELETE FROM profile WHERE id = ?")
 			query.addBindValue(profile_id)
 			if not query.exec():
-				QMessageBox.critical(self, "Supreme - Error!", 'Database Error: %s' % self.db_conn.lastError().databaseText(),)
+				QMessageBox.critical(self, "Supreme - Error!", 'Database Error: %s' % self.query.lastError().databaseText(),)
 			else:
 				self.loadProfileData()
 		else:
@@ -82,7 +82,7 @@ class ProfileManager(QtWidgets.QMainWindow):
 			query = QSqlQuery(self.db_conn)
 			query.prepare("DELETE FROM profile")
 			if not query.exec():
-				QMessageBox.critical(self, "Supreme - Error!", 'Database Error: %s' % self.db_conn.lastError().databaseText(),)
+				QMessageBox.critical(self, "Supreme - Error!", 'Database Error: %s' % self.query.lastError().databaseText(),)
 			else:
 				self.loadProfileData()
 
@@ -93,7 +93,7 @@ class ProfileManager(QtWidgets.QMainWindow):
 class NewProfile(QtWidgets.QDialog):
 	def __init__(self, mode='new', profile_id=None):
 		super(NewProfile, self).__init__()
-		uic.loadUi(os.path.join("ui", "new_profile_dialog.ui"), self)
+		uic.loadUi(os.path.join("view", "new_profile_dialog.ui"), self)
 		self.center()
 		self.mode = mode
 		self.profile_id = profile_id
@@ -175,7 +175,7 @@ class NewProfile(QtWidgets.QDialog):
 			query.addBindValue(self.txtCvv.text())
 			query.addBindValue(self.cbCardType.currentText())
 			if not query.exec():
-				QMessageBox.critical(self, "Supreme - Error!", 'Database Error: %s' % self.db_conn.lastError().databaseText(),)
+				QMessageBox.critical(self, "Supreme - Error!", 'Database Error: %s' % self.query.lastError().databaseText(),)
 			else:
 				self.close()
 		else:
@@ -218,6 +218,6 @@ class NewProfile(QtWidgets.QDialog):
 			query.addBindValue(self.cbCardType.currentText())
 			query.addBindValue(int(self.profile_id))
 			if not query.exec():
-				QMessageBox.critical(self, "Supreme - Error!", 'Database Error: %s' % self.db_conn.lastError().databaseText(),)
+				QMessageBox.critical(self, "Supreme - Error!", 'Database Error: %s' % self.query.lastError().databaseText(),)
 			else:
 				self.close()

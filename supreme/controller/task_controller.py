@@ -5,16 +5,18 @@ import time
 from PyQt5.QtSql import QSqlDatabase, QSqlTableModel, QSqlQuery
 from links_processing import LinksProcessing
 from keywords_processing import KeywordsProcessing
+from model.task_model import TaskModel
 
 
-class SupremeTaskManager:
-	def __init__(self):
+class TaskController():
+	def __init__(self, parentForm):
 		self.db_conn = QSqlDatabase.database("supreme_db_conn", open=False)
 		self.threadDict = {}
 		self.create_thread()
 		self.stop_thread = False
 		self.MAX_TRY_COUNT = 10
 		self.DELAY_TIME = 10 #second
+		self.parent = parentForm
 
 	def create_thread(self):
 		query = QSqlQuery("SELECT * FROM task WHERE status = 'Running'" , self.db_conn)
@@ -31,26 +33,21 @@ class SupremeTaskManager:
 			status = query.value(8)
 
 			thread = threading.Thread(target=self.do_task, args=(task_id, item, 
-				category, colour, size, profile, task_type, proxy, status))
+				category, colour, size, profile, task_type, proxy))
 			thread.deamon = True
 			self.threadDict[task_id] = thread
-
-	def run_all_task(self):
-		for key in self.threadDict:
-			print("Start task id: " + str(key))
-			self.threadDict[key].start()
-
-	def remove_all_task(self):
-		self.stop_thread = True
-
+			self.threadDict[task_id].start()
 
 	def do_task(self, task_id, item, 
-				category, colour, size, profile, task_type, proxy, status):
+			category, colour, size, profile, task_type, proxy):
+		print("do task...")
 		result = False
-		msg = ''
+		msg = 'unknow'
 		count = 1
+		print("task type : " + str(task_type))
 		if task_type == 'Links':
 			link_process_obj = LinksProcessing() 
+			print("000000")
 			while result:
 				if self.stop_thread:
 					break
@@ -74,42 +71,62 @@ class SupremeTaskManager:
 		else:
 			print('Task type is invalid!')
 			return
-
 		# Update task status
 		self.update_task_status(task_id, result, msg)
 
-	def add_new_task(self, task_id):
-		thread = threading.Thread(target=self.do_task, args=())
+	def run_all_task(self):
+		for key in self.threadDict:
+			print("Start task id: " + str(key))
+			if not self.threadDict[key].is_alive():
+				self.threadDict[key].start()
+
+	def remove_all_task(self):
+		print('Remove all task')
+		self.stop_thread = True
+		self.threadDict.clear()
+
+	def add_new_task(self, task_info):
+		print('Add new task id : ' + str(task_info.get_task_id()))
+		thread = threading.Thread(target=self.do_task, args=(task_info.get_task_id(),
+			task_info.get_item(),
+			task_info.get_category(),
+			task_info.get_colour(),
+			task_info.get_size(),
+			task_info.get_billing_profile(),
+			task_info.get_task_type(),
+			task_info.get_proxy()
+			))
 		thread.deamon = True
-		self.threadDict[task_id] = thread
-		print("Add new task id : {} to dict".format(task_id))
+		self.threadDict[task_info.get_task_id()] = thread
+		self.threadDict[task_info.get_task_id()].start()
+		print("Add new task id : {} to dict".format(task_info.get_task_id()))
 
 	def update_task(self, task_id):
-		if task_id in self.threadDict:
-			pass
+		print('Update task id : ' + str(task_id))
+		query = QSqlQuery("SELECT * FROM task WHERE id = " + str(task_id), self.db_conn)
+		if(query.next()):
+			status = query.value(8)
+			if task_id in self.threadDict:
+				pass
+				
 
 	def remove_task(self,task_id):
+		print('Remove task id : ' + str(task_id))
 		if task_id in self.threadDict:
 			del threadDict[task_id]
 			print("Removed task id : {} from dict".format(task_id))
 
 	def update_task_status(self, task_id, run_status, msg):
+		print("update task status : id : {} - status : {} - msg {}".format(task_id, run_status, msg))
 		status = 'FALSE'
 		if run_status:
 			status = 'SUCCESS'
 		query = QSqlQuery(self.db_conn)
-		query.prepare(
-				"""
-				UPDATE task SET 
-					status = ? ,
-					details = ?
-					WHERE id = ?
-				"""
-			)
-		query.addBindValue(status)
-		query.addBindValue(msg)
-		query.addBindValue(task_id)
+		query.prepare("UPDATE task SET status = ? WHERE id = ?")
+		query.addBindValue('abc')
+		query.addBindValue(22)
 		if not query.exec():
 			print('Can not update task status!')
+		# self.parent.updateTable()
 
 

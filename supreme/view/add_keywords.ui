@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>302</width>
-    <height>332</height>
+    <height>397</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -101,6 +101,9 @@
     </item>
     <item row="6" column="1" colspan="2">
      <widget class="QComboBox" name="cbStatus">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
       <item>
        <property name="text">
         <string>Stop</string>
@@ -282,7 +285,11 @@
      </widget>
     </item>
     <item row="7" column="1" rowspan="2" colspan="2">
-     <widget class="QPlainTextEdit" name="txtDetails"/>
+     <widget class="QPlainTextEdit" name="txtDetails">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
+     </widget>
     </item>
    </layout>
   </widget>

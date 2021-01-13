@@ -2,9 +2,10 @@ from PyQt5 import QtWidgets, uic, QtGui, QtCore
 from PyQt5.QtWidgets import *
 from PyQt5.QtSql import QSqlDatabase, QSqlTableModel, QSqlQuery
 from keywords import KeywordManager
-from profiles import ProfileManager
 from links import LinkManager
-from tasks import SupremeTaskManager
+from controller.task_controller import TaskController
+from controller.profile_controller import ProfileController
+from model.task_model import TaskModel
 import sys
 import os
 import logging
@@ -24,7 +25,7 @@ class QTextEditLogger(logging.Handler):
 class MainWindow(QtWidgets.QMainWindow):
 	def __init__(self):
 		super(MainWindow, self).__init__()
-		uic.loadUi(os.path.join("ui", "supreme.ui"), self)
+		uic.loadUi(os.path.join("view", "supreme.ui"), self)
 		self.center()
 
 		# custom console text box
@@ -62,7 +63,7 @@ class MainWindow(QtWidgets.QMainWindow):
 		self.loadTaskData()
 
 		# Start existing task
-		self.task_manager = SupremeTaskManager()
+		self.task_manager = TaskController(self)
 		self.task_manager.run_all_task()
 
 
@@ -94,7 +95,7 @@ class MainWindow(QtWidgets.QMainWindow):
 			self.tbListTask.setItem(rows, 9, QTableWidgetItem(query.value(9)))
 
 	def btnProfileManager_clicked(self):
-		self.profileFrm = ProfileManager()
+		self.profileFrm = ProfileController()
 		self.profileFrm.show()
 
 	def actionProfileManaget_triggered(self):
@@ -116,21 +117,32 @@ class MainWindow(QtWidgets.QMainWindow):
 	def btnStart_clicked(self):
 		index = self.tbListTask.currentRow()
 		if index >= 0:
-			task_index = self.tbListTask.item(index, 0).text()
-			task_status = self.tbListTask.item(index, 8).text()
-			if task_status == 'Running':
+			task_info = TaskModel(
+				self.tbListTask.item(index, 0).text(),
+				self.tbListTask.item(index, 1).text(),
+				self.tbListTask.item(index, 2).text(),
+				self.tbListTask.item(index, 3).text(),
+				self.tbListTask.item(index, 4).text(),
+				self.tbListTask.item(index, 4).text(),
+				self.tbListTask.item(index, 6).text(),
+				self.tbListTask.item(index, 7).text(),
+				self.tbListTask.item(index, 8).text())
+			if task_info.get_status() == 'Running':
 				QMessageBox.critical(self, "Supreme", 'Task have already running!',)
 			else:	
-				# TODO: run this task
+				# run this task
+				self.task_manager.add_new_task(task_info)
+
+				# udpate database
 				query = QSqlQuery(db_conn)
 				query.prepare("UPDATE task SET status = ? WHERE id = ?")
 				query.addBindValue('Running')
-				query.addBindValue(task_index)
+				query.addBindValue(task_info.get_task_id())
 				if not query.exec():
-					QMessageBox.critical(self, "Supreme - Error!", 'Database Error: %s' % db_conn.lastError().databaseText(),)
-					logging.info("Start task id {} false".format(task_index))
+					QMessageBox.critical(self, "Supreme - Error!", 'Database Error: %s' % query.lastError().databaseText(),)
+					logging.info("Start task id {} false".format(task_info.get_task_id()))
 				else:
-					logging.info("Start task id {} successful".format(task_index))
+					logging.info("Start task id {} successful".format(task_info.get_task_id()))
 					self.loadTaskData()
 		else:
 			QMessageBox.critical(self, "Supreme", 'You must select one row!',)
@@ -138,6 +150,9 @@ class MainWindow(QtWidgets.QMainWindow):
 	def btnStartAll_clicked(self):
 		ret = QMessageBox.question(self, 'MessageBox', "Do you want to start all task?", QMessageBox.Yes | QMessageBox.No )
 		if ret == QMessageBox.Yes:
+			#  run all task
+			self.task_manager.run_all_task()
+			# update database
 			for row in range(self.tbListTask.rowCount()): 
 				task_index = self.tbListTask.item(row, 0)
 				task_status = self.tbListTask.item(row, 8)
@@ -147,7 +162,7 @@ class MainWindow(QtWidgets.QMainWindow):
 					query.addBindValue('Running')
 					query.addBindValue(task_index)
 					if not query.exec():
-						QMessageBox.critical(self, "Supreme - Error!", 'Database Error: %s' % db_conn.lastError().databaseText(),)
+						QMessageBox.critical(self, "Supreme - Error!", 'Database Error: %s' % query.lastError().databaseText(),)
 						logging.info("Start task id {} false".format(task_index))
 					else:
 						logging.info("Start task id {} successful".format(task_index))
@@ -157,20 +172,23 @@ class MainWindow(QtWidgets.QMainWindow):
 	def btnStop_clicked(self):
 		index = self.tbListTask.currentRow()
 		if index >= 0:
-			task_index = self.tbListTask.item(index, 0).text()
+			task_id = self.tbListTask.item(index, 0).text()
 			task_status = self.tbListTask.item(index, 8).text()
 			if task_status == 'Stop':
 				QMessageBox.critical(self, "Supreme", 'Task have already stopped!',)
 			else:
+				# stop task
+				self.task_manager.remove_task()
+				# update datbase
 				query = QSqlQuery(db_conn)
 				query.prepare("UPDATE task SET status = ? WHERE id = ?")
 				query.addBindValue('Stop')
-				query.addBindValue(task_index)
+				query.addBindValue(task_id)
 				if not query.exec():
-					QMessageBox.critical(self, "Supreme - Error!", 'Database Error: %s' % db_conn.lastError().databaseText(),)
-					logging.info("Start task id {} false".format(task_index))
+					QMessageBox.critical(self, "Supreme - Error!", 'Database Error: %s' % query.lastError().databaseText(),)
+					logging.info("Start task id {} false".format(task_id))
 				else:
-					logging.info("Stop task id {} successful".format(task_index))
+					logging.info("Stop task id {} successful".format(task_id))
 					self.loadTaskData()
 		else:
 			QMessageBox.critical(self, "Supreme", 'You must select one task!',)
@@ -178,45 +196,57 @@ class MainWindow(QtWidgets.QMainWindow):
 	def btnStopAll_clicked(self):
 		ret = QMessageBox.question(self, 'MessageBox', "Do you want to stop all task?", QMessageBox.Yes | QMessageBox.No )
 		if ret == QMessageBox.Yes:
+			# stop all task
+			self.task_manager.remove_all_task()
+			# update database
 			for row in range(self.tbListTask.rowCount()): 
-				task_index = self.tbListTask.item(row, 0)
+				task_id = self.tbListTask.item(row, 0)
 				task_status = self.tbListTask.item(row, 8)
 				if task_status == 'Running':
 					query = QSqlQuery(db_conn)
 					query.prepare("UPDATE task SET status = ? WHERE id = ?")
 					query.addBindValue('Stop')
-					query.addBindValue(task_index)
+					query.addBindValue(task_id)
 					if not query.exec():
-						QMessageBox.critical(self, "Supreme - Error!", 'Database Error: %s' % db_conn.lastError().databaseText(),)
-						logging.info("Start task id {} false".format(task_index))
+						QMessageBox.critical(self, "Supreme - Error!", 'Database Error: %s' % query.lastError().databaseText(),)
+						logging.info("Start task id {} false".format(task_id))
 					else:
-						logging.info("Stop task id {} successful".format(task_index))
+						logging.info("Stop task id {} successful".format(task_id))
 			self.loadTaskData()
 
 	def btnEdit_clicked(self):
 		index = self.tbListTask.currentRow()
 		if index >= 0:
-			task_index = self.tbListTask.item(index, 0).text()
+			# Check status, only edit if status != Running
+			task_status = self.tbListTask.item(index, 0).text()
+			task_id = self.tbListTask.item(index, 0).text()
 			task_type = self.tbListTask.item(index, 6).text()
-			task_data = (self.tbListTask.item(index, 1).text(),
+			task_info = TaskModel(
+				self.tbListTask.item(index, 0).text(),
+				self.tbListTask.item(index, 1).text(),
 				self.tbListTask.item(index, 2).text(),
 				self.tbListTask.item(index, 3).text(),
 				self.tbListTask.item(index, 4).text(),
 				self.tbListTask.item(index, 5).text(),
 				self.tbListTask.item(index, 7).text(),
-				self.tbListTask.item(index, 8).text(),
-				)
+				self.tbListTask.item(index, 8).text())
 			if task_type == 'Keywords':
-				self.keywordFrm = KeywordManager('modify', task_index)
-				self.keywordFrm.loadKeywordData(task_data)
+				self.keywordFrm = KeywordManager('modify', task_id)
+				self.keywordFrm.loadKeywordData(task_info)
 				if self.keywordFrm.exec_() == QtWidgets.QDialog.Accepted:
 					self.keywordFrm.updateKeyword()
+					# update task manager
+					self.task_manager.update_task(task_id)
+					# reload table
 					self.loadTaskData()
 			elif task_type == 'Links':
-				self.linkFrm = LinkManager('modify', task_index)
-				self.linkFrm.loadLinkData(task_data)
+				self.linkFrm = LinkManager('modify', task_id)
+				self.linkFrm.loadLinkData(task_info)
 				if self.linkFrm.exec_() == QtWidgets.QDialog.Accepted:
 					self.linkFrm.updateLink()
+					# update task manager
+					self.task_manager.update_task(task_id)
+					# reload table
 					self.loadTaskData()
 			else:
 				pass
@@ -226,16 +256,20 @@ class MainWindow(QtWidgets.QMainWindow):
 	def btnDelete_clicked(self):
 		index = self.tbListTask.currentRow()
 		if index >= 0:
+			# reload table
 			task_id = self.tbListTask.item(index, 0).text()
 			query = QSqlQuery(db_conn)
 			query.prepare("DELETE FROM task WHERE id = ?")
 			query.addBindValue(task_id)
 			if not query.exec():
-				QMessageBox.critical(self, "Supreme - Error!", 'Database Error: %s' % db_conn.lastError().databaseText(),)
+				QMessageBox.critical(self, "Supreme - Error!", 'Database Error: %s' % query.lastError().databaseText(),)
 				logging.info("Delete task id {} false".format(task_index))
 			else:
 				logging.info("Delete task id {} successful".format(task_index))
 				self.loadTaskData()
+
+				# update task manager
+				self.task_manager.remove_task(task_id)
 		else:
 			QMessageBox.critical(self, "Supreme - Error!", 'You must select one task to delete!',)
 
@@ -245,15 +279,21 @@ class MainWindow(QtWidgets.QMainWindow):
 			query = QSqlQuery(db_conn)
 			query.prepare("DELETE FROM task")
 			if not query.exec():
-				QMessageBox.critical(self, "Supreme - Error!", 'Database Error: %s' % db_conn.lastError().databaseText(),)
+				QMessageBox.critical(self, "Supreme - Error!", 'Database Error: %s' % query.lastError().databaseText(),)
 				logging.info("Delete task id {} false".format(task_index))
 			else:
 				logging.info("Delete task id {} successful".format(task_index))
 				self.loadTaskData()
 
+				# update task manager
+				self.task_manager.remove_all_task()
+
 	def btnExit_clicked(self):
 		self.close()
 
+	def updateTable(self):
+		print('Update task table...')
+		self.loadTaskData()
 
 if __name__ == "__main__":
 	app = QtWidgets.QApplication(sys.argv)

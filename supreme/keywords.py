@@ -7,7 +7,7 @@ import os
 class KeywordManager(QtWidgets.QDialog):
 	def __init__(self, mode='new', task_id=None):
 		super(KeywordManager, self).__init__()
-		uic.loadUi(os.path.join("ui", "new_keyword_dialog.ui"), self)
+		uic.loadUi(os.path.join("view", "new_keyword_dialog.ui"), self)
 		self.center()
 		self.mode = mode
 		self.task_id = task_id
@@ -23,28 +23,30 @@ class KeywordManager(QtWidgets.QDialog):
 		qr.moveCenter(cp)
 		self.move(qr.topLeft())
 
-	def loadKeywordData(self, task_data):
-		self.txtKeyword.setPlainText(task_data[0])
+	def loadKeywordData(self, task_info):
+		self.task_id = task_info.get_task_id()
 
-		index = self.cbCategory.findText(task_data[1], QtCore.Qt.MatchFixedString)
+		self.txtKeyword.setPlainText(task_info.get_item())
+
+		index = self.cbCategory.findText(task_info.get_category(), QtCore.Qt.MatchFixedString)
 		if index >= 0:
 			self.cbCategory.setCurrentIndex(index)
 
-		index = self.cbSize.findText(task_data[2], QtCore.Qt.MatchFixedString)
+		index = self.cbSize.findText(task_info.get_size(), QtCore.Qt.MatchFixedString)
 		if index >= 0:
 			self.cbSize.setCurrentIndex(index)
 
-		index = self.cbColor.findText(task_data[3], QtCore.Qt.MatchFixedString)
+		index = self.cbColor.findText(task_info.get_colour(), QtCore.Qt.MatchFixedString)
 		if index >= 0:
 			self.cbColor.setCurrentIndex(index)
 
-		index = self.cbProfile.findText(task_data[4], QtCore.Qt.MatchFixedString)
+		index = self.cbProfile.findText(task_info.get_billing_profile(), QtCore.Qt.MatchFixedString)
 		if index >= 0:
 			self.cbProfile.setCurrentIndex(index)
 
-		self.txtProxy.setText(task_data[5])
+		self.txtProxy.setText(task_info.get_proxy())
 
-		index = self.cbStatus.findText(task_data[6], QtCore.Qt.MatchFixedString)
+		index = self.cbStatus.findText(task_info.get_status(), QtCore.Qt.MatchFixedString)
 		if index >= 0:
 			self.cbStatus.setCurrentIndex(index)
 
@@ -61,7 +63,7 @@ class KeywordManager(QtWidgets.QDialog):
 						billing_profile,
 						type,
 						proxy,
-						status
+						status,
 					)
 					VALUES (?, ?, ?, ?, ?, ?, ?, ?)
 					"""
@@ -75,7 +77,7 @@ class KeywordManager(QtWidgets.QDialog):
 			query.addBindValue(self.txtProxy.text())
 			query.addBindValue('Stop')
 			if not query.exec():
-				QMessageBox.critical(self, "Supreme - Error!", 'Database Error: %s' % self.db_conn.lastError().databaseText(),)
+				QMessageBox.critical(self, "Supreme - Error!", 'Database Error: {}'.format(self.query.lastError().databaseText()),)
 			else:
 				self.close()
 		else:
@@ -104,6 +106,6 @@ class KeywordManager(QtWidgets.QDialog):
 			query.addBindValue(self.cbStatus.currentText())
 			query.addBindValue(self.task_id)
 			if not query.exec():
-				QMessageBox.critical(self, "Supreme - Error!", 'Database Error: %s' % self.db_conn.lastError().databaseText(),)
+				QMessageBox.critical(self, "Supreme - Error!", 'Database Error: %s' % self.query.lastError().databaseText(),)
 			else:
 				self.close()

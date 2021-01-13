@@ -10,6 +10,7 @@ class LinksProcessing:
 		self.checkout_url = 'https://www.supremenewyork.com/checkout'
 
 	def process_links(self, url):
+		return True, 'Success'
 		print("process link : " + str(url))
 		self.webdriver_path="C:\\Users\\anhphong\\Downloads\\chromedriver.exe"
 
