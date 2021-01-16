@@ -41,19 +41,18 @@ class TaskController():
 	def do_task(self, task_id, item, 
 			category, colour, size, profile, task_type, proxy):
 		print("do task...")
-		result = False
+		result = True
 		msg = 'unknow'
 		count = 1
 		print("task type : " + str(task_type))
 		if task_type == 'Links':
 			link_process_obj = LinksProcessing() 
-			print("000000")
 			while result:
 				if self.stop_thread:
 					break
 				result , msg = link_process_obj.process_links(item)
-				print("(count = {})task id: {} result {}".format(count, task_id, result))
-				if count > 10:
+				print("(count = {})task id: {} - result {} - message {}".format(count, task_id, result, msg))
+				if count > 3:
 					break
 				count += 1
 				time.sleep(10) # seconds
@@ -113,7 +112,7 @@ class TaskController():
 	def remove_task(self,task_id):
 		print('Remove task id : ' + str(task_id))
 		if task_id in self.threadDict:
-			del threadDict[task_id]
+			del self.threadDict[task_id]
 			print("Removed task id : {} from dict".format(task_id))
 
 	def update_task_status(self, task_id, run_status, msg):
@@ -127,6 +126,6 @@ class TaskController():
 		query.addBindValue(22)
 		if not query.exec():
 			print('Can not update task status!')
-		# self.parent.updateTable()
+		self.parent.updateTable()
 
 

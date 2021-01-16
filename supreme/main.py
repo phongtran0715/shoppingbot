@@ -123,7 +123,7 @@ class MainWindow(QtWidgets.QMainWindow):
 				self.tbListTask.item(index, 2).text(),
 				self.tbListTask.item(index, 3).text(),
 				self.tbListTask.item(index, 4).text(),
-				self.tbListTask.item(index, 4).text(),
+				self.tbListTask.item(index, 5).text(),
 				self.tbListTask.item(index, 6).text(),
 				self.tbListTask.item(index, 7).text(),
 				self.tbListTask.item(index, 8).text())
@@ -178,7 +178,7 @@ class MainWindow(QtWidgets.QMainWindow):
 				QMessageBox.critical(self, "Supreme", 'Task have already stopped!',)
 			else:
 				# stop task
-				self.task_manager.remove_task()
+				self.task_manager.remove_task(task_id)
 				# update datbase
 				query = QSqlQuery(db_conn)
 				query.prepare("UPDATE task SET status = ? WHERE id = ?")
@@ -228,6 +228,7 @@ class MainWindow(QtWidgets.QMainWindow):
 				self.tbListTask.item(index, 3).text(),
 				self.tbListTask.item(index, 4).text(),
 				self.tbListTask.item(index, 5).text(),
+				self.tbListTask.item(index, 6).text(),
 				self.tbListTask.item(index, 7).text(),
 				self.tbListTask.item(index, 8).text())
 			if task_type == 'Keywords':

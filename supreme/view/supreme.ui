@@ -13,12 +13,17 @@
     <height>625</height>
    </rect>
   </property>
+  <property name="font">
+   <font>
+    <pointsize>11</pointsize>
+   </font>
+  </property>
   <property name="windowTitle">
-   <string>Supreme</string>
+   <string>Shopping Bot</string>
   </property>
   <property name="windowIcon">
    <iconset>
-    <normaloff>../../../../../../../../.designer/backup/images/supreme-icon.png</normaloff>../../../../../../../../.designer/backup/images/supreme-icon.png</iconset>
+    <normaloff>C:/Users/Admin/Downloads/34649764Untitled-3-512.png</normaloff>C:/Users/Admin/Downloads/34649764Untitled-3-512.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QHBoxLayout" name="horizontalLayout">
@@ -127,6 +132,11 @@
         </item>
         <item row="2" column="4">
          <widget class="QPushButton" name="btnStart">
+          <property name="font">
+           <font>
+            <pointsize>11</pointsize>
+           </font>
+          </property>
           <property name="text">
            <string>Start</string>
           </property>
@@ -233,7 +243,7 @@
      <x>0</x>
      <y>0</y>
      <width>1239</width>
-     <height>25</height>
+     <height>26</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFIle">
