@@ -78,7 +78,7 @@
               <bool>true</bool>
              </property>
              <property name="columnCount">
-              <number>9</number>
+              <number>10</number>
              </property>
              <attribute name="horizontalHeaderVisible">
               <bool>true</bool>
@@ -95,6 +95,7 @@
              <attribute name="verticalHeaderHighlightSections">
               <bool>true</bool>
              </attribute>
+             <column/>
              <column/>
              <column/>
              <column/>
