@@ -33,7 +33,7 @@ def get_stock(proxy):
 
     return stock
 
-def retrieve_item_id(proxy, category, positive_keywords, negative_keywords, task_name, screenlock):
+def retrieve_item_id(proxy, category, positive_keywords):
     """
     Until item's id is found, get all stock and compare it
     against our positive and negative keywords.
@@ -41,13 +41,13 @@ def retrieve_item_id(proxy, category, positive_keywords, negative_keywords, task
 
     while True:
         stock = get_stock(proxy)
-        item_id = parse_for_ids(stock, category, positive_keywords, negative_keywords, task_name, screenlock)
+        item_id = parse_for_ids(stock, category, positive_keywords)
         if item_id:
             return item_id
         
         time.sleep(0.75)
         
-def retrieve_style_ids(item_id, size, style, proxy, task_name, screenlock):
+def retrieve_style_ids(item_id, size, style, proxy):
     """
     Once we find the item_id, we know our item exists in Supreme's stock endpoint.
     If the item is out of stock, we waiting until it restocks.
@@ -56,20 +56,19 @@ def retrieve_style_ids(item_id, size, style, proxy, task_name, screenlock):
 
     oos = False
     while True:
-        style_return = parse_for_styles(item_id, size, style, proxy, task_name, screenlock)
+        style_return = parse_for_styles(item_id, size, style, proxy)
         if style_return != "oos":
             size_id = style_return[0]
             style_id = style_return[1]
             return size_id, style_id
         elif not oos:
-            with screenlock:
-                print(colored(f"{task_name}: Waiting for Restock", "red"))
+            print(colored(f": Waiting for Restock", "red"))
             oos = True
 
 
-def return_item_ids(positive_keywords, negative_keywords, category, size, style, proxy, task_name, screenlock):
-    item_id = retrieve_item_id(proxy, category, positive_keywords, negative_keywords, task_name, screenlock)
-    size_id, style_id =  retrieve_style_ids(item_id, size, style, proxy, task_name, screenlock)
+def find_item_ids(positive_keywords, category, size, style, proxy):
+    item_id = retrieve_item_id(proxy, category, positive_keywords)
+    size_id, style_id =  retrieve_style_ids(item_id, size, style, proxy)
     return item_id, size_id, style_id
 
 def check_positive_keywords(itemname, positive_keywords):
@@ -85,26 +84,9 @@ def check_positive_keywords(itemname, positive_keywords):
             return False
     return True
 
-def check_negative_keywords(itemname, negative_keywords):
-    """
-    Negative keywords are opposite to positive keywords.
-    First, check whether the user supplied negative keywords.
-    If they did, check if they are in the itemname and return False if they are found.
-    If the negative keywords are not found in the itemname,
-    or there are no negative keywords, we've found the item we want,
-    and return True.
-    """
-
-    if negative_keywords:
-        for keywords in negative_keywords:
-            if keywords.lower() in itemname:
-                return False
-    return True
-
-def check_pos_neg(itemname, positive_keywords, negative_keywords):
+def check_pos_neg(itemname, positive_keywords):
     if check_positive_keywords(itemname, positive_keywords):
-        if check_negative_keywords(itemname, negative_keywords):
-            return True
+        return True
 
 def find_category_lookup_table(category):
     """
@@ -147,7 +129,7 @@ def find_category_with_stock(stock, task_category):
         return category
     
 
-def return_category(stock, user_category, task_name, screenlock):
+def return_category(stock, user_category):
     """
     Return category if found with either find_category_lookup_table or find_category_with_stock.
     If it can't be found, stop the program as it can't go further. 
@@ -161,20 +143,18 @@ def return_category(stock, user_category, task_name, screenlock):
         if category:
             return category
         else:
-            with screenlock:
-                print(colored(f"{task_name}: Task exiting, category could not be found", "red"))
-            sys.exit()
+            print(colored(f": Task exiting, category could not be found", "red"))
 
-def parse_for_ids(stock, task_category, positive_keywords, negative_keywords, task_name, screenlock):
+def parse_for_ids(stock, task_category, positive_keywords):
     """
     For each item in a specific category, check if the user's
     positive and negative keywords are within the itemname
     """
 
-    category = return_category(stock, task_category, task_name, screenlock)
+    category = return_category(stock, task_category)
     for item in stock["products_and_categories"][category]:
         itemname = item["name"].lower()
-        if check_pos_neg(itemname, positive_keywords, negative_keywords):
+        if check_pos_neg(itemname, positive_keywords):
             return item["id"]
 
 
@@ -207,7 +187,7 @@ def get_item_variants(item_id, proxy):
 
     return item_variants
  
-def parse_for_styles(item_id, size, style, proxy, task_name, screenlock):
+def parse_for_styles(item_id, size, style, proxy):
     """
     Get all of the different styles and colors for a specific item.
     Then attempt to find a matching size and style. 
@@ -224,7 +204,5 @@ def parse_for_styles(item_id, size, style, proxy, task_name, screenlock):
                     else:
                         time.sleep(0.75)
                         return "oos"
-    with screenlock:
-        print(colored(f"{task_name}: Task exiting, could not find style or size", "red")) 
-    sys.exit()
+    print(colored(f": Task exiting, could not find style or size", "red")) 
 

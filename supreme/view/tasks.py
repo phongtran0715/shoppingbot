@@ -1,11 +1,10 @@
-import threading
 import sys
 import os
 import time
 from PyQt5.QtSql import QSqlDatabase, QSqlTableModel, QSqlQuery
 from PyQt5.QtCore import QObject, QThread, pyqtSignal
-from links_processing import LinksProcessing
-from keywords_processing import KeywordsProcessing
+from view.link.links_processing import LinksProcessing
+from view.keyword.keywords_processing import KeywordsProcessing
 from model.task_model import TaskModel
 
 # Create a worker class
@@ -33,16 +32,17 @@ class Worker(QObject):
 		print("task type : " + str(self.task_type))
 		if self.task_type == 'Links':
 			while True:
-				result , msg = LinksProcessing().process_links(self.item)
+				link_process = LinksProcessing(self.item, self.category, self.colour, self.size, self.profile, self.proxy)
+				result , msg = link_process.process_links()
 				print("(count = {})task id: {} - result {} - message {}".format(count, self.task_id, result, msg))
 				if result or count > 3:
 					break
 				count += 1
 				time.sleep(10) # seconds
 		elif self.task_type == 'Keywords':
-			keyword_process_obj = KeywordsProcessing()
+			keyword_process_obj = KeywordsProcessing(self.item, self.category, self.colour, self.size, self.profile, self.proxy)
 			while True:
-				result , msg = keyword_process_obj.process_keyword(self.item)
+				result , msg = keyword_process_obj.process_keyword()
 				print("count({})task id: {} result {}".format(count, self.task_id, result))
 				if result or count > 3:
 					break
@@ -56,7 +56,7 @@ class Worker(QObject):
 		self.finished.emit()
 
 
-class TaskController():
+class TaskManager():
 	def __init__(self, parentForm):
 		self.db_conn = QSqlDatabase.database("supreme_db_conn", open=False)
 		self.threadDict = {}

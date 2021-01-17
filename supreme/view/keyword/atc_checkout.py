@@ -4,7 +4,7 @@ import time
 from termcolor import colored
 from .get_params import get_params
 
-def add_to_cart(item_id, size_id, style_id, task_name, screenlock):
+def add_to_cart(item_id, size_id, style_id):
     """
     Add an item to cart with a specific item_id, size_id, and style_id.
     Only return session object if item added to cart properly.
@@ -37,8 +37,6 @@ def add_to_cart(item_id, size_id, style_id, task_name, screenlock):
     atc_post = s.post(atc_url, headers=headers, data=data)
     if atc_post.json():
         if atc_post.json()['cart'][0]["in_stock"]:
-            with screenlock:
-                print(colored(f"{task_name}: Added to Cart", "blue"))
             return s 
 
 def make_checkout_parameters(s, profile, proxy, headers):
@@ -64,7 +62,7 @@ def make_checkout_parameters(s, profile, proxy, headers):
     else:
         return checkout_params
 
-def send_checkout_request(s, profile, delay, proxy, task_name, start_checkout_time, screenlock):
+def send_checkout_request(s, profile, delay, proxy, start_checkout_time):
     """
     Sleep for the length of the checkout delay,
     then send the checkout request with or without proxies.
@@ -96,8 +94,7 @@ def send_checkout_request(s, profile, delay, proxy, task_name, start_checkout_ti
         checkout_request = s.post("https://www.supremenewyork.com/checkout.json", headers=headers, proxies=proxies, data=checkout_params)
     total_checkout_time = round(time.time() - start_checkout_time, 2)
 
-    with screenlock:
-        print(colored(f"{task_name}: Sent Checkout Data ({total_checkout_time} seconds)", "magenta"))
+    print(colored(f": Sent Checkout Data ({total_checkout_time} seconds)", "magenta"))
     return checkout_request
 
 def get_slug_status(s, proxy, slug):
@@ -170,13 +167,13 @@ def get_order_status(s, proxy, checkout_request, task_name, screenlock):
         if status != "failed":
             return True
         
-def checkout(s, profile, delay, proxy, task_name, start_checkout_time, screenlock):
+def checkout(s, profile, delay, proxy, start_checkout_time):
     """
     Send the checkout request, monitor the status of the order,
     and stop the program upon a successful purchase.
     """
-    checkout_request = send_checkout_request(s, profile, delay, proxy, task_name, start_checkout_time, screenlock)
-    if get_order_status(s, proxy, checkout_request, task_name, screenlock):
+    checkout_request = send_checkout_request(s, profile, delay, proxy, start_checkout_time)
+    if get_order_status(s, proxy, checkout_request):
         return True
     
 

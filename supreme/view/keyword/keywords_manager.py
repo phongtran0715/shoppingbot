@@ -4,10 +4,11 @@ from PyQt5.QtSql import QSqlDatabase, QSqlTableModel, QSqlQuery
 import os
 
 
-class LinkManager(QtWidgets.QDialog):
+class KeywordManager(QtWidgets.QDialog):
 	def __init__(self, mode='new', task_id=None):
-		super(LinkManager, self).__init__()
-		uic.loadUi(os.path.join("view", "new_link_dialog.ui"), self)
+		super(KeywordManager, self).__init__()
+		dirname = os.path.dirname(__file__)
+		uic.loadUi(os.path.join(dirname, "../ui", "new_keyword_dialog.ui"), self)
 		self.center()
 		self.mode = mode
 		self.task_id = task_id
@@ -23,14 +24,14 @@ class LinkManager(QtWidgets.QDialog):
 		qr.moveCenter(cp)
 		self.move(qr.topLeft())
 
-	def loadLinkData(self, task_info):
+	def loadKeywordData(self, task_info):
 		self.task_id = task_info.get_task_id()
 
-		self.txtLink.setPlainText(task_info.get_item())
+		self.txtKeyword.setPlainText(task_info.get_item())
 
-		# index = self.cbCategory.findText(task_data[1], QtCore.Qt.MatchFixedString)
-		# if index >= 0:
-		# 	self.cbCategory.setCurrentIndex(index)
+		index = self.cbCategory.findText(task_info.get_category(), QtCore.Qt.MatchFixedString)
+		if index >= 0:
+			self.cbCategory.setCurrentIndex(index)
 
 		index = self.cbSize.findText(task_info.get_size(), QtCore.Qt.MatchFixedString)
 		if index >= 0:
@@ -50,7 +51,7 @@ class LinkManager(QtWidgets.QDialog):
 		if index >= 0:
 			self.cbStatus.setCurrentIndex(index)
 
-	def updateLink(self):
+	def updateKeyword(self):
 		if self.mode == 'new':
 			query = QSqlQuery(self.db_conn)
 			query.prepare(
@@ -68,16 +69,16 @@ class LinkManager(QtWidgets.QDialog):
 					VALUES (?, ?, ?, ?, ?, ?, ?, ?)
 					"""
 				)
-			query.addBindValue(self.txtLink.toPlainText())
-			query.addBindValue('')
+			query.addBindValue(self.txtKeyword.toPlainText())
+			query.addBindValue(self.cbCategory.currentText())
 			query.addBindValue(self.cbSize.currentText())
 			query.addBindValue(self.cbColor.currentText())
 			query.addBindValue(self.cbProfile.currentText())
-			query.addBindValue('Links')
+			query.addBindValue('Keywords')
 			query.addBindValue(self.txtProxy.text())
 			query.addBindValue('Stop')
 			if not query.exec():
-				QMessageBox.critical(self, "Supreme - Error!", 'Database Error: %s' % self.query.lastError().databaseText(),)
+				QMessageBox.critical(self, "Supreme - Error!", 'Database Error: {}'.format(query.lastError().databaseText()),)
 			else:
 				self.close()
 		else:
@@ -96,12 +97,12 @@ class LinkManager(QtWidgets.QDialog):
 						WHERE id = ?
 					"""
 				)
-			query.addBindValue(self.txtLink.toPlainText())
-			query.addBindValue('')
+			query.addBindValue(self.txtKeyword.toPlainText())
+			query.addBindValue(self.cbCategory.currentText())
 			query.addBindValue(self.cbSize.currentText())
 			query.addBindValue(self.cbColor.currentText())
 			query.addBindValue(self.cbProfile.currentText())
-			query.addBindValue('Links')
+			query.addBindValue('Keywords')
 			query.addBindValue(self.txtProxy.text())
 			query.addBindValue(self.cbStatus.currentText())
 			query.addBindValue(self.task_id)

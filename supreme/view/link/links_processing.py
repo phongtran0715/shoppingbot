@@ -7,16 +7,29 @@ from selenium.common.exceptions import NoSuchElementException, TimeoutException
 
 
 class LinksProcessing:
-	def __init__(self):
+	def __init__(self, url, category, colour, size, profile, proxy):
 		self.checkout_url = 'https://www.supremenewyork.com/checkout'
 		# https://chromedriver.storage.googleapis.com/index.html?path=87.0.4280.88/
 		self.webdriver_path="E:\\Program\\chromedriver.exe"
-		self.driver = webdriver.Chrome(executable_path=self.webdriver_path)
+		# check proxy
+		if proxy is not None:
+			chrome_options = webdriver.ChromeOptions()
+			chrome_options.add_argument('--proxy-server=http://%s' % proxy)
+			self.driver = webdriver.Chrome(executable_path=self.webdriver_path, chrome_options=chrome_options)
+		else:
+			self.driver = webdriver.Chrome(executable_path=self.webdriver_path)
 
-	def process_links(self, url):
-		print("process link : " + str(url))
+		self.url = url
+		self.category = category
+		self.coloue = colour
+		self.size = size
+		self.profile = profile
+		self.proxy = proxy
+
+	def process_links(self):
+		print("process link : " + str(self.url))
 		# check link is active or sold-out
-		page = requests.get(url)
+		page = requests.get(self.url)
 		soup = BeautifulSoup(page.content, 'html.parser')
 		results = soup.find(id='add-remove-buttons')
 		print("result : " + str(results))
@@ -26,10 +39,11 @@ class LinksProcessing:
 			return False, 'Product is soldout'
 
 		# add to card
-		add_cart_result = self.add_to_cart(url)
+		# TODO: select coloue and size
+		add_cart_result = self.add_to_cart(self.url)
 		# Check out
 		if add_cart_result:
-			checkout_result = self.checkout(url)
+			checkout_result = self.checkout(self.url)
 			if checkout_result == False:
 				self.driver.close()
 				return False, 'Checkout false!'
@@ -40,9 +54,9 @@ class LinksProcessing:
 		self.driver.close()
 		return True, 'Success'
 
-	def add_to_cart(self, url):
+	def add_to_cart(self):
 		try:
-			self.driver.get(url)
+			self.driver.get(self.url)
 			add_button= self.driver.find_element_by_name('commit')
 			add_button.click()
 			delay = 3
@@ -58,7 +72,7 @@ class LinksProcessing:
 			print("Can not add product to card")
 			return False
 
-	def checkout(self, url):
+	def checkout(self):
 		try:
 			self.driver.find_element_by_xpath("//a[contains(@href,'https://www.supremenewyork.com/checkout')]").click()
 			delay = 3 # seconds
