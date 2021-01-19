@@ -39,13 +39,10 @@ def retrieve_item_id(proxy, category, positive_keywords):
     against our positive and negative keywords.
     """
 
-    while True:
-        stock = get_stock(proxy)
-        item_id = parse_for_ids(stock, category, positive_keywords)
-        if item_id:
-            return item_id
-        
-        time.sleep(0.75)
+    item_id = None
+    stock = get_stock(proxy)
+    item_id = parse_for_ids(stock, category, positive_keywords)
+    return item_id
         
 def retrieve_style_ids(item_id, size, style, proxy):
     """
@@ -54,16 +51,14 @@ def retrieve_style_ids(item_id, size, style, proxy):
     Otherwise, we pass off item_ids. 
     """
 
-    oos = False
-    while True:
-        style_return = parse_for_styles(item_id, size, style, proxy)
-        if style_return != "oos":
-            size_id = style_return[0]
-            style_id = style_return[1]
-            return size_id, style_id
-        elif not oos:
-            print(colored(f": Waiting for Restock", "red"))
-            oos = True
+    size_id = None
+    style_id = None
+    style_return = parse_for_styles(item_id, size, style, proxy)
+    
+    if style_return is not None and style_return != "oos":
+        size_id = style_return[0]
+        style_id = style_return[1]
+    return size_id, style_id
 
 
 def find_item_ids(positive_keywords, category, size, style, proxy):

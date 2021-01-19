@@ -32,22 +32,26 @@ class Worker(QObject):
 		print("task type : " + str(self.task_type))
 		if self.task_type == 'Links':
 			while True:
+				if self.task_id in self.parentFrm.threadStatus and self.parentFrm.threadStatus[self.task_id] == 'Stop':
+					break
 				link_process = LinksProcessing(self.item, self.category, self.colour, self.size, self.profile, self.proxy)
 				result , msg = link_process.process_links()
 				print("(count = {})task id: {} - result {} - message {}".format(count, self.task_id, result, msg))
-				if result or count > 3:
+				if result or count > 30:
 					break
 				count += 1
-				time.sleep(10) # seconds
+				time.sleep(3) # seconds
 		elif self.task_type == 'Keywords':
 			keyword_process_obj = KeywordsProcessing(self.item, self.category, self.colour, self.size, self.profile, self.proxy)
 			while True:
+				if self.task_id in self.parentFrm.threadStatus and self.parentFrm.threadStatus[self.task_id] == 'Stop':
+					break
 				result , msg = keyword_process_obj.process_keyword()
 				print("count({})task id: {} result {}".format(count, self.task_id, result))
-				if result or count > 3:
+				if result or count > 30:
 					break
 				count += 1
-				time.sleep(10) # seconds
+				time.sleep(3) # seconds
 		else:
 			print('Task type is invalid!')
 			return
@@ -60,8 +64,8 @@ class TaskManager():
 	def __init__(self, parentForm):
 		self.db_conn = QSqlDatabase.database("supreme_db_conn", open=False)
 		self.threadDict = {}
+		self.threadStatus = {}
 		self.create_thread()
-		self.stop_thread = False
 		self.MAX_TRY_COUNT = 10
 		self.DELAY_TIME = 10 #second
 		self.parent = parentForm
@@ -92,20 +96,25 @@ class TaskManager():
 			self.worker.finished.connect(self.update_task_table)
 			self.worker.finished.connect(self.thread.quit)
 			
-			self.threadDict[task_id] =self. thread
+			self.threadDict[task_id] = self.thread
+			self.threadStatus[task_id] = 'Stop'
 			if str(status) == 'RUNNING':
 				print("Start task id : " + str(task_id))
 				self.threadDict[task_id].start()
+				self.threadStatus[task_id] = 'Run'
 
 	def run_all_task(self):
 		for key in self.threadDict:
 			print("Start task id: " + str(key))
 			self.threadDict[key].start()
+			self.threadStatus[key] = 'Run'
 
 	def remove_all_task(self):
 		print('Remove all task')
-		self.stop_thread = True
-		self.threadDict.clear()
+		for key in self.threadDict.keys():
+			if key in self.threadStatus:
+				self.threadStatus[key] = 'Stop'
+			self.threadDict.get(key).quit()
 
 	def add_new_task(self, task_info):
 		print('Add new task id : ' + str(task_info.get_task_id()))
@@ -126,14 +135,21 @@ class TaskManager():
 		# Connect signals and slots
 		self.thread.started.connect(self.worker.run)
 		self.worker.finished.connect(self.update_task_table)
-		self.worker.finished.connect(self.thread.quit)			
-		self.threadDict[task_info.get_task_id()] =self. thread
+		self.worker.finished.connect(self.thread.quit)		
+		
+		self.threadStatus[task_info.get_task_id()] = 'Run'
+		self.threadDict[task_info.get_task_id()] = self.thread
 		self.threadDict[task_info.get_task_id()].start()
 
 	def remove_task(self,task_id):
 		print('Remove task id : ' + str(task_id))
 		if task_id in self.threadDict:
-			del self.threadDict[task_id]
+			# TODO: remove thread to fix leak memory
+			self.threadStatus[task_id] = 'Stop'
+			self.threadDict.get(task_id).quit()
+			# del self.threadStatus[task_id]
+			# del self.threadDict[task_id]
+			
 			print("Removed task id : {} from dict".format(task_id))
 
 	def update_task_status(self, task_id, run_status, msg):

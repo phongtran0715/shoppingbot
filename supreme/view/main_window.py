@@ -254,6 +254,10 @@ class MainWindow(QtWidgets.QMainWindow):
 		if index >= 0:
 			# reload table
 			task_id = self.tbListTask.item(index, 0).text()
+			task_status = self.tbListTask.item(index, 8).text()
+			if task_status == 'Running':
+				QMessageBox.critical(self, "Supreme", 'task is running. You must stop task before close')
+				return
 			query = QSqlQuery(self.db_conn)
 			query.prepare("DELETE FROM task WHERE id = ?")
 			query.addBindValue(task_id)
@@ -273,7 +277,7 @@ class MainWindow(QtWidgets.QMainWindow):
 		ret = QMessageBox.question(self, 'MessageBox', "Do you want to delete all task?", QMessageBox.Yes | QMessageBox.No )
 		if ret == QMessageBox.Yes:
 			query = QSqlQuery(self.db_conn)
-			query.prepare("DELETE FROM task")
+			query.prepare("DELETE FROM task WHERE status != 'Running'")
 			if not query.exec():
 				QMessageBox.critical(self, "Supreme - Error!", 'Database Error: %s' % query.lastError().databaseText(),)
 				logging.info("Delete all task false")
