@@ -1,1 +1,1 @@
-[]
+[{"task_id": "1", "site": "Bestbuy", "product": "https://www.bestbuy.com/site/melissa-doug-crowns-gowns-magnetic-dress-up-doll/6390220.p?skuId=6390220", "profile": "test", "proxies": "None", "monitor_delay": "5.0", "error_delay": "5.0", "max_price": ""}, {"task_id": "2", "site": "Walmart", "product": "https://www.walmart.com/ip/Pokemon-Trading-Card-Game-Sword-Shield-Exposion-Walker-Booster-Pack-Japanese-5-Cards/129443356", "profile": "test", "proxies": "None", "monitor_delay": "5.0", "error_delay": "5.0", "max_price": ""}]

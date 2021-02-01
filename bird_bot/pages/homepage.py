@@ -1,24 +1,24 @@
+from theming.styles import globalStyles
 from PyQt5 import QtCore, QtGui, QtWidgets
 from sites.walmart import Walmart
 from sites.bestbuy import BestBuy
+from sites.target import Target
+from sites.gamestop import GameStop
 from pages.createdialog import CreateDialog
-from utils import get_profile, get_proxy, BirdLogger, return_data, write_data, open_browser
+from pages.pollbrowser import PollBrowserDialog
+from utils import get_profile, get_proxy, BirdLogger, return_data, write_data
+from utils.selenium_utils import open_browser
 import urllib.request,sys,platform
 import settings
-
-
 def no_abort(a, b, c):
     sys.__excepthook__(a, b, c)
 sys.excepthook = no_abort
 logger = BirdLogger()
-
-
 class HomePage(QtWidgets.QWidget):
     def __init__(self,parent=None):
         super(HomePage, self).__init__(parent)
         self.setupUi(self)
         self.load_tasks()
-
     def setupUi(self, homepage):
         global tasks
         self.tasks = []
@@ -28,7 +28,7 @@ class HomePage(QtWidgets.QWidget):
         self.homepage.setGeometry(QtCore.QRect(60, 0, 1041, 601))
         self.tasks_card = QtWidgets.QWidget(self.homepage)
         self.tasks_card.setGeometry(QtCore.QRect(30, 110, 991, 461))
-        self.tasks_card.setStyleSheet("background-color: #232323;border-radius: 20px;border: 1px solid #2e2d2d;")
+        self.tasks_card.setStyleSheet("background-color: {};border-radius: 20px;border: 1px solid #2e2d2d;".format(globalStyles["backgroundLight"]))
         self.scrollArea = QtWidgets.QScrollArea(self.tasks_card)
         self.scrollArea.setGeometry(QtCore.QRect(20, 30, 951, 421))
         self.scrollArea.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
@@ -94,7 +94,7 @@ class HomePage(QtWidgets.QWidget):
         self.tasks_header.setStyleSheet("color: rgb(234, 239, 239);")
         self.checkouts_card = QtWidgets.QWidget(self.homepage)
         self.checkouts_card.setGeometry(QtCore.QRect(440, 45, 171, 51))
-        self.checkouts_card.setStyleSheet("background-color: #232323;border-radius: 10px;border: 1px solid #2e2d2d;")
+        self.checkouts_card.setStyleSheet("background-color: {};border-radius: 10px;border: 1px solid #2e2d2d;".format(globalStyles["backgroundLight"]))
         self.checkouts_label = QtWidgets.QLabel(self.checkouts_card)
         self.checkouts_label.setGeometry(QtCore.QRect(78, 10, 81, 31))
         font = QtGui.QFont()
@@ -102,7 +102,6 @@ class HomePage(QtWidgets.QWidget):
         font.setPointSize(16) if platform.system() == "Darwin" else font.setPointSize(16*.75)
         font.setBold(False)
         font.setWeight(50)
-
         self.checkouts_label.setFont(font)
         self.checkouts_label.setStyleSheet("color: rgb(234, 239, 239);border: none;")
         self.checkouts_label.setText("Checkouts")
@@ -110,9 +109,8 @@ class HomePage(QtWidgets.QWidget):
         self.checkouts_icon.setGeometry(QtCore.QRect(10, 10, 31, 31))
         self.checkouts_icon.setStyleSheet("border: none;")
         self.checkouts_icon.setText("")
-        self.checkouts_icon.setPixmap(QtGui.QPixmap(":/images/success.png"))
+        self.checkouts_icon.setPixmap(QtGui.QPixmap("images/success.png"))
         self.checkouts_icon.setScaledContents(True)
-
         global checkouts_count
         self.checkouts_count = QtWidgets.QLabel(self.checkouts_card)
         checkouts_count = self.checkouts_count
@@ -121,10 +119,9 @@ class HomePage(QtWidgets.QWidget):
         self.checkouts_count.setStyleSheet("color: #34C693;border: none;")
         self.checkouts_count.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.checkouts_count.setText("0")
-
         self.tasks_total_card = QtWidgets.QWidget(self.homepage)
         self.tasks_total_card.setGeometry(QtCore.QRect(30, 45, 181, 51))
-        self.tasks_total_card.setStyleSheet("background-color: #232323;border-radius: 10px;border: 1px solid #2e2d2d;")
+        self.tasks_total_card.setStyleSheet("background-color: {};border-radius: 10px;border: 1px solid #2e2d2d;".format(globalStyles["backgroundLight"]))
         self.tasks_total_label = QtWidgets.QLabel(self.tasks_total_card)
         self.tasks_total_label.setGeometry(QtCore.QRect(80, 10, 91, 31))
         self.tasks_total_label.setFont(font)
@@ -134,20 +131,19 @@ class HomePage(QtWidgets.QWidget):
         self.tasks_total_icon.setGeometry(QtCore.QRect(10, 10, 31, 31))
         self.tasks_total_icon.setStyleSheet("border: none;")
         self.tasks_total_icon.setText("")
-        self.tasks_total_icon.setPixmap(QtGui.QPixmap(":/images/tasks.png"))
+        self.tasks_total_icon.setPixmap(QtGui.QPixmap("images/tasks.png"))
         self.tasks_total_icon.setScaledContents(True)
-
         global tasks_total_count
         self.tasks_total_count = QtWidgets.QLabel(self.tasks_total_card)
         tasks_total_count = self.tasks_total_count
         self.tasks_total_count.setGeometry(QtCore.QRect(43, 10, 31, 31))
         self.tasks_total_count.setFont(font)
-        self.tasks_total_count.setStyleSheet("color: #755FF6;border: none;")
+        self.tasks_total_count.setStyleSheet("color: {};border: none;".format(globalStyles['primary']))
         self.tasks_total_count.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.tasks_total_count.setText("0")
         self.carted_card = QtWidgets.QWidget(self.homepage)
         self.carted_card.setGeometry(QtCore.QRect(240, 45, 171, 51))
-        self.carted_card.setStyleSheet("background-color: #232323;border-radius: 10px;border: 1px solid #2e2d2d;")
+        self.carted_card.setStyleSheet("background-color: {};border-radius: 10px;border: 1px solid #2e2d2d;".format(globalStyles["backgroundLight"]))
         self.carted_label = QtWidgets.QLabel(self.carted_card)
         self.carted_label.setGeometry(QtCore.QRect(80, 10, 90, 31))
         self.carted_label.setFont(font)
@@ -157,50 +153,48 @@ class HomePage(QtWidgets.QWidget):
         self.carted_icon.setGeometry(QtCore.QRect(10, 10, 31, 31))
         self.carted_icon.setStyleSheet("border: none;")
         self.carted_icon.setText("")
-        self.carted_icon.setPixmap(QtGui.QPixmap(":/images/cart.png"))
+        self.carted_icon.setPixmap(QtGui.QPixmap("images/cart.png"))
         self.carted_icon.setScaledContents(True)
-
         global carted_count
         self.carted_count = QtWidgets.QLabel(self.carted_card)
         carted_count = self.carted_count
         self.carted_count.setGeometry(QtCore.QRect(43, 10, 31, 31))
         self.carted_count.setFont(font)
-        self.carted_count.setStyleSheet("color: #F6905E;border: none;")
+        self.carted_count.setStyleSheet("color: {};border: none;".format(globalStyles["cartedColor"]))
         self.carted_count.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.carted_count.setText("0")
         self.buttons_card = QtWidgets.QWidget(self.homepage)
         self.buttons_card.setGeometry(QtCore.QRect(640, 45, 381, 51))
-        self.buttons_card.setStyleSheet("background-color: #232323;border-radius: 10px;border: 1px solid #2e2d2d;")
+        self.buttons_card.setStyleSheet("background-color: {};border-radius: 10px;border: 1px solid #2e2d2d;".format(globalStyles["backgroundLight"]))
         self.startall_btn = QtWidgets.QPushButton(self.buttons_card)
         self.startall_btn.setGeometry(QtCore.QRect(103, 10, 86, 32))
         font = QtGui.QFont()
         font.setFamily("Arial")
         self.startall_btn.setFont(font)
         self.startall_btn.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
-        self.startall_btn.setStyleSheet("color: #FFFFFF;background-color: #5D43FB;border: none;")
+        self.startall_btn.setStyleSheet("color: #FFFFFF;background-color: {};border: none;".format(globalStyles["primary"]))
         self.startall_btn.setText("Start All")
         self.startall_btn.clicked.connect(self.start_all_tasks)
         self.stopall_btn = QtWidgets.QPushButton(self.buttons_card)
         self.stopall_btn.setGeometry(QtCore.QRect(197, 10, 81, 32))
         self.stopall_btn.setFont(font)
         self.stopall_btn.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
-        self.stopall_btn.setStyleSheet("color: #FFFFFF;background-color: #5D43FB;border: none;")
+        self.stopall_btn.setStyleSheet("color: #FFFFFF;background-color: {};border: none;".format(globalStyles["primary"]))
         self.stopall_btn.setText("Stop All")
         self.stopall_btn.clicked.connect(self.stop_all_tasks)
         self.deleteall_btn = QtWidgets.QPushButton(self.buttons_card)
         self.deleteall_btn.setGeometry(QtCore.QRect(285, 10, 86, 32))
         self.deleteall_btn.setFont(font)
         self.deleteall_btn.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
-        self.deleteall_btn.setStyleSheet("color: #FFFFFF;background-color: #5D43FB;border: none;")
+        self.deleteall_btn.setStyleSheet("color: #FFFFFF;background-color: {};border: none;".format(globalStyles["primary"]))
         self.deleteall_btn.setText("Delete All")
         self.deleteall_btn.clicked.connect(self.delete_all_tasks)
         self.newtask_btn = QtWidgets.QPushButton(self.buttons_card)
         self.newtask_btn.setGeometry(QtCore.QRect(10, 10, 86, 32))
         self.newtask_btn.setFont(font)
         self.newtask_btn.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
-        self.newtask_btn.setStyleSheet("color: #FFFFFF;background-color: #5D43FB;border: none;")
+        self.newtask_btn.setStyleSheet("color: #FFFFFF;background-color: {};border: none;".format(globalStyles["primary"]))
         self.newtask_btn.setText("New Task")
-
         QtCore.QMetaObject.connectSlotsByName(homepage)
 
     def load_tasks(self):
@@ -208,8 +202,7 @@ class HomePage(QtWidgets.QWidget):
         write_data("./data/tasks.json",[])
         try:
             for task in tasks_data:
-                tab = TaskTab(task["site"],task["product"],task["profile"],task["proxies"],task["monitor_delay"],
-                    task["error_delay"],task["max_price"],self.stop_all_tasks,self.scrollAreaWidgetContents)
+                tab = TaskTab(task["site"],task["product"],task["profile"],task["proxies"],task["monitor_delay"],task["error_delay"],task["max_price"],self.stop_all_tasks,self.scrollAreaWidgetContents)
                 self.verticalLayout.takeAt(self.verticalLayout.count()-1)
                 self.verticalLayout.addWidget(tab)
                 spacerItem = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
@@ -248,15 +241,11 @@ class TaskTab(QtWidgets.QWidget):
         tasks_total_count.setText(self.task_id)
         self.site,self.product,self.profile,self.proxies,self.monitor_delay,self.error_delay,self.max_price,self.stop_all = site,product,profile,proxies,monitor_delay,error_delay,max_price,stop_all
         self.setupUi(self)
-
         tasks.append(self)
         tasks_data = return_data("./data/tasks.json")
-        task_data = {"task_id": self.task_id,"site":self.site,"product": self.product,"profile": self.profile,"proxies": self.proxies,
-        "monitor_delay": self.monitor_delay,"error_delay": self.error_delay,"max_price": self.max_price}
-
+        task_data = {"task_id": self.task_id,"site":self.site,"product": self.product,"profile": self.profile,"proxies": self.proxies,"monitor_delay": self.monitor_delay,"error_delay": self.error_delay,"max_price": self.max_price}
         tasks_data.append(task_data)
         write_data("./data/tasks.json",tasks_data)
-
     def setupUi(self,TaskTab):
         self.running = False
 
@@ -291,30 +280,30 @@ class TaskTab(QtWidgets.QWidget):
         self.start_btn = QtWidgets.QLabel(self.TaskTab)
         self.start_btn.setGeometry(QtCore.QRect(870, 15, 16, 16))
         self.start_btn.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
-        self.start_btn.setPixmap(QtGui.QPixmap(":/images/play.png"))
+        self.start_btn.setPixmap(QtGui.QPixmap("images/play.png"))
         self.start_btn.setScaledContents(True)
         self.start_btn.mousePressEvent = self.start
         self.stop_btn = QtWidgets.QLabel(self.TaskTab)
         self.stop_btn.setGeometry(QtCore.QRect(870, 15, 16, 16))
         self.stop_btn.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
-        self.stop_btn.setPixmap(QtGui.QPixmap(":/images/stop.png"))
+        self.stop_btn.setPixmap(QtGui.QPixmap("images/stop.png"))
         self.stop_btn.setScaledContents(True)
         self.stop_btn.mousePressEvent = self.stop
         self.delete_btn = QtWidgets.QLabel(self.TaskTab)
         self.delete_btn.setGeometry(QtCore.QRect(920, 15, 16, 16))
         self.delete_btn.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
-        self.delete_btn.setPixmap(QtGui.QPixmap(":/images/trash.png"))
+        self.delete_btn.setPixmap(QtGui.QPixmap("images/trash.png"))
         self.delete_btn.setScaledContents(True)
         self.delete_btn.mousePressEvent = self.delete
         self.edit_btn = QtWidgets.QLabel(self.TaskTab)
         self.edit_btn.setGeometry(QtCore.QRect(895, 15, 16, 16))
         self.edit_btn.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
-        self.edit_btn.setPixmap(QtGui.QPixmap(":/images/edit.png"))
+        self.edit_btn.setPixmap(QtGui.QPixmap("images/edit.png"))
         self.edit_btn.setScaledContents(True)
         self.edit_btn.mousePressEvent = self.edit
         self.image = QtWidgets.QLabel(self.TaskTab)
         self.image.setGeometry(QtCore.QRect(20, 0, 50, 50))
-        self.image.setPixmap(QtGui.QPixmap(":/images/no_image.png"))
+        self.image.setPixmap(QtGui.QPixmap("images/no_image.png"))
         self.image.setScaledContents(True)
         self.site_label = QtWidgets.QLabel(self.TaskTab)
         self.site_label.setGeometry(QtCore.QRect(140, 10, 61, 31))
@@ -392,6 +381,16 @@ class TaskTab(QtWidgets.QWidget):
             self.status_label.setStyleSheet("color: rgb(163, 149, 255);")
             logger.alt(self.task_id,msg["msg"])
             carted_count.setText(str(int(carted_count.text())+1))
+    
+    def wait_browser_poll(self):
+        # Initiate dialog and block until dismissed
+        poll_browser_dialog = PollBrowserDialog(self.parent())
+        poll_browser_dialog.exec()
+
+        # set wait condition
+        self.task.wait_condition.wakeAll()
+
+        pass
 
     def update_image(self,image_url):
         self.image_thread = ImageThread(image_url)
@@ -407,6 +406,13 @@ class TaskTab(QtWidgets.QWidget):
             self.task = TaskThread()
             self.task.status_signal.connect(self.update_status)
             self.task.image_signal.connect(self.update_image)
+            self.task.wait_condition = QtCore.QWaitCondition()
+            
+            # Special case for Walmart, not sure if should disambiguate
+            # allowing other stores to use functionality
+            if self.site == "Walmart":
+                self.task.wait_poll_signal.connect(self.wait_browser_poll)
+
             self.task.set_data(
                 self.task_id,
                 self.site_label.text(),
@@ -480,33 +486,35 @@ class TaskTab(QtWidgets.QWidget):
             self.browser_cookies
         )
         self.browser_thread.start()
-
-
 class TaskThread(QtCore.QThread):
     status_signal = QtCore.pyqtSignal("PyQt_PyObject")
     image_signal = QtCore.pyqtSignal("PyQt_PyObject")
+    wait_poll_signal = QtCore.pyqtSignal()
     def __init__(self):
         QtCore.QThread.__init__(self)
 
-    def set_data(self,task_id, site, product, profile, proxies, monitor_delay, error_delay, max_price):
+    def set_data(self,task_id,site,product,profile,proxies,monitor_delay,error_delay,max_price):
         self.task_id,self.site,self.product,self.profile,self.proxies,self.monitor_delay,self.error_delay,self.max_price = task_id,site,product,profile,proxies,monitor_delay,error_delay,max_price
 
     def run(self):
         profile,proxy = get_profile(self.profile),get_proxy(self.proxies)
-        if profile == None:
-            self.status_signal.emit({"msg":"Invalid profile","status":"error"})
+        if profile is None:
+            self.status_signal.emit({"msg": "Invalid profile", "status": "error"})
             return
-        if proxy == None:
-            self.status_signal.emit({"msg":"Invalid proxy list","status":"error"})
+        if proxy is None:
+            self.status_signal.emit({"msg": "Invalid proxy list", "status": "error"})
             return
         if self.site == "Walmart":
-            Walmart(self.task_id,self.status_signal,self.image_signal,self.product,profile,proxy,self.monitor_delay,self.error_delay,self.max_price)
+            Walmart(self.task_id,self.status_signal, self.image_signal,  self.wait_poll_signal, self.wait_condition, self.product, profile, proxy, self.monitor_delay, self.error_delay, self.max_price)
         elif self.site == "Bestbuy":
-            BestBuy(self.task_id,self.status_signal,self.image_signal,self.product,profile,proxy,self.monitor_delay,self.error_delay)
+            BestBuy(self.status_signal, self.image_signal, self.product, profile, proxy, self.monitor_delay, self.error_delay) #TODO: Readd Discord Webhook
+        elif self.site == "Target":
+            Target(self.task_id, self.status_signal, self.image_signal, self.product, profile, proxy, self.monitor_delay, self.error_delay)
+        elif self.site == "GameStop":
+            GameStop(self.task_id, self.status_signal, self.image_signal, self.product, profile, proxy, self.monitor_delay, self.error_delay, self.max_price)
 
     def stop(self):
         self.terminate()
-
 
 class ImageThread(QtCore.QThread):
     finished_signal = QtCore.pyqtSignal("PyQt_PyObject")
@@ -520,14 +528,12 @@ class ImageThread(QtCore.QThread):
         pixmap.loadFromData(data)
         self.finished_signal.emit(pixmap)
 
-
 class BrowserThread(QtCore.QThread):
     def __init__(self):
         QtCore.QThread.__init__(self)
 
     def set_data(self,url,cookies):
         self.url,self.cookies = url,cookies
-
     def run(self):
         open_browser(self.url,self.cookies)
 

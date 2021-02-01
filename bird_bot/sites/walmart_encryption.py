@@ -27,7 +27,6 @@ def PyJsHoisted_encrypt_(e, t, PIE_L, PIE_E, PIE_K, PIE_key_id, PIE_phase, this,
 PyJsHoisted_encrypt_.func_name = 'encrypt'
 var.put('encrypt', PyJsHoisted_encrypt_)
 var.put('n', Js({}))
-
 def PyJs_LONG_6_(var=var):
     @Js
     def PyJs_anonymous_0_(e, this, arguments, var=var):
@@ -38,13 +37,13 @@ def PyJs_LONG_6_(var=var):
         var.put('n', Js(0.0))
         while (var.get('t')>=Js(0.0)):
             PyJsComma(var.put('n', var.get('parseInt')(var.get('e').callprop('substr', var.get('t'), Js(1.0)), Js(10.0)), '+'),var.put('t', Js(2.0), '-'))
-
+        
         #for JS loop
         var.put('t', (var.get('e').get('length')-Js(2.0)))
         while (var.get('t')>=Js(0.0)):
             var.put('r', (Js(2.0)*var.get('parseInt')(var.get('e').callprop('substr', var.get('t'), Js(1.0)), Js(10.0))))
             PyJsComma(var.put('n', (var.get('r') if (var.get('r')<Js(10.0)) else (var.get('r')-Js(9.0))), '+'),var.put('t', Js(2.0), '-'))
-
+        
         return (var.get('n')%Js(10.0))
     PyJs_anonymous_0_._set_name('anonymous')
     @Js
@@ -70,7 +69,6 @@ def PyJs_LONG_6_(var=var):
                     var.put('r',Js(var.get('r').to_number())+Js(1))
         return var.get('t')
     PyJs_anonymous_3_._set_name('anonymous')
-
     @Js
     def PyJs_anonymous_4_(e, t, this, arguments, var=var):
         var = Scope({'e':e, 't':t, 'this':this, 'arguments':arguments}, var)
@@ -86,7 +84,6 @@ def PyJs_LONG_6_(var=var):
                     var.put('i',Js(var.get('i').to_number())+Js(1))
         return var.get('r')
     PyJs_anonymous_4_._set_name('anonymous')
-
     @Js
     def PyJs_anonymous_5_(e, t, n, this, arguments, var=var):
         var = Scope({'e':e, 't':t, 'n':n, 'this':this, 'arguments':arguments}, var)
@@ -100,7 +97,6 @@ def PyJs_LONG_6_(var=var):
     PyJs_anonymous_5_._set_name('anonymous')
     return PyJsComma(PyJsComma(PyJsComma(PyJsComma(PyJsComma(PyJsComma(var.get('n').put('base10', Js('0123456789')),var.get('n').put('base62', Js('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'))),var.get('n').put('luhn', PyJs_anonymous_0_)),var.get('n').put('fixluhn', PyJs_anonymous_1_)),var.get('n').put('distill', PyJs_anonymous_3_)),var.get('n').put('reformat', PyJs_anonymous_4_)),var.get('n').put('integrity', PyJs_anonymous_5_))
 PyJs_LONG_6_()
-
 @Js
 def PyJs_anonymous_7_(e, this, arguments, var=var):
     var = Scope({'e':e, 'this':this, 'arguments':arguments}, var)
@@ -113,7 +109,6 @@ def PyJs_anonymous_7_(e, this, arguments, var=var):
     PyJs_anonymous_8_._set_name('anonymous')
     PyJsComma(var.get(u"this").put('toString', PyJs_anonymous_8_),var.get(u"this").put('message', var.get('e')))
 PyJs_anonymous_7_._set_name('anonymous')
-
 @Js
 def PyJs_anonymous_9_(e, this, arguments, var=var):
     var = Scope({'e':e, 'this':this, 'arguments':arguments}, var)
@@ -126,7 +121,6 @@ def PyJs_anonymous_9_(e, this, arguments, var=var):
     PyJs_anonymous_10_._set_name('anonymous')
     PyJsComma(var.get(u"this").put('toString', PyJs_anonymous_10_),var.get(u"this").put('message', var.get('e')))
 PyJs_anonymous_9_._set_name('anonymous')
-
 @Js
 def PyJs_anonymous_11_(e, this, arguments, var=var):
     var = Scope({'e':e, 'this':this, 'arguments':arguments}, var)
@@ -140,7 +134,6 @@ def PyJs_anonymous_11_(e, this, arguments, var=var):
     PyJsComma(var.get(u"this").put('toString', PyJs_anonymous_12_),var.get(u"this").put('message', var.get('e')))
 PyJs_anonymous_11_._set_name('anonymous')
 var.put('r', Js({'cipher':Js({}),'hash':Js({}),'mode':Js({}),'misc':Js({}),'codec':Js({}),'exception':Js({'corrupt':PyJs_anonymous_7_,'invalid':PyJs_anonymous_9_,'bug':PyJs_anonymous_11_})}))
-
 @Js
 def PyJs_anonymous_13_(e, this, arguments, var=var):
     var = Scope({'e':e, 'this':this, 'arguments':arguments}, var)
@@ -172,21 +165,18 @@ def PyJs_anonymous_13_(e, this, arguments, var=var):
         finally:
                 PyJsComma((var.put('n',Js(var.get('n').to_number())+Js(1))-Js(1)),(var.put('t',Js(var.get('t').to_number())-Js(1))+Js(1)))
 PyJs_anonymous_13_._set_name('anonymous')
-
 @Js
 def PyJs_anonymous_16_(e, this, arguments, var=var):
     var = Scope({'e':e, 'this':this, 'arguments':arguments}, var)
     var.registers(['e'])
     return var.get(u"this").callprop('_crypt', var.get('e'), Js(0.0))
 PyJs_anonymous_16_._set_name('anonymous')
-
 @Js
 def PyJs_anonymous_17_(e, this, arguments, var=var):
     var = Scope({'e':e, 'this':this, 'arguments':arguments}, var)
     var.registers(['e'])
     return var.get(u"this").callprop('_crypt', var.get('e'), Js(1.0))
 PyJs_anonymous_17_._set_name('anonymous')
-
 @Js
 def PyJs_anonymous_18_(this, arguments, var=var):
     var = Scope({'this':this, 'arguments':arguments}, var)
@@ -227,7 +217,6 @@ def PyJs_anonymous_18_(this, arguments, var=var):
         finally:
                 (var.put('e',Js(var.get('e').to_number())+Js(1))-Js(1))
 PyJs_anonymous_18_._set_name('anonymous')
-
 @Js
 def PyJs_anonymous_20_(e, t, this, arguments, var=var):
     var = Scope({'e':e, 't':t, 'this':this, 'arguments':arguments}, var)
@@ -270,14 +259,12 @@ def PyJs_anonymous_20_(e, t, this, arguments, var=var):
     return var.get('m')
 PyJs_anonymous_20_._set_name('anonymous')
 PyJsComma(var.get('r').get('cipher').put('aes', PyJs_anonymous_13_),var.get('r').get('cipher').get('aes').put('prototype', Js({'encrypt':PyJs_anonymous_16_,'decrypt':PyJs_anonymous_17_,'_tables':Js([Js([Js([]), Js([]), Js([]), Js([]), Js([])]), Js([Js([]), Js([]), Js([]), Js([]), Js([])])]),'_precompute':PyJs_anonymous_18_,'_crypt':PyJs_anonymous_20_})))
-
 @Js
 def PyJs_anonymous_23_(e, this, arguments, var=var):
     var = Scope({'e':e, 'this':this, 'arguments':arguments}, var)
     var.registers(['e'])
     return var.get('r').get('cipher').get('aes').create(var.get('a').callprop('HexToWords', var.get('e')))
 PyJs_anonymous_23_._set_name('anonymous')
-
 @Js
 def PyJs_anonymous_24_(e, this, arguments, var=var):
     var = Scope({'e':e, 'this':this, 'arguments':arguments}, var)
@@ -294,7 +281,6 @@ def PyJs_anonymous_24_(e, this, arguments, var=var):
                 (var.put('n',Js(var.get('n').to_number())+Js(1))-Js(1))
     return var.get('t')
 PyJs_anonymous_24_._set_name('anonymous')
-
 @Js
 def PyJs_anonymous_25_(e, this, arguments, var=var):
     var = Scope({'e':e, 'this':this, 'arguments':arguments}, var)
@@ -304,11 +290,11 @@ def PyJs_anonymous_25_(e, this, arguments, var=var):
     var.put('n', Js(''))
     while (var.get('t')>Js(0.0)):
         PyJsComma(var.put('t', Js(4.0), '-'),var.put('n', var.get('a').get('Hex').callprop('substr', (PyJsBshift(var.get('e'),var.get('t'))&Js(15.0)), Js(1.0)), '+'))
+    
     return var.get('n')
 PyJs_anonymous_25_._set_name('anonymous')
 var.put('a', Js({'HexToKey':PyJs_anonymous_23_,'HexToWords':PyJs_anonymous_24_,'Hex':Js('0123456789abcdef'),'WordToHex':PyJs_anonymous_25_}))
 var.put('i', Js({}))
-
 @Js
 def PyJs_anonymous_26_(e, this, arguments, var=var):
     var = Scope({'e':e, 'this':this, 'arguments':arguments}, var)
