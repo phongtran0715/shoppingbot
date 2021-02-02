@@ -23,9 +23,11 @@ class Walmart:
             self.session.proxies.update(proxy)
         starting_msg = "Starting"
         if settings.dont_buy:
-            starting_msg = "Starting in dev mode - Phoenix Bot will not actually checkout (dont_buy = True)"
+            starting_msg = "Starting in dev mode - Bird Bot will not actually checkout (dont_buy = True)"
         self.status_signal.emit({"msg": starting_msg, "status": "normal"})
         self.product_image, offer_id = self.monitor()
+        if offer_id is None:
+            return
         did_add = self.atc(offer_id)
         while did_add is False:
             did_add = self.atc(offer_id)
@@ -55,12 +57,16 @@ class Walmart:
                 r = self.session.get(self.product, headers=headers)
                 if r.status_code == 200:
                     # check for captcha page
-                    if self.is_captcha(r.text):
-                        self.status_signal.emit({"msg": "CAPTCHA - Opening Product Page", "status": "error"})
-                        self.handle_captcha(self.product)
-                        continue
+                    # if self.is_captcha(r.text):
+                    #     self.status_signal.emit({"msg": "CAPTCHA - Opening Product Page", "status": "error"})
+                    #     self.handle_captcha(self.product)
+                    #     continue
 
                     doc = lxml.html.fromstring(r.text)
+                    vendor = doc.xpath('//*[@id="add-on-atc-container"]/section[2]/div/div/a/text()')[0]
+                    if "walmart" != vendor.lower():
+                        self.status_signal.emit({"msg": "Seller is not Walmart", "status": "error"})
+                        return "", None
                     if not image_found:
                         product_image = doc.xpath('//meta[@property="og:image"]/@content')[0]
                         self.image_signal.emit(product_image)
@@ -152,9 +158,7 @@ class Walmart:
             self.status_signal.emit({"msg": "Loading Cart Items", "status": "normal"})
             try:
                 r = self.session.post("https://www.walmart.com/api/checkout/v3/contract?page=CHECKOUT_VIEW", json=body,
-                                      headers=headers)
-                print(
-                    r.text)  # this sometimes returns json data related to loading a captcha.js file so that could be intercepted when requests fail
+                                      headers=headers)# this sometimes returns json data related to loading a captcha.js file so that could be intercepted when requests fail
 
                 if r.status_code == 201 or r.status_code == 200:
                     r = json.loads(r.text)["items"][0]
