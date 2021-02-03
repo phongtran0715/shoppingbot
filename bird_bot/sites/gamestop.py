@@ -2,6 +2,7 @@ from selenium import webdriver
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait as wait
+from selenium.webdriver.support.ui import Select
 from webdriver_manager.chrome import ChromeDriverManager
 from chromedriver_py import binary_path as driver_path
 from utils import random_delay, send_webhook, create_msg
@@ -24,21 +25,18 @@ class GameStop:
             starting_msg = "Starting GameStop in dev mode; will not actually checkout."
 
         self.status_signal.emit(create_msg(starting_msg, "normal"))
-        self.login()
+        # self.login()
         self.monitor()
         self.add_to_cart()
+        self.submit_shipping()
         self.submit_billing()
-        self.submit_order()
-
-
-
+        # self.submit_order()
 
     def init_driver(self):
-        driver_manager = ChromeDriverManager()
-        driver_manager.install()
-        # change_driver(self.status_signal, driver_path)
-        var = driver_path
-        browser = webdriver.Chrome(driver_path)
+        chrome_options = webdriver.ChromeOptions()
+        chrome_options.add_experimental_option('useAutomationExtension', False)
+        chrome_options.add_argument("window-size=1200x600")
+        browser = webdriver.Chrome(ChromeDriverManager().install(), options=chrome_options)
 
         browser.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {
             "source": """
@@ -79,7 +77,7 @@ class GameStop:
 
 
     def monitor(self):
-        wait(self.browser, self.LONG_TIMEOUT).until(lambda _: self.browser.current_url == "https://www.gamestop.com/account/")
+        # wait(self.browser, self.LONG_TIMEOUT).until(lambda _: self.browser.current_url == "https://www.gamestop.com/account/")
 
         self.status_signal.emit(create_msg("Checking Stock..", "normal"))
 
@@ -108,26 +106,114 @@ class GameStop:
 
     def add_to_cart(self):
         wait(self.browser, self.LONG_TIMEOUT).until(lambda _: self.browser.current_url == "https://www.gamestop.com/cart/")
-        
         self.status_signal.emit(create_msg("Checking Age Verification", "normal"))
 
         try:
             seventeen_or_older_btn = self.browser.find_element_by_xpath('//*[@id="age-gate-modal"]/div/div/div[2]/div/div[2]/button')
             seventeen_or_older_btn.click()
             time.sleep(2) # short delay for age verification modal to disappear
-            self.browser.get("https://www.gamestop.com/checkout/?stage=payment#payment")
+            # self.browser.get("https://www.gamestop.com/checkout/?stage=payment#payment")
         except:
-            self.browser.get("https://www.gamestop.com/checkout/?stage=payment#payment")
-        
+            pass
+            # self.browser.get("https://www.gamestop.com/checkout/?stage=payment#payment")
+
+    def submit_shipping(self):
+        self.status_signal.emit(create_msg("Summit shipping", "normal"))
+        self.browser.get("https://www.gamestop.com/checkout/?stage=shipping#shipping")
+        self.browser.implicitly_wait(15)
+
+        # self.browser.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        # wait(self.browser, self.LONG_TIMEOUT).until(EC.element_to_be_clickable((By.ID, "shipping-email")))
+        email = self.browser.find_element_by_class_name("form-control.email.is-invalid")
+        email.send_keys(self.profile["shipping_email"])
+
+        wait(self.browser, self.LONG_TIMEOUT).until(EC.element_to_be_clickable((By.ID, "shippingFirstName")))
+        firstName = self.browser.find_element_by_id("shippingFirstName")
+        firstName.send_keys(self.profile["shipping_fname"])
+
+        wait(self.browser, self.LONG_TIMEOUT).until(EC.element_to_be_clickable((By.ID, "shippingLastName")))
+        lastName = self.browser.find_element_by_id("shippingLastName")
+        lastName.send_keys(self.profile["shipping_lname"])
+
+        wait(self.browser, self.LONG_TIMEOUT).until(EC.element_to_be_clickable((By.ID, "shippingAddressOne")))
+        address1 = self.browser.find_element_by_id("shippingAddressOne")
+        address1.send_keys(self.profile["shipping_a1"])
+
+        wait(self.browser, self.LONG_TIMEOUT).until(EC.element_to_be_clickable((By.ID, "shippingState")))
+        state = Select(driver.find_element_by_id('shippingState'))
+        state.select_by_visible_text('Georgia')
+
+        wait(self.browser, self.LONG_TIMEOUT).until(EC.element_to_be_clickable((By.ID, "shippingAddressCity")))
+        city = self.browser.find_element_by_id("shippingAddressCity")
+        city.send_keys(self.profile["shipping_city"])
+
+        wait(self.browser, self.LONG_TIMEOUT).until(EC.element_to_be_clickable((By.ID, "shippingZipCode")))
+        zipcode = self.browser.find_element_by_id("shippingZipCode")
+        zipcode.send_keys(self.profile["shipping_zipcode"])
+
+        wait(self.browser, self.LONG_TIMEOUT).until(EC.element_to_be_clickable((By.ID, "shippingPhoneNumber")))
+        phone = self.browser.find_element_by_id("shippingPhoneNumber")
+        phone.send_keys(self.profile["shipping_phone"])
+
+        wait(self.browser, self.LONG_TIMEOUT).until(EC.element_to_be_clickable((By.CLASS_NAME, "shippingPhoneNumber")))
+        self.browser.find_element_by_class_name("btn.btn-primary.btn-block.submit-shipping").click()
+        self.status_signal.emit(create_msg("Summit shipping done", "normal"))
 
     def submit_billing(self):
         wait(self.browser, self.LONG_TIMEOUT).until(lambda _: self.browser.current_url == "https://www.gamestop.com/checkout/?stage=payment#payment")
 
-        self.status_signal.emit(create_msg("Entering CVV #", "normal"))
+        self.status_signal.emit(create_msg("Entering billing info", "normal"))
 
-        wait(self.browser, self.LONG_TIMEOUT).until(EC.element_to_be_clickable((By.ID, "saved-payment-security-code")))
-        cvv_input = self.browser.find_element_by_id("saved-payment-security-code")
-        cvv_input.send_keys(self.profile["card_cvv"])
+        wait(self.browser, self.LONG_TIMEOUT).until(EC.element_to_be_clickable((By.ID, "email")))
+        email = self.browser.find_element_by_id("email")
+        email.send_keys(self.profile["shipping_email"])
+
+        wait(self.browser, self.LONG_TIMEOUT).until(EC.element_to_be_clickable((By.ID, "billingFirstName")))
+        firstName = self.browser.find_element_by_id("billingFirstName")
+        firstName.send_keys(self.profile["shipping_fname"])
+
+        wait(self.browser, self.LONG_TIMEOUT).until(EC.element_to_be_clickable((By.ID, "billingLastName")))
+        lastName = self.browser.find_element_by_id("billingLastName")
+        lastName.send_keys(self.profile["shipping_lname"])
+
+        wait(self.browser, self.LONG_TIMEOUT).until(EC.element_to_be_clickable((By.ID, "billingAddressOne")))
+        address1 = self.browser.find_element_by_id("billingAddressOne")
+        address1.send_keys(self.profile["shipping_a1"])
+
+        wait(self.browser, self.LONG_TIMEOUT).until(EC.element_to_be_clickable((By.ID, "billingState")))
+        state = Select(self.browser.find_element_by_id('billingState'))
+        state.select_by_visible_text('Georgia')
+
+        wait(self.browser, self.LONG_TIMEOUT).until(EC.element_to_be_clickable((By.ID, "billingAddressCity")))
+        city = self.browser.find_element_by_id("billingAddressCity")
+        city.send_keys(self.profile["shipping_city"])
+
+        wait(self.browser, self.LONG_TIMEOUT).until(EC.element_to_be_clickable((By.ID, "billingZipCode")))
+        zipcode = self.browser.find_element_by_id("billingZipCode")
+        zipcode.send_keys(self.profile["shipping_zipcode"])
+
+        wait(self.browser, self.LONG_TIMEOUT).until(EC.element_to_be_clickable((By.ID, "phoneNumber")))
+        phone = self.browser.find_element_by_id("phoneNumber")
+        phone.send_keys(self.profile["shipping_phone"])
+
+        # Add card information
+        wait(self.browser, self.LONG_TIMEOUT).until(EC.element_to_be_clickable((By.ID, "cardNumber")))
+        card_number = self.browser.find_element_by_id("cardNumber")
+        card_number.send_keys(self.profile["card_number"])
+
+        wait(self.browser, self.LONG_TIMEOUT).until(EC.element_to_be_clickable((By.ID, "expirationMonth")))
+        expirationMonth = Select(self.browser.find_element_by_id('expirationMonth'))
+        expirationMonth.select_by_visible_text(self.profile["card_month"])
+
+        wait(self.browser, self.LONG_TIMEOUT).until(EC.element_to_be_clickable((By.ID, "expirationYear")))
+        expirationYear = Select(self.browser.find_element_by_id('expirationYear'))
+        expirationYear.select_by_visible_text(self.profile["card_year"])
+
+        wait(self.browser, self.LONG_TIMEOUT).until(EC.element_to_be_clickable((By.ID, "securityCode")))
+        securityCode = self.browser.find_element_by_id("securityCode")
+        securityCode.send_keys(self.profile["card_cvv"])
+
+        wait(self.browser, self.LONG_TIMEOUT).until(EC.element_to_be_clickable((By.CLASS_NAME, "btn.btn-primary.btn-block.submit-payment")))
         order_review_btn = self.browser.find_element_by_class_name("btn.btn-primary.btn-block.submit-payment")
         order_review_btn.click()
 

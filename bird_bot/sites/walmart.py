@@ -38,7 +38,7 @@ class Walmart:
         card_data, PIE_key_id, PIE_phase = self.get_PIE()
         pi_hash = self.submit_payment(card_data, PIE_key_id, PIE_phase)
         self.submit_billing(pi_hash)
-        self.submit_order()
+        # self.submit_order()
 
     def monitor(self):
         headers = {
@@ -57,13 +57,13 @@ class Walmart:
                 r = self.session.get(self.product, headers=headers)
                 if r.status_code == 200:
                     # check for captcha page
-                    # if self.is_captcha(r.text):
-                    #     self.status_signal.emit({"msg": "CAPTCHA - Opening Product Page", "status": "error"})
-                    #     self.handle_captcha(self.product)
-                    #     continue
+                    if self.is_captcha(r.text):
+                        self.status_signal.emit({"msg": "CAPTCHA - Opening Product Page", "status": "error"})
+                        self.handle_captcha(self.product)
+                        continue
 
                     doc = lxml.html.fromstring(r.text)
-                    vendor = doc.xpath('//*[@id="add-on-atc-container"]/section[2]/div/div/a/text()')[0]
+                    vendor = doc.xpath('//a[@class="seller-name"]/text()')[0]
                     if "walmart" != vendor.lower():
                         self.status_signal.emit({"msg": "Seller is not Walmart", "status": "error"})
                         return "", None
@@ -126,6 +126,8 @@ class Walmart:
                     self.status_signal.emit({"msg": "Added To Cart", "status": "carted"})
                     return True
                 else:
+                    print("r status code : {}".format(r.status_code))
+                    print("checkoutable = {}".format(json.loads(r.text)))
                     self.handle_captcha("https://www.walmart.com/cart")
                     self.status_signal.emit({"msg": "Error Adding To Cart", "status": "error"})
                     time.sleep(self.error_delay)
