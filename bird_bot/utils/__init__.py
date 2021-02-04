@@ -107,6 +107,14 @@ def get_proxy(list_name):
             return format_proxy(random.choice(proxy_list["proxies"].splitlines()))
     return None
 
+def get_proxy_raw(list_name):
+    if list_name == "Proxy List" or list_name == "None":
+        return False
+    proxies = return_data("./data/proxies.json")
+    for proxy_list in proxies:
+        if proxy_list["list_name"] == list_name:
+            return random.choice(proxy_list["proxies"].splitlines())
+    return None    
 
 def format_proxy(proxy):
     try:
@@ -122,7 +130,7 @@ def format_proxy(proxy):
 
 def send_webhook(webhook_type, site, profile, task_id, image_url):
     if settings.webhook != "":
-        webhook = DiscordWebhook(url=settings.webhook, username="Phoenix Bot",
+        webhook = DiscordWebhook(url=settings.webhook, username="Bird Bot",
                                  avatar_url="https://i.imgur.com/60G42xE.png")
         if webhook_type == "OP":
             if not settings.webhook_on_order:
@@ -136,7 +144,7 @@ def send_webhook(webhook_type, site, profile, task_id, image_url):
             if not settings.webhook_on_failed:
                 return
             embed = DiscordEmbed(title="Payment Failed", color=0xfc5151)
-        embed.set_footer(text="Via Phoenix Bot", icon_url="https://i.imgur.com/60G42xE.png")
+        embed.set_footer(text="Via Bird Bot", icon_url="https://i.imgur.com/60G42xE.png")
         embed.add_embed_field(name="Site", value=site, inline=True)
         embed.add_embed_field(name="Profile", value=profile, inline=True)
         embed.add_embed_field(name="Task ID", value=task_id, inline=True)

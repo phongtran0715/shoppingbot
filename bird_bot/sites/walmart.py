@@ -1,5 +1,5 @@
 from sites.walmart_encryption import walmart_encryption as w_e
-from utils import send_webhook, random_delay
+from utils import send_webhook, random_delay, get_proxy, twocaptcha_utils
 from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
 from PyQt5 import QtCore
@@ -8,10 +8,12 @@ import urllib, requests, time, lxml.html, json, sys, settings
 
 class Walmart:
     def __init__(self, task_id, status_signal, image_signal, wait_poll_signal, polling_wait_condition, product, profile,
-                 proxy, monitor_delay, error_delay, max_price):
-        self.task_id, self.status_signal, self.image_signal, self.product, self.profile, self.monitor_delay, self.error_delay, self.max_price = task_id, status_signal, image_signal, product, profile, float(
-            monitor_delay), float(error_delay), max_price
+                 monitor_proxies, shopping_proxies, monitor_delay, error_delay, max_price, max_quantity):
+        self.task_id, self.status_signal, self.image_signal, self.product, self.profile, self.monitor_delay, self.error_delay, self.max_price, self.max_quantity = task_id, status_signal, image_signal, product, profile, float(
+            monitor_delay), float(error_delay), max_price, max_quantity
 
+        self.monitor_proxies = monitor_proxies
+        self.shopping_proxies = shopping_proxies
         ####### Browser/Captcha Polling Variables ######
         self.captcha_mutex = QtCore.QMutex()
         self.captcha_wait_condition = polling_wait_condition
@@ -19,8 +21,11 @@ class Walmart:
         #################################################
 
         self.session = requests.Session()
-        if proxy != False:
-            self.session.proxies.update(proxy)
+        self.session_monitor = requests.Session()
+        shopping_proxy = get_proxy(self.shopping_proxies)
+        if shopping_proxy is not None and shopping_proxy != "":
+            self.session.proxies.update(shopping_proxy)
+
         starting_msg = "Starting"
         if settings.dont_buy:
             starting_msg = "Starting in dev mode - Bird Bot will not actually checkout (dont_buy = True)"
@@ -29,8 +34,12 @@ class Walmart:
         if offer_id is None:
             return
         did_add = self.atc(offer_id)
-        while did_add is False:
+        count_add = 0
+        while did_add is False and count_add <= 3:
             did_add = self.atc(offer_id)
+            count_add != 1
+        if did_add is False:
+            return
 
         item_id, fulfillment_option, ship_method = self.check_cart_items()
         self.submit_shipping_method(item_id, fulfillment_option, ship_method)
@@ -38,7 +47,7 @@ class Walmart:
         card_data, PIE_key_id, PIE_phase = self.get_PIE()
         pi_hash = self.submit_payment(card_data, PIE_key_id, PIE_phase)
         self.submit_billing(pi_hash)
-        # self.submit_order()
+        self.submit_order()
 
     def monitor(self):
         headers = {
@@ -54,12 +63,16 @@ class Walmart:
         while True:
             self.status_signal.emit({"msg": "Loading Product Page", "status": "normal"})
             try:
-                r = self.session.get(self.product, headers=headers)
+                monitor_proxy = get_proxy(self.monitor_proxies)
+                if monitor_proxy is not None and monitor_proxy != "":
+                    self.session_monitor.proxies.update(monitor_proxy)
+
+                r = self.session_monitor.get(self.product, headers=headers)
                 if r.status_code == 200:
                     # check for captcha page
                     if self.is_captcha(r.text):
                         self.status_signal.emit({"msg": "CAPTCHA - Opening Product Page", "status": "error"})
-                        self.handle_captcha(self.product)
+                        self.handle_captcha(self.product, "monitor")
                         continue
 
                     doc = lxml.html.fromstring(r.text)
@@ -76,7 +89,7 @@ class Walmart:
                         if self.max_price != "":
                             if float(self.max_price) < price:
                                 self.status_signal.emit({"msg": "Waiting For Price Restock", "status": "normal"})
-                                self.session.cookies.clear()
+                                self.session_monitor.cookies.clear()
                                 time.sleep(random_delay(self.monitor_delay, settings.random_delay_start,
                                                         settings.random_delay_stop))
                                 continue
@@ -84,7 +97,7 @@ class Walmart:
                             "products"][0]["offerId"]
                         return product_image, offer_id
                     self.status_signal.emit({"msg": "Waiting For Restock", "status": "normal"})
-                    self.session.cookies.clear()
+                    self.session_monitor.cookies.clear()
                     time.sleep(random_delay(self.monitor_delay, settings.random_delay_start, settings.random_delay_stop))
                 else:
                     self.status_signal.emit({"msg": "Product Not Found", "status": "normal"})
@@ -119,7 +132,7 @@ class Walmart:
                 # check for captcha page
                 if self.is_captcha(r.text):
                     self.status_signal.emit({"msg": "Opening CAPTCHA", "status": "error"})
-                    self.handle_captcha(self.product)
+                    self.handle_captcha(self.product, "shopping")
                     return False
 
                 if r.status_code == 201 or r.status_code == 200 and json.loads(r.text)["checkoutable"] == True:
@@ -128,7 +141,7 @@ class Walmart:
                 else:
                     print("r status code : {}".format(r.status_code))
                     print("checkoutable = {}".format(json.loads(r.text)))
-                    self.handle_captcha("https://www.walmart.com/cart")
+                    self.handle_captcha("https://www.walmart.com/cart", "shopping")
                     self.status_signal.emit({"msg": "Error Adding To Cart", "status": "error"})
                     time.sleep(self.error_delay)
                     return False
@@ -176,7 +189,7 @@ class Walmart:
                             random_delay(self.monitor_delay, settings.random_delay_start, settings.random_delay_stop))
                     else:
                         if self.is_captcha(r.text):
-                            self.handle_captcha("https://www.walmart.com/checkout")
+                            self.handle_captcha("https://www.walmart.com/checkout", "shopping")
                         self.status_signal.emit(
                             {"msg": "Error Loading Cart Items, Got Response: " + str(r.text), "status": "error"})
                         time.sleep(self.error_delay)
@@ -420,7 +433,7 @@ class Walmart:
         if settings.dont_buy is True:
             # TODO: this used to open the page up with everything filled out but only works for some users
             self.status_signal.emit({"msg":"Opening Checkout Page","status":"alt"})
-            self.handle_captcha("https://www.walmart.com/checkout/#/payment", close_window_after=False,redirect=True) # OPEN BROWSER TO SEE IF SHIT WORKED
+            self.handle_captcha("https://www.walmart.com/checkout/#/payment", "shopping", close_window_after=False,redirect=True) # OPEN BROWSER TO SEE IF SHIT WORKED
             self.check_browser()
             return
 
@@ -438,7 +451,7 @@ class Walmart:
                     self.status_signal.emit({"msg": "Payment Failed", "status": "error"})
 
                     # open the page for checkout if failed to auto submit
-                    self.handle_captcha("https://www.walmart.com/checkout/#/payment")
+                    self.handle_captcha("https://www.walmart.com/checkout/#/payment", "shopping")
                     if self.check_browser():
                         return
 
@@ -459,43 +472,71 @@ class Walmart:
             return True
         return False
 
-    def handle_captcha(self, url_to_open, close_window_after=True,redirect=False): #added redirect arg since captchas are lost when redirecting to the page that triggered them
-        # this opens up chrome browser to get prompted with captcha
+    def handle_captcha(self, url_to_open, session_type, close_window_after=True,redirect=False):
+        '''added redirect arg since captchas are lost when redirecting to the page that triggered them
+        this opens up chrome browser to get prompted with captcha'''
         options = webdriver.ChromeOptions()
         options.add_argument('--ignore-certificate-errors') #removes SSL errors from terminal
-        options.add_experimental_option("excludeSwitches", ["enable-logging"]) #removes device adapter errors from terminal   
+        options.add_experimental_option("excludeSwitches", ["enable-logging"]) #removes device adapter errors from terminal
         browser = webdriver.Chrome(ChromeDriverManager().install(),chrome_options=options)
         browser.get("https://www.walmart.com")
 
         # pass current session cookies to browser before loading url
-        for c in self.session.cookies:
-            browser.add_cookie({
-                'name': c.name,
-                'value': c.value,
-                'domain': c.domain,
-                'path': c.path
-            })
+        if session_type == "monitor":
+            for c in self.session_monitor.cookies:
+                browser.add_cookie({
+                    'name': c.name,
+                    'value': c.value,
+                    'domain': c.domain,
+                    'path': c.path
+                })
+        else:
+            for c in self.session.cookies:
+                browser.add_cookie({
+                    'name': c.name,
+                    'value': c.value,
+                    'domain': c.domain,
+                    'path': c.path
+                })
 
         if redirect:
             browser.get(url_to_open)
 
-        # lock the mutex and let the thread handler know we are awaiting
-        # a gui event
-        self.captcha_mutex.lock()
-        self.wait_poll_signal.emit()
-        try:
-            # wait for condition to be released 
-            self.captcha_wait_condition.wait(self.captcha_mutex)
-        finally:
-            # unlock the thread
-            self.captcha_mutex.unlock()
+        time.sleep(3)
+        if "blocked" in str(browser.current_url):            
+            # solve captcha by manual
+            # self.captcha_mutex.lock()
+            # self.wait_poll_signal.emit()
+            # try:
+            #     # wait for condition to be released
+            #     self.captcha_wait_condition.wait(self.captcha_mutex)
+            # finally:
+            #     # unlock the thread
+            #     self.captcha_mutex.unlock()
+            
+            # solve captcha by api
+            sitekey = browser.find_element_by_xpath('//*[@id="px-captcha"]/div').get_attribute("data-sitekey")
+            captcha_result  = twocaptcha_utils.solve_captcha(str(browser.current_url), str(sitekey))
+            print("captcha_result : {}".format(captcha_result))
+
+            # form_token = captcha_result['code']
+            # wirte_token_js = 'document.getElementById("g-recaptcha-response").innerHTML= %' % form_token;
+            # browser.execute_script(wirte_token_js)
+
 
         for c in browser.get_cookies():
             if c['name'] not in [x.name for x in self.session.cookies]:
-                self.session.cookies.set(c['name'], c['value'], path=c['path'], domain=c['domain'])
+                if session_type == "monitor":
+                    self.session_monitor.cookies.set(c['name'], c['value'], path=c['path'], domain=c['domain'])
+                else:
+                    self.session.cookies.set(c['name'], c['value'], path=c['path'], domain=c['domain'])
+                    
 
         if close_window_after:
             browser.quit()
 
     def is_captcha(self, text):
         return '<div class="re-captcha">' in text
+
+
+

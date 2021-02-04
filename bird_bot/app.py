@@ -28,7 +28,7 @@ class MainWindow(QtWidgets.QMainWindow):
         MainWindow.setFixedSize(1109, 600)
         # background color for main UI
         MainWindow.setStyleSheet("background-color: {};".format(globalStyles["backgroundDark"]))
-        MainWindow.setWindowTitle("Phoenix Bot")
+        MainWindow.setWindowTitle("Bird Bot")
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setStyleSheet("QMessageBox QLabel { color: #FFFFFF; }QMessageBox QPushButton { background-color: %s;color: #FFFFFF;}" % (globalStyles["primary"]) )
         self.sidebar = QtWidgets.QWidget(self.centralwidget)
@@ -119,6 +119,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.proxies_tab.mousePressEvent = lambda event: self.change_page(event, "proxies")
         self.settings_tab.mousePressEvent = lambda event: self.change_page(event, "settings")
         self.homepage.newtask_btn.clicked.connect(self.createdialog.show)
+    
     def change_page(self,event,current_page):
         eval('self.{}_active_tab.setStyleSheet("background-color: transparent;border: none;")'.format(self.current_page))
         # reseting image after deselect
@@ -138,10 +139,12 @@ class MainWindow(QtWidgets.QMainWindow):
         site = self.createdialog.site_box.currentText()
         product = self.createdialog.input_edit.text()
         profile = self.createdialog.profile_box.currentText()
-        proxies = self.createdialog.proxies_box.currentText()
+        monitor_proxies = self.createdialog.monitor_proxies_box.currentText()
+        shopping_proxies = self.createdialog.shopping_proxies_box.currentText()
         monitor_delay = self.createdialog.monitor_edit.text()
         error_delay = self.createdialog.error_edit.text()
         max_price = self.createdialog.price_edit.text() if self.createdialog.maxprice_checkbox.isChecked() else ""
+        max_quantity = self.createdialog.quantity_edit.text() if self.createdialog.maxquantity_checkbox.isChecked() else ""
         if site != "Site" and product != "" and profile != "Profile" and monitor_delay != "" and error_delay != "":
             for i in range(self.createdialog.taskcount_spinbox.value()):
                 self.homepage.verticalLayout.takeAt(self.homepage.verticalLayout.count() - 1)
@@ -149,10 +152,12 @@ class MainWindow(QtWidgets.QMainWindow):
                     site,
                     product,
                     profile,
-                    proxies,
+                    monitor_proxies,
+                    shopping_proxies,
                     monitor_delay,
                     error_delay,
                     max_price,
+                    max_quantity,
                     self.homepage.stop_all_tasks,
                     self.homepage.scrollAreaWidgetContents)
                 self.homepage.verticalLayout.addWidget(tab)

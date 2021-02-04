@@ -11,7 +11,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 
 from utils.json_utils import find_values
 from utils.selenium_utils import enable_headless
-from utils import create_msg
+from utils import create_msg, get_proxy
 
 try:
     from Crypto.PublicKey import RSA
@@ -49,8 +49,10 @@ options.add_argument("user-data-dir=.profile-bb")
 
 class BestBuy:
 
-    def __init__(self, status_signal, image_signal, product, profile, proxy, monitor_delay, error_delay):
+    def __init__(self, status_signal, image_signal, product, profile, monitor_proxies, shopping_proxies, monitor_delay, error_delay):
         self.status_signal, self.image_signal, self.product, self.profile, self.monitor_delay, self.error_delay = status_signal, image_signal, product, profile, float(monitor_delay), float(error_delay)
+        self.monitor_proxies = monitor_proxies
+        self.shopping_proxies = shopping_proxies
         self.sku_id = parse.parse_qs(parse.urlparse(self.product).query)['skuId'][0]
         self.session = requests.Session()
         # TODO: Refactor Bird Bot Auto Checkout Functionality. For now, it will just open the cart link.
@@ -58,13 +60,13 @@ class BestBuy:
         self.browser = self.init_driver()
         starting_msg = "Starting Best Buy Task"
         if settings.dont_buy:
-            starting_msg = "Starting Best Buy Task in dev mode - Phoenix Bot will not actually checkout. Check Settings page to disable Dev Mode"
+            starting_msg = "Starting Best Buy Task in dev mode - Bird Bot will not actually checkout. Check Settings page to disable Dev Mode"
         self.status_signal.emit(create_msg(starting_msg, "normal"))
 
         # TODO: Add Product Image To UI
 
-        if proxy:
-            self.session.proxies.update(proxy)
+        if self.shopping_proxies:
+            self.session.proxies.update(get_proxy(self.shopping_proxies))
 
         adapter = HTTPAdapter(
             max_retries=Retry(
