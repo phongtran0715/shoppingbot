@@ -9,7 +9,6 @@ from twocaptcha import TwoCaptcha
 
 config = {
 			'apiKey':'YOUR_API_KEY',
-			'callback':'handleCaptcha',
 			'defaultTimeout':120,
 			'recaptchaTimeout':600,
 			'pollingInterval':10,

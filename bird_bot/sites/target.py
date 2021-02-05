@@ -33,8 +33,6 @@ class Target:
         self.did_submit = False
         self.failed = False
         self.retry_attempts = 10
-        if settings.dont_buy:
-            starting_msg = "Starting Target in dev mode; will not actually checkout"
         self.status_signal.emit(create_msg(starting_msg, "normal"))
         self.status_signal.emit(create_msg("Logging In..", "normal"))
         self.login()
@@ -149,14 +147,11 @@ class Target:
         while not self.did_submit:
             try:
                 self.process_interruptions(silent=True)
-                if not settings.dont_buy:
-                    self.browser.find_element_by_xpath('//button[@data-test="placeOrderButton"]').click()
-                    time.sleep(5)
-                if 'https://www.target.com/co-thankyou' in self.browser.current_url or settings.dont_buy:
-                    if settings.dont_buy:
-                        self.status_signal.emit(create_msg("Mock Order Placed", "success"))
-                    else:
-                        self.status_signal.emit(create_msg("Order Placed", "success"))
+                self.browser.find_element_by_xpath('//button[@data-test="placeOrderButton"]').click()
+                time.sleep(5)
+                if 'https://www.target.com/co-thankyou' in self.browser.current_url:
+                    self.status_signal.emit(create_msg("Order Placed", "success"))
+                        
                     send_webhook("OP", "Target", self.profile["profile_name"], self.task_id, self.product_image)
                     self.did_submit = True
             except:

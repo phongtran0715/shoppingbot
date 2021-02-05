@@ -59,8 +59,6 @@ class BestBuy:
         self.auto_buy = False
         self.browser = self.init_driver()
         starting_msg = "Starting Best Buy Task"
-        if settings.dont_buy:
-            starting_msg = "Starting Best Buy Task in dev mode - Bird Bot will not actually checkout. Check Settings page to disable Dev Mode"
         self.status_signal.emit(create_msg(starting_msg, "normal"))
 
         # TODO: Add Product Image To UI
