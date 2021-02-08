@@ -77,6 +77,10 @@ class SettingsPage(QtWidgets.QWidget):
                                                  "General")
         self.onfailed_checkbox = self.create_checkbox(QtCore.QRect(30, 220, 221, 20), "Open browser on payment failed")
         self.buy_one_checkbox = self.create_checkbox(QtCore.QRect(30, 250, 221, 20), "Stop All after success")
+
+        self.dont_buy_checkbox = self.create_checkbox(QtCore.QRect(30, 280, 400, 20),
+                                                      "Don't actually buy items. (Used for dev and testing)")
+
         self.random_delay_start = self.create_edit(self.settings_card, QtCore.QRect(30, 310, 235, 20),
                                                    self.small_font, "Random Start Delay (Default is 10ms)")
         self.random_delay_stop = self.create_edit(self.settings_card, QtCore.QRect(30, 335, 235, 20),
@@ -112,6 +116,8 @@ class SettingsPage(QtWidgets.QWidget):
             self.onfailed_checkbox.setChecked(True)
         if settings['onlybuyone']:
             self.buy_one_checkbox.setChecked(True)
+        if settings['dont_buy']:
+            self.dont_buy_checkbox.setChecked(True)
         if settings['random_delay_start']:
             self.random_delay_start.setText(settings["random_delay_start"])
         if settings['random_delay_stop']:
@@ -156,6 +162,7 @@ class SettingsPage(QtWidgets.QWidget):
                     "webhookonfailed":    self.paymentfailed_checkbox.isChecked(),
                     "browseronfailed":    self.onfailed_checkbox.isChecked(),
                     "onlybuyone":         self.buy_one_checkbox.isChecked(),
+                    "dont_buy":           self.dont_buy_checkbox.isChecked(),
                     "random_delay_start": self.random_delay_start.text(),
                     "random_delay_stop":  self.random_delay_stop.text(),
                     "bestbuy_user": self.bestbuy_user_edit.text(),
@@ -171,7 +178,7 @@ class SettingsPage(QtWidgets.QWidget):
 
     def update_settings(self, settings_data):
         global webhook, webhook_on_browser, webhook_on_order, webhook_on_failed, browser_on_failed, random_delay_start, random_delay_stop, target_user, target_pass, gamestop_user, gamestop_pass
-        settings.webhook, settings.webhook_on_browser, settings.webhook_on_order, settings.webhook_on_failed, settings.browser_on_failed, settings.buy_one = settings_data["webhook"], settings_data["webhookonbrowser"], settings_data["webhookonorder"], settings_data["webhookonfailed"], settings_data["browseronfailed"], settings_data['onlybuyone']
+        settings.webhook, settings.webhook_on_browser, settings.webhook_on_order, settings.webhook_on_failed, settings.browser_on_failed, settings.buy_one, settings.dont_buy = settings_data["webhook"], settings_data["webhookonbrowser"], settings_data["webhookonorder"], settings_data["webhookonfailed"], settings_data["browseronfailed"], settings_data['onlybuyone'], settings_data['dont_buy']
 
         if settings_data.get("random_delay_start", "") != "":
             settings.random_delay_start = settings_data["random_delay_start"]

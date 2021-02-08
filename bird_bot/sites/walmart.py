@@ -431,6 +431,12 @@ class Walmart:
 			"user-agent": settings.userAgent,
 			"wm_vertical_id": "0"
 		}
+		if settings.dont_buy is True:
+			# TODO: this used to open the page up with everything filled out but only works for some users
+			self.status_signal.emit({"msg":"Opening Checkout Page","status":"alt"})
+			self.handle_captcha("https://www.walmart.com/checkout/#/payment", close_window_after=False,redirect=True) # OPEN BROWSER TO SEE IF SHIT WORKED
+			self.check_browser()  
+			return             
 
 		while True:
 			self.status_signal.emit({"msg": "Submitting Order", "status": "alt"})
