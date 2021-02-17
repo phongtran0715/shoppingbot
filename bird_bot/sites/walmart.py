@@ -45,7 +45,7 @@ class Walmart:
 		card_data, PIE_key_id, PIE_phase = self.get_PIE()
 		pi_hash = self.submit_payment(card_data, PIE_key_id, PIE_phase)
 		self.submit_billing(pi_hash)
-		self.submit_order()
+		# self.submit_order()
 
 	def monitor(self):
 		headers = {
@@ -127,7 +127,11 @@ class Walmart:
 			try:
 				shopping_proxy = get_proxy(self.shopping_proxies)
 				if shopping_proxy is not None and shopping_proxy != "":
+					print("Walmart | Task id : {} - Shopping proxy : : {}".format(self.task_id, shopping_proxy))
 					self.session.proxies.update(shopping_proxy)
+				else:
+					print("Walmart | Task id : {} - Shopping without proxy".format(self.task_id))
+
 				r = self.session.post("https://www.walmart.com/api/v3/cart/guest/:CID/items", json=body,
 									  headers=headers)
 
@@ -141,9 +145,9 @@ class Walmart:
 					self.status_signal.emit({"msg": "Added To Cart", "status": "carted"})
 					return True
 				else:
-					print("r status code : {}".format(r.status_code))
-					print("checkoutable = {}".format(json.loads(r.text)))
-					self.handle_captcha("https://www.walmart.com/cart", "shopping")
+					print("Walmart | Task id : {} - status code : {}".format(self.task_id, r.status_code))
+					blocked_url = "https://www.walmart.com" + json.loads(r.text)["redirectUrl"]
+					self.handle_captcha(blocked_url, "shopping")
 					self.status_signal.emit({"msg": "Error Adding To Cart", "status": "error"})
 					time.sleep(self.error_delay)
 					return False
@@ -354,6 +358,7 @@ class Walmart:
 					self.status_signal.emit({"msg": "Submitted Payment", "status": "normal"})
 					return pi_hash
 				self.status_signal.emit({"msg": "Error Submitting Payment", "status": "error"})
+				print("Walmart | Task id : {} - Error Submitting Payment - Status code : {} - msg : {}".format(self.task_id, r.status_code, r.text))
 				if self.check_browser():
 					return
 				time.sleep(self.error_delay)
@@ -482,7 +487,7 @@ class Walmart:
 		# options.add_argument('--ignore-certificate-errors') #removes SSL errors from terminal
 		# options.add_experimental_option("excludeSwitches", ["enable-logging"]) #removes device adapter errors from terminal
 		# browser = webdriver.Chrome(ChromeDriverManager().install(),chrome_options=options)
-		print("handle captcha; url : {}".format(url_to_open) )
+		print("Walmart | Task id : {} - handle captcha; url: {}".format(self.task_id, url_to_open))
 		browser = webdriver.Firefox(executable_path=GeckoDriverManager().install())
 		browser.get(url_to_open)
 
@@ -508,7 +513,7 @@ class Walmart:
 			#     self.captcha_mutex.unlock()
 			
 			# solve captcha by api
-			print("Waiting 2captcha to solve recaptcha...")
+			print("Walmart | Task id : {} - Waiting 2captcha to solve recaptcha...".format(self.task_id))
 			sitekey = browser.find_element_by_xpath('//*[@id="px-captcha"]/div').get_attribute("data-sitekey")
 			captcha_result  = twocaptcha_utils.solve_captcha(str(browser.current_url), str(sitekey))
 
