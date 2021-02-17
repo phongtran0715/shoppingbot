@@ -36,13 +36,15 @@ class GameStop:
 		else:
 			self.is_login = False
 		self.login()
-		result = self.add_to_cart()
-		if result == True:
-			self.submit_shipping()
-			self.submit_billing()
-			self.submit_order()
-		else:
-			return
+		# Add to cart 3 times
+		if self.max_quantity is None or self.max_quantity == "":
+			self.max_quantity = 3
+
+		for i in range(0, self.max_quantity):
+			self.add_to_cart()
+		self.submit_shipping()
+		self.submit_billing()
+		self.submit_order()
 
 	def init_shopping_driver(self):
 		# chrome_options = webdriver.ChromeOptions()
@@ -64,7 +66,7 @@ class GameStop:
 		# firefox
 		shopping_proxy = get_proxy_raw(self.shopping_proxies)
 		if shopping_proxy is not None and shopping_proxy != "":
-			print("Shopping proxy : " + str(shopping_proxy))
+			print("Gamestop | TASK {} - Shopping proxy : {}".format(self.task_id, str(shopping_proxy)))
 			firefox_capabilities = webdriver.DesiredCapabilities.FIREFOX
 			firefox_capabilities['marionette'] = True
 			firefox_capabilities['proxy'] = {
@@ -145,6 +147,7 @@ class GameStop:
 								time.sleep(self.MONITOR_DELAY)
 							else:
 								print("Gamestop | TASK {} - Found product".format(self.task_id))
+								# TODO: checking for “Free store pick up” or “Ship to Home”
 								return
 				else:
 					print("Gamestop | TASK {} - Connection error - status code = {} - msg = {}".format(self.task_id, r.status_code, r.text))

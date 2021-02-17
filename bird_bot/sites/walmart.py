@@ -26,6 +26,9 @@ class Walmart:
 		if shopping_proxy is not None and shopping_proxy != "":
 			self.session.proxies.update(shopping_proxy)
 
+		if self.max_quantity is None or self.max_quantity == "":
+			self.max_quantity = 1
+
 		starting_msg = "Starting"
 		self.status_signal.emit({"msg": starting_msg, "status": "normal"})
 		self.product_image, offer_id = self.monitor()
@@ -117,7 +120,7 @@ class Walmart:
 			"user-agent": settings.userAgent,
 			"wm_offer_id": offer_id
 		}
-		body = {"offerId": offer_id, "quantity": 1,
+		body = {"offerId": offer_id, "quantity": self.max_quantity,
 				"location": {"postalCode": self.profile["shipping_zipcode"], "city": self.profile["shipping_city"],
 							 "state": self.profile["shipping_state"], "isZipLocated": True},
 				"shipMethodDefaultRule": "SHIP_RULE_1"}
