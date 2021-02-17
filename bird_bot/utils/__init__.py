@@ -100,7 +100,7 @@ def get_profile(profile_name):
 
 def get_proxy(list_name):
     if list_name == "Proxy List" or list_name == "None":
-        return False
+        return None
     proxies = return_data("./data/proxies.json")
     for proxy_list in proxies:
         if proxy_list["list_name"] == list_name:
@@ -109,7 +109,7 @@ def get_proxy(list_name):
 
 def get_proxy_raw(list_name):
     if list_name == "Proxy List" or list_name == "None":
-        return False
+        return None
     proxies = return_data("./data/proxies.json")
     for proxy_list in proxies:
         if proxy_list["list_name"] == list_name:

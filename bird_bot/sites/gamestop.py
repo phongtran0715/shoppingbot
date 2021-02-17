@@ -29,7 +29,6 @@ class GameStop:
 			starting_msg = "Starting GameStop in dev mode; will not actually checkout."
 
 		self.status_signal.emit(create_msg(starting_msg, "normal"))
-		self.monitoring_browser = self.init_monitoring_driver()
 		self.monitor()
 		self.browser = self.init_shopping_driver()
 		if settings.gamestop_user != None and settings.gamestop_user != "" and settings.gamestop_pass != None and settings.gamestop_pass != "":
@@ -37,10 +36,13 @@ class GameStop:
 		else:
 			self.is_login = False
 		self.login()
-		self.add_to_cart()
-		self.submit_shipping()
-		self.submit_billing()
-		self.submit_order()
+		result = self.add_to_cart()
+		if result == True:
+			self.submit_shipping()
+			self.submit_billing()
+			self.submit_order()
+		else:
+			return
 
 	def init_shopping_driver(self):
 		# chrome_options = webdriver.ChromeOptions()
@@ -63,32 +65,15 @@ class GameStop:
 		shopping_proxy = get_proxy_raw(self.shopping_proxies)
 		if shopping_proxy is not None and shopping_proxy != "":
 			print("Shopping proxy : " + str(shopping_proxy))
-			proxy = Proxy({
-				'proxyType': ProxyType.MANUAL,
-				'httpProxy': shopping_proxy,
-				'ftpProxy': shopping_proxy,
-				'sslProxy': shopping_proxy,
-				'noProxy': '' # set this value as desired
-			})
-			browser = webdriver.Firefox(executable_path=GeckoDriverManager().install(), proxy=proxy)
-		else:
-			browser = webdriver.Firefox(executable_path=GeckoDriverManager().install())
-
-		return browser
-
-	def init_monitoring_driver(self):
-		# firefox
-		monitoring_proxy = get_proxy_raw(self.monitor_proxies)
-		if monitoring_proxy is not None and monitoring_proxy != "":
-			print("Shopping proxy : " + str(monitoring_proxy))
-			proxy = Proxy({
-				'proxyType': ProxyType.MANUAL,
-				'httpProxy': monitoring_proxy,
-				'ftpProxy': monitoring_proxy,
-				'sslProxy': monitoring_proxy,
-				'noProxy': '' # set this value as desired
-			})
-			browser = webdriver.Firefox(executable_path=GeckoDriverManager().install(), proxy=proxy)
+			firefox_capabilities = webdriver.DesiredCapabilities.FIREFOX
+			firefox_capabilities['marionette'] = True
+			firefox_capabilities['proxy'] = {
+				"proxyType": "MANUAL",
+				"httpProxy": shopping_proxy,
+				"ftpProxy": shopping_proxy,
+				"sslProxy": shopping_proxy
+			}
+			browser = webdriver.Firefox(executable_path=GeckoDriverManager().install(),capabilities=firefox_capabilities)
 		else:
 			browser = webdriver.Firefox(executable_path=GeckoDriverManager().install())
 
@@ -122,72 +107,80 @@ class GameStop:
 		wait(self.browser, self.LONG_TIMEOUT).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="signinCheck"]/button')))
 		sign_in_btn = self.browser.find_element_by_xpath('//*[@id="signinCheck"]/button')
 		sign_in_btn.click()
-		time.sleep(2)
+		time.sleep(5)
+
+	def monitor(self):
+		headers = {
+			"accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
+			"accept-encoding": "gzip, deflate, br",
+			"accept-language": "en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7",
+			"cache-control": "max-age=0",
+			"upgrade-insecure-requests": "1",
+			"user-agent": settings.userAgent
+		}
+		self.session = requests.Session()
+		monitor_proxy = get_proxy(self.monitor_proxies)
+		if monitor_proxy is not None and monitor_proxy != "":
+			self.session.proxies.update(monitor_proxy)
+			print("Gamestop | TASK {} - Monitoring by proxy{}".format(self.task_id, monitor_proxy))
+		else:
+			print("Gamestop | TASK {} - Monitoring without proxy".format(self.task_id))
+		while True:
+			self.status_signal.emit(create_msg("Checking Product ..", "normal"))
+			try:
+				r = self.session.get(self.product, headers=headers)
+				if r.status_code == 200:
+					doc = lxml.html.fromstring(r.text)
+					if self.is_product_disable(doc, '//button[@data-buttontext="Add to Cart"][@disabled="disabled"]'):
+						print("Gamestop | TASK {} - Product is not available".format(self.task_id))
+						item = doc.xpath("//button[@class='add-to-cart btn btn-primary ']")
+						self.status_signal.emit(create_msg("Waiting For Restock", "normal"))
+						time.sleep(self.MONITOR_DELAY)
+					else:
+						if self.is_xpath_exist(doc, '//button[@data-buttontext="Add to Cart"]'):
+							add_to_cart_btn = doc.xpath('//button[@data-buttontext="Add to Cart"]')[0]
+							if add_to_cart_btn is None:
+								print("Gamestop | TASK {} - Add to cart button not found".format(self.task_id))
+								self.status_signal.emit(create_msg("Waiting For Restock", "normal"))
+								time.sleep(self.MONITOR_DELAY)
+							else:
+								print("Gamestop | TASK {} - Found product".format(self.task_id))
+								return
+				else:
+					print("Gamestop | TASK {} - Connection error - status code = {} - msg = {}".format(self.task_id, r.status_code, r.text))
+					self.status_signal.emit(create_msg("Waiting For Restock", "normal"))
+					time.sleep(self.MONITOR_DELAY)
+			except Exception as e :
+				self.status_signal.emit({"msg": "Error Loading Product Page (line {} {} {})".format(
+					sys.exc_info()[-1].tb_lineno, type(e).__name__, e), "status": "error"})
+				print("Not found add to cart button\n");
+				time.sleep(self.MONITOR_DELAY)
 
 	# def monitor(self):
-	# 	headers = {
-	# 		"accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
-	# 		"accept-encoding": "gzip, deflate, br",
-	# 		"accept-language": "en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7",
-	# 		"cache-control": "max-age=0",
-	# 		"upgrade-insecure-requests": "1",
-	# 		"user-agent": settings.userAgent
-	# 	}
-	# 	self.session = requests.Session()
-	# 	monitor_proxy = get_proxy(self.monitor_proxies)
-	# 	if monitor_proxy is not None and monitor_proxy != "":
-	# 		self.session.proxies.update(monitor_proxy)
-	# 		print("Monitoring by proxy : {}".format(monitor_proxy))
+	# 	self.status_signal.emit(create_msg("Monitoring Product ..", "normal"))
+	# 	self.monitoring_browser.get(self.product)
+	# 	wait(self.monitoring_browser, self.LONG_TIMEOUT).until(lambda _: self.monitoring_browser.current_url == self.product)
 	# 	while True:
-	# 		self.status_signal.emit(create_msg("Checking Product ..", "normal"))
 	# 		try:
-	# 			r = self.session.get(self.product, headers=headers)
-	# 			if r.status_code == 200:
-	# 				doc = lxml.html.fromstring(r.text)
-	# 				if self.is_xpath_exist(doc, '//button[@data-buttontext="Add to Cart"][@disabled="disabled"]'):
-	# 					item = doc.xpath("//button[@class='add-to-cart btn btn-primary ']")
-	# 					print(item.text_content())
-	# 					self.status_signal.emit(create_msg("Waiting For Restock", "normal"))
-	# 					time.sleep(self.MONITOR_DELAY)
-	# 				else:
-	# 					if self.is_xpath_exist(doc, '//button[@data-buttontext="Add to Cart"]'):
-	# 						add_to_cart_btn = doc.xpath('//button[@data-buttontext="Add to Cart"]')[0]
-	# 						if add_to_cart_btn is None:
-	# 							self.status_signal.emit(create_msg("Waiting For Restock", "normal"))
-	# 							time.sleep(self.MONITOR_DELAY)
-	# 						else:
-	# 							return
+	# 			wait(self.monitoring_browser, self.LONG_TIMEOUT).until(EC.element_to_be_clickable((By.XPATH, '//button[@data-buttontext="Add to Cart"]')))
+	# 			add_to_cart_btn = self.monitoring_browser.find_element_by_xpath('//button[@data-buttontext="Add to Cart"]')
+	# 			if add_to_cart_btn is not None:
+	# 				self.monitoring_browser.close()
+	# 				print("Gamestop | Task id : {} - Found product".format(self.task_id))
+	# 				return
 	# 			else:
 	# 				self.status_signal.emit(create_msg("Waiting For Restock", "normal"))
 	# 				time.sleep(self.MONITOR_DELAY)
-	# 		except Exception as e :
-	# 			self.status_signal.emit({"msg": "Error Loading Product Page (line {} {} {})".format(
-	# 				sys.exc_info()[-1].tb_lineno, type(e).__name__, e), "status": "error"})
-	# 			print("Not found add to cart button\n");
+	# 		except Exception as e:
+	# 			# self.status_signal.emit({"msg": "Error Adding to card (line {} {} {})".format(
+	# 			# 	sys.exc_info()[-1].tb_lineno, type(e).__name__, e), "status": "error"})
+	# 			print("Not found avialable add to cart button")
+	# 			self.status_signal.emit(create_msg("Waiting For Restock", "normal"))
 	# 			time.sleep(self.MONITOR_DELAY)
-	def monitor(self):
-		self.status_signal.emit(create_msg("Monitoring Product ..", "normal"))
-		self.monitoring_browser.get(self.product)
-		wait(self.monitoring_browser, self.LONG_TIMEOUT).until(lambda _: self.monitoring_browser.current_url == self.product)
-		while True:
-			try:
-				wait(self.monitoring_browser, self.LONG_TIMEOUT).until(EC.element_to_be_clickable((By.XPATH, '//button[@data-buttontext="Add to Cart"]')))
-				add_to_cart_btn = self.monitoring_browser.find_element_by_xpath('//button[@data-buttontext="Add to Cart"]')
-				if add_to_cart_btn is not None:
-					self.monitoring_browser.close()
-					return
-				else:
-					self.status_signal.emit(create_msg("Waiting For Restock", "normal"))
-					time.sleep(self.MONITOR_DELAY)
-			except Exception as e:
-				# self.status_signal.emit({"msg": "Error Adding to card (line {} {} {})".format(
-				# 	sys.exc_info()[-1].tb_lineno, type(e).__name__, e), "status": "error"})
-				print("Not found avialable add to cart button")
-				self.status_signal.emit(create_msg("Waiting For Restock", "normal"))
-				time.sleep(self.MONITOR_DELAY)
 
 
 	def add_to_cart(self):
+		result = False
 		self.status_signal.emit(create_msg("Adding To Cart..", "normal"))
 		self.browser.get(self.product)
 		wait(self.browser, self.LONG_TIMEOUT).until(lambda _: self.browser.current_url == self.product)
@@ -196,6 +189,7 @@ class GameStop:
 			add_to_cart_btn = self.browser.find_element_by_xpath('//button[@data-buttontext="Add to Cart"]')
 			add_to_cart_btn.click()
 			time.sleep(self.SHORT_TIMEOUT)
+			result = True
 			self.status_signal.emit(create_msg("Added to cart", "normal"))
 		except Exception as e:
 			self.status_signal.emit({"msg": "Error Adding to card (line {} {} {})".format(
@@ -333,9 +327,22 @@ class GameStop:
 		try:
 			item = doc.xpath(xpath_str)[0]
 			if item is not None:
-				print("Found button {}".format(item))
 				result = True
 		except:
+			result = False
+		return result
+
+	def is_product_disable(self, doc, xpath_str):
+		result = False
+		try:
+			item = doc.xpath(xpath_str)[0]
+			if item is not None:
+				msg = str(lxml.html.tostring(item))
+				if "Not Available" in msg:
+					result = True
+				else:
+					result = False
+		except Exception as e:
 			result = False
 		return result
 
