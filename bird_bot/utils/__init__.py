@@ -38,7 +38,7 @@ else:
     init()
 
 print(
-    normal_color + "Welcome To Bird Bot v1.3")
+    normal_color + "Welcome To Bird Bot v1.5")
 
 
 class BirdLogger:

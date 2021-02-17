@@ -120,7 +120,7 @@ class Walmart:
 			"user-agent": settings.userAgent,
 			"wm_offer_id": offer_id
 		}
-		body = {"offerId": offer_id, "quantity": self.max_quantity,
+		body = {"offerId": offer_id, "quantity": int(self.max_quantity),
 				"location": {"postalCode": self.profile["shipping_zipcode"], "city": self.profile["shipping_city"],
 							 "state": self.profile["shipping_state"], "isZipLocated": True},
 				"shipMethodDefaultRule": "SHIP_RULE_1"}

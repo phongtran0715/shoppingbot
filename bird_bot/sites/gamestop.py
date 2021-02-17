@@ -36,11 +36,11 @@ class GameStop:
 		else:
 			self.is_login = False
 		self.login()
-		# Add to cart 3 times
-		if self.max_quantity is None or self.max_quantity == "":
+		# Add to cart maximum 3 items
+		if self.max_quantity is None or self.max_quantity == "" or int(self.max_quantity) > 3:
 			self.max_quantity = 3
 
-		for i in range(0, self.max_quantity):
+		for i in range(0, int(self.max_quantity)):
 			self.add_to_cart()
 		self.submit_shipping()
 		self.submit_billing()
