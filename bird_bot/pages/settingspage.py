@@ -1,6 +1,7 @@
 from theming.styles import globalStyles
 from PyQt5 import QtCore, QtGui, QtWidgets
 from utils import return_data,write_data,Encryption
+from pages.accounts_setting_page import AccountsManager
 import sys,platform,settings
 
 def no_abort(a, b, c):
@@ -81,6 +82,17 @@ class SettingsPage(QtWidgets.QWidget):
         self.dont_buy_checkbox = self.create_checkbox(QtCore.QRect(30, 280, 400, 20),
                                                       "Don't actually buy items. (Used for dev and testing)")
 
+        self.account_header = self.create_header(self.settings_card, QtCore.QRect(20, 320, 101, 31), self.header_font,
+                                                 "Accounts")
+        self.accounts_settings_btn = QtWidgets.QPushButton(self.settings_card)
+        self.accounts_settings_btn.setGeometry(QtCore.QRect(40, 360, 200, 32))
+        self.accounts_settings_btn.setFont(self.small_font)
+        self.accounts_settings_btn.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
+        self.accounts_settings_btn.setStyleSheet("color: #FFFFFF;background-color: {};border-radius: 10px;border: 1px solid #2e2d2d;".format(globalStyles["primary"]))
+        self.accounts_settings_btn.setText("Accounts manager")
+        self.accounts_settings_btn.clicked.connect(self.btnAccountSetting_clicked)
+
+        '''
         self.random_delay_start = self.create_edit(self.settings_card, QtCore.QRect(30, 310, 235, 20),
                                                    self.small_font, "Random Start Delay (Default is 10ms)")
         self.random_delay_stop = self.create_edit(self.settings_card, QtCore.QRect(30, 335, 235, 20),
@@ -99,6 +111,7 @@ class SettingsPage(QtWidgets.QWidget):
                                                  self.small_font, "Gamestop.com Username (Email)")
         self.gamestop_pass_edit = self.create_edit(self.settings_card, QtCore.QRect(300, 390, 235, 20),
                                                  self.small_font, "Gamestop.com Password")
+        '''
         
         self.set_data()
         QtCore.QMetaObject.connectSlotsByName(settingspage)
@@ -118,6 +131,7 @@ class SettingsPage(QtWidgets.QWidget):
             self.buy_one_checkbox.setChecked(True)
         if settings['dont_buy']:
             self.dont_buy_checkbox.setChecked(True)
+        '''
         if settings['random_delay_start']:
             self.random_delay_start.setText(settings["random_delay_start"])
         if settings['random_delay_stop']:
@@ -153,6 +167,7 @@ class SettingsPage(QtWidgets.QWidget):
         except:
             self.gamestop_pass_edit.setText("")
 
+        '''
         self.update_settings(settings)
 
     def save_settings(self):
@@ -162,24 +177,30 @@ class SettingsPage(QtWidgets.QWidget):
                     "webhookonfailed":    self.paymentfailed_checkbox.isChecked(),
                     "browseronfailed":    self.onfailed_checkbox.isChecked(),
                     "onlybuyone":         self.buy_one_checkbox.isChecked(),
-                    "dont_buy":           self.dont_buy_checkbox.isChecked(),
-                    "random_delay_start": self.random_delay_start.text(),
-                    "random_delay_stop":  self.random_delay_stop.text(),
-                    "bestbuy_user": self.bestbuy_user_edit.text(),
-                    "bestbuy_pass": Encryption().encrypt(self.bestbuy_pass_edit.text()).decode("utf-8"),
-                    "target_user": self.target_user_edit.text(),
-                    "target_pass": Encryption().encrypt(self.target_pass_edit.text()).decode("utf-8"),
-                    "gamestop_user": self.gamestop_user_edit.text(),
-                    "gamestop_pass": Encryption().encrypt(self.gamestop_pass_edit.text()).decode("utf-8")}
-
+                    "dont_buy":           self.dont_buy_checkbox.isChecked()}
+                    # '''
+                    # "random_delay_start": self.random_delay_start.text(),
+                    # "random_delay_stop":  self.random_delay_stop.text(),
+                    # "bestbuy_user": self.bestbuy_user_edit.text(),
+                    # "bestbuy_pass": Encryption().encrypt(self.bestbuy_pass_edit.text()).decode("utf-8"),
+                    # "target_user": self.target_user_edit.text(),
+                    # "target_pass": Encryption().encrypt(self.target_pass_edit.text()).decode("utf-8"),
+                    # "gamestop_user": self.gamestop_user_edit.text(),
+                    # "gamestop_pass": Encryption().encrypt(self.gamestop_pass_edit.text()).decode("utf-8")
+                    # '''
         write_data("./data/settings.json",settings)
         self.update_settings(settings)
         QtWidgets.QMessageBox.information(self, "Bird Bot", "Saved Settings")
+
+    def btnAccountSetting_clicked(self):
+        self.account_settings_frm = AccountsManager()
+        self.account_settings_frm.show()
 
     def update_settings(self, settings_data):
         global webhook, webhook_on_browser, webhook_on_order, webhook_on_failed, browser_on_failed, random_delay_start, random_delay_stop, target_user, target_pass, gamestop_user, gamestop_pass
         settings.webhook, settings.webhook_on_browser, settings.webhook_on_order, settings.webhook_on_failed, settings.browser_on_failed, settings.buy_one, settings.dont_buy = settings_data["webhook"], settings_data["webhookonbrowser"], settings_data["webhookonorder"], settings_data["webhookonfailed"], settings_data["browseronfailed"], settings_data['onlybuyone'], settings_data['dont_buy']
 
+        '''
         if settings_data.get("random_delay_start", "") != "":
             settings.random_delay_start = settings_data["random_delay_start"]
         if settings_data.get("random_delay_stop", "") != "":
@@ -196,3 +217,4 @@ class SettingsPage(QtWidgets.QWidget):
             settings.gamestop_user = settings_data["gamestop_user"]
         if settings_data.get("gamestop_pass", "") != "":
             settings.gamestop_pass = (Encryption().decrypt(settings_data["gamestop_pass"].encode("utf-8"))).decode("utf-8")
+        '''

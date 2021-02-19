@@ -1,17 +1,1 @@
-{
-  "webhook": "",
-  "webhookonbrowser": true,
-  "webhookonorder": true,
-  "webhookonfailed": true,
-  "browseronfailed": true,
-  "onlybuyone": true,
-  "dont_buy": false,
-  "random_delay_start": "30",
-  "random_delay_stop": "",
-  "bestbuy_user": "",
-  "bestbuy_pass": "Ut23MjoWStXv9YAoYmszKQ==",
-  "target_user": "",
-  "target_pass": "1VOaPZ/Lp3hxAefiQ913wA==",
-  "gamestop_user": "",
-  "gamestop_pass": "lzaAeDjGETjRVdZ0mP7LPg=="
-}
+{"webhook": "https://discord.com/api/webhooks/804620371495878706/2zWDVrNQ6QRfYnR-fN-WrYeYFDiykOgt9w-OIedjhuC9rXCa-IgOQh5uziT1DURCWNe5", "webhookonbrowser": true, "webhookonorder": true, "webhookonfailed": true, "browseronfailed": true, "onlybuyone": true, "dont_buy": true}
