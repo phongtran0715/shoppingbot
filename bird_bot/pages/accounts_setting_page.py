@@ -1,7 +1,7 @@
 import os
 from PyQt5 import QtWidgets, uic, QtGui, QtCore
 from PyQt5.QtWidgets import *
-from pages.new_account_page import NewAccount
+from pages.new_account_dialog import NewAccount
 from model.account_model import AccountModel
 from utils import return_data,write_data,get_profile,Encryption
 

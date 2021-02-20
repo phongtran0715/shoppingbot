@@ -1,7 +1,9 @@
 from theming.styles import globalStyles
 from PyQt5 import QtCore, QtGui, QtWidgets
-from pages.homepage import HomePage, TaskTab
+from pages.homepage import HomePage
+from pages.task_tab import TaskTab
 from pages.createdialog import CreateDialog
+from pages.new_task_dialog import NewTask
 from pages.profilespage import ProfilesPage
 from pages.proxiespage import ProxiesPage
 from pages.settingspage import SettingsPage
@@ -98,10 +100,12 @@ class MainWindow(QtWidgets.QMainWindow):
         self.logo.setPixmap(QtGui.QPixmap("images/birdbot.png"))
         self.logo.setScaledContents(True)
         self.homepage = HomePage(self.centralwidget)
+        
         self.createdialog = CreateDialog(self)
         self.createdialog.addtask_btn.clicked.connect(self.create_task)
         self.createdialog.setWindowIcon(QtGui.QIcon("images/birdbot.png"))
         self.createdialog.hide()
+        
         self.profilespage = ProfilesPage(self.centralwidget)
         self.profilespage.hide()
         self.proxiespage = ProxiesPage(self.centralwidget)
@@ -118,7 +122,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.profiles_tab.mousePressEvent = lambda event: self.change_page(event, "profiles")
         self.proxies_tab.mousePressEvent = lambda event: self.change_page(event, "proxies")
         self.settings_tab.mousePressEvent = lambda event: self.change_page(event, "settings")
-        self.homepage.newtask_btn.clicked.connect(self.createdialog.show)
+        # self.homepage.newtask_btn.clicked.connect(self.createdialog.show)
     
     def change_page(self,event,current_page):
         eval('self.{}_active_tab.setStyleSheet("background-color: transparent;border: none;")'.format(self.current_page))
