@@ -84,7 +84,6 @@ class ProxiesPage(QtWidgets.QWidget):
             list_name = proxies_list["list_name"]
             self.loadlist_box.addItem(list_name)
             self.parent().parent().createdialog.monitor_proxies_box.addItem(list_name)
-            self.parent().parent().createdialog.shopping_proxies_box.addItem(list_name)
 
     def load_proxies(self):
         list_name = self.loadlist_box.currentText()
@@ -117,7 +116,6 @@ class ProxiesPage(QtWidgets.QWidget):
             if self.loadlist_box.findText(list_name) == -1:
                 self.loadlist_box.addItem(list_name)
                 self.parent().parent().createdialog.monitor_proxies_box.addItem(list_name)
-                self.parent().parent().createdialog.shopping_proxies_box.addItem(list_name)
             QtWidgets.QMessageBox.information(self, "Bird Bot", "Saved Proxies")
         else:
             QtWidgets.QMessageBox.critical(self, "Bird Bot", "Missing Fields")
@@ -132,7 +130,6 @@ class ProxiesPage(QtWidgets.QWidget):
         write_data("./data/proxies.json",proxies)
         self.loadlist_box.removeItem(self.loadlist_box.findText(list_name))
         self.parent().parent().createdialog.monitor_proxies_box.removeItem(self.parent().parent().createdialog.monitor_proxies_box.findText(list_name))
-        self.parent().parent().createdialog.shopping_proxies_box.removeItem(self.parent().parent().createdialog.shopping_proxies_box.findText(list_name))
         self.loadlist_box.setCurrentIndex(0)
         self.listname_edit.setText("")
         self.proxies_edit.setText("")

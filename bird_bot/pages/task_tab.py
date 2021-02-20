@@ -13,23 +13,20 @@ import settings
 
 
 class TaskTab(QtWidgets.QWidget):
-    def __init__(self,site,product,profile,monitor_proxies,shopping_proxies,monitor_delay,error_delay,max_price,max_quantity,stop_all,parent=None):
+    def __init__(self,task_id, site,product,monitor_proxies,monitor_delay,error_delay,max_price,max_quantity,account, stop_all, scroll_content, parent=None):
         super(TaskTab, self).__init__(parent)
-        # self.task_id = str(int(tasks_total_count.text())+1)
-        self.task_id = "1";
-        # tasks_total_count.setText(self.task_id)
-        self.site,self.product,self.profile,self.monitor_delay,self.error_delay,self.max_price,self.stop_all = site,product,profile,monitor_delay,error_delay,max_price,stop_all
+        self.task_id = task_id;
+        self.site = site
+        self.product = product
         self.monitor_proxies = monitor_proxies
-        self.shopping_proxies = shopping_proxies
+        self.monitor_delay = monitor_delay
+        self.error_delay =error_delay
+        self.max_price = max_price
         self.max_quantity = max_quantity
+        self.stop_all = stop_all
+        self.account = account
+        self.parent = parent
         self.setupUi(self)
-        # tasks.append(self)
-        # tasks_data = return_data("./data/tasks.json")
-        # task_data = {"task_id": self.task_id,"site":self.site,"product": self.product,"profile": self.profile,"monitor_proxies": self.monitor_proxies,
-        # "shopping_proxies": self.shopping_proxies, "monitor_delay": self.monitor_delay,"error_delay": self.error_delay,"max_price": self.max_price,
-        # "max_quantity": self.max_quantity}
-        # tasks_data.append(task_data)
-        # write_data("./data/tasks.json",tasks_data)
 
     def setupUi(self,TaskTab):
         self.running = False
@@ -134,9 +131,8 @@ class TaskTab(QtWidgets.QWidget):
     def load_labels(self):
         self.id_label.setText(self.task_id)
         self.product_label.setText(self.product)
-        self.profile_label.setText(self.profile)
+        self.profile_label.setText(self.account)
         self.monitor_proxies_label.setText(self.monitor_proxies)
-        self.shopping_proxies_label.setText(self.shopping_proxies)
         self.status_label.setText("Idle")
         self.browser_label.setText("Click To Open Browser")
         self.site_label.setText(self.site)
@@ -218,13 +214,12 @@ class TaskTab(QtWidgets.QWidget):
                 self.task_id,
                 self.site_label.text(),
                 self.product_label.text(),
-                self.profile_label.text(),
                 self.monitor_proxies_label.text(),
-                self.shopping_proxies_label.text(),
                 self.monitor_delay_label.text(),
                 self.error_delay_label.text(),
                 self.max_price_label.text(),
-                self.max_quantity_label.text()
+                self.max_quantity_label.text(),
+                self.profile_label.text()
             )
             self.task.start()
             self.running = True
@@ -237,34 +232,19 @@ class TaskTab(QtWidgets.QWidget):
         self.start_btn.raise_()
 
     def edit(self,event):
-        self.edit_dialog = CreateDialog()
-        self.edit_dialog.addtask_btn.clicked.connect(self.update_task)
-        self.edit_dialog.taskcount_spinbox.hide()
-        self.edit_dialog.profile_box.clear()
-        self.edit_dialog.monitor_proxies_box.clear()
-        self.edit_dialog.shopping_proxies_box.clear()
-        
-        profile_combobox = self.parent().parent().parent().parent().parent().parent().parent().createdialog.profile_box
-        for profile in [profile_combobox.itemText(i) for i in range(profile_combobox.count())]:
-            self.edit_dialog.profile_box.addItem(profile)
-        
-        mproxies_combobox = self.parent().parent().parent().parent().parent().parent().parent().createdialog.monitor_proxies_box
-        for proxy in [mproxies_combobox.itemText(i) for i in range(mproxies_combobox.count())]:
-            self.edit_dialog.monitor_proxies_box.addItem(proxy)
-
-        sproxies_combobox = self.parent().parent().parent().parent().parent().parent().parent().createdialog.shopping_proxies_box
-        for proxy in [sproxies_combobox.itemText(i) for i in range(sproxies_combobox.count())]:
-            self.edit_dialog.shopping_proxies_box.addItem(proxy)
-        
-        self.edit_dialog.load_data(self)
-        self.edit_dialog.show()
+        pass
+        # self.edit_dialog = NewTask()
+        # # self.edit_dialog.load_data(self)
+        # self.edit_dialog.show()
+        # if self.edit_dialog.exec_() == QtWidgets.QDialog.Accepted:
+        #     pass
+        #     # TODO: update task
 
     def update_task(self):
         self.site=self.edit_dialog.site_box.currentText()
         self.product=self.edit_dialog.input_edit.text()
-        self.profile=self.edit_dialog.profile_box.currentText()
+        self.account=self.edit_dialog.profile_box.currentText()
         self.monitor_proxies=self.edit_dialog.monitor_proxies_box.currentText()
-        self.shopping_proxies=self.edit_dialog.shopping_proxies_box.currentText()
         self.monitor_delay=self.edit_dialog.monitor_edit.text()
         self.error_delay = self.edit_dialog.error_edit.text()
         self.max_price = self.edit_dialog.price_edit.text()
@@ -272,9 +252,10 @@ class TaskTab(QtWidgets.QWidget):
         self.load_labels()
         self.delete_json()
         tasks_data = return_data("./data/tasks.json")
-        task_data = {"task_id": self.task_id, "site": self.site, "product": self.product, "profile": self.profile,
-                     "monitor_proxies": self.monitor_proxies, "shopping_proxies": self.shopping_proxies, "monitor_delay": self.monitor_delay,
-                     "error_delay": self.error_delay, "max_price": self.max_price, "max_quantity": self.max_quantity}
+        task_data = {"task_id": self.task_id, "site": self.site, "product": self.product,
+                     "monitor_proxies": self.monitor_proxies, "monitor_delay": self.monitor_delay,
+                     "error_delay": self.error_delay, "max_price": self.max_price,
+                     "max_quantity": self.max_quantity, "account": self.account}
         tasks_data.append(task_data)
         write_data("./data/tasks.json",tasks_data)
         self.edit_dialog.deleteLater()
@@ -288,7 +269,7 @@ class TaskTab(QtWidgets.QWidget):
         write_data("./data/tasks.json", tasks_data)
 
     def delete(self,event):
-        tasks_total_count.setText(str(int(tasks_total_count.text()) - 1))
+        self.parent.tasks_total_count.setText(str(int(self.parent.tasks_total_count.text()) - 1))
         self.delete_json()
         self.TaskTab.deleteLater()
 

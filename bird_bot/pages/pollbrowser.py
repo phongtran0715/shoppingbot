@@ -1,5 +1,4 @@
 from theming.styles import globalStyles
-from pages.createdialog import CreateDialog
 from PyQt5 import QtCore, QtGui, QtWidgets
 import sys,platform
 
