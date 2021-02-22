@@ -122,7 +122,7 @@ class GameStop:
 		else:
 			print("Gamestop | TASK {} - Monitoring without proxy".format(self.task_id))
 		while True:
-			self.status_signal.emit(create_msg("Checking Product ..", "normal"))
+			self.status_signal.emit(create_msg("Monitoring Product ..", "normal"))
 			try:
 				r = self.session.get(self.product, headers=headers)
 				if r.status_code == 200:

@@ -69,7 +69,7 @@ class TaskThread(QtCore.QThread):
 			Walmart(self.task_id,self.status_signal, self.image_signal,  self.wait_poll_signal, self.wait_condition, self.product,
 				self.monitor_proxies, self.monitor_delay, self.error_delay, self.max_price, self.max_quantity, self.account)
 		elif self.site == "Bestbuy":
-			BestBuy(self.status_signal, self.image_signal, self.product, self.monitor_proxies,
+			BestBuy(self.task_id, self.status_signal, self.image_signal, self.product, self.monitor_proxies,
 			self.monitor_delay, self.error_delay, self.account)
 		elif self.site == "Target":
 			Target(self.task_id, self.status_signal, self.image_signal, self.product, self.monitor_proxies,

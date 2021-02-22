@@ -3,8 +3,12 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait as wait
 from webdriver_manager.chrome import ChromeDriverManager
+from webdriver_manager.firefox import GeckoDriverManager
 from chromedriver_py import binary_path as driver_path
-from utils import random_delay, send_webhook, create_msg
+from utils import (random_delay, send_webhook, create_msg,
+    get_profile, get_proxy, get_proxy_raw, get_account,
+    get_proxy_by_account,
+    get_profile_by_account)
 from utils.selenium_utils import change_driver
 import settings, time
 
@@ -19,6 +23,9 @@ class Target:
         self.monitor_delay = float(monitor_delay)
         self.error_delay = float(error_delay)
         self.account = account
+        account_item = get_account(self.account)
+        self.profile = get_profile(account_item['profile'])
+
         self.xpath_sequence = [
             {'type': 'method', 'path': '//button[@data-test="orderPickupButton"] | //button[@data-test="shipItButton"]', 'method': self.find_and_click_atc, 'message': 'Added to cart', 'message_type': 'normal', 'optional': False}
             , {'type': 'button', 'path': '//button[@data-test="espModalContent-declineCoverageButton"]', 'message': 'Declining Coverage', 'message_type': 'normal', 'optional': True}
@@ -32,7 +39,7 @@ class Target:
             , {'type': 'input', 'path': '//input[@id="creditCardInput-cvv"]', 'args': {'value': self.profile['card_cvv']}, 'message': 'Entering CC #', 'message_type': 'normal'}
         ]
         starting_msg = "Starting Target"
-        self.browser = self.init_driver()
+        self.browser = self.init_driver(account_item)
         self.product_image = None
         self.TIMEOUT_SHORT = 5
         self.TIMEOUT_LONG = 20
@@ -41,42 +48,58 @@ class Target:
         self.retry_attempts = 10
         self.status_signal.emit(create_msg(starting_msg, "normal"))
         self.status_signal.emit(create_msg("Logging In..", "normal"))
-        self.login()
+        self.login(account_item)
         self.img_found = False
-        self.product_loop()
+        # self.product_loop()
         send_webhook("OP", "Target", self.profile["profile_name"], self.task_id, self.product_image)
 
-    def init_driver(self):
-        driver_manager = ChromeDriverManager()
-        driver_manager.install()
-        change_driver(self.status_signal, driver_path)
-        var = driver_path
-        browser = webdriver.Chrome(driver_path)
+    def init_driver(self, account):
+        # driver_manager = ChromeDriverManager()
+        # driver_manager.install()
+        # change_driver(self.status_signal, driver_path)
+        # var = driver_path
+        # browser = webdriver.Chrome(driver_path)
 
-        browser.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {
-            "source": """
-                  Object.defineProperty(navigator, 'webdriver', {
-                   get: () => undefined
-                  })
-                """
-        })
+        # browser.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {
+        #     "source": """
+        #           Object.defineProperty(navigator, 'webdriver', {
+        #            get: () => undefined
+        #           })
+        #         """
+        # })
+        shopping_proxy = get_proxy_raw(account['proxy'])
+        if shopping_proxy is not None and shopping_proxy != "":
+            print("Gamestop | TASK {} - Shopping proxy : {}".format(self.task_id, str(shopping_proxy)))
+            firefox_capabilities = webdriver.DesiredCapabilities.FIREFOX
+            firefox_capabilities['marionette'] = True
+            firefox_capabilities['proxy'] = {
+                "proxyType": "MANUAL",
+                "httpProxy": shopping_proxy,
+                "ftpProxy": shopping_proxy,
+                "sslProxy": shopping_proxy
+            }
+            browser = webdriver.Firefox(executable_path=GeckoDriverManager().install(),capabilities=firefox_capabilities)
+        else:
+            browser = webdriver.Firefox(executable_path=GeckoDriverManager().install())
 
         return browser
 
-    def login(self):
+    def login(self, account):
         self.browser.get("https://www.target.com")
         self.browser.find_element_by_id("account").click()
         wait(self.browser, self.TIMEOUT_LONG).until(EC.element_to_be_clickable((By.ID, "accountNav-signIn"))).click()
         wait(self.browser, self.TIMEOUT_LONG).until(EC.presence_of_element_located((By.ID, "username")))
-        self.fill_and_authenticate()
+        print('jack | 0001')
+        self.fill_and_authenticate(account)
+        print('jack | 0002')
 
         # Gives it time for the login to complete
         time.sleep(random_delay(self.monitor_delay, settings.random_delay_start, settings.random_delay_stop))
 
-    def fill_and_authenticate(self):
+    def fill_and_authenticate(self, account):
         if self.browser.find_elements_by_id('username'):
-            self.fill_field_and_proceed('//input[@id="username"]', {'value': settings.target_user})
-        self.fill_field_and_proceed('//input[@id="password"]', {'value': settings.target_pass, 'confirm_button': '//button[@id="login"]'})
+            self.fill_field_and_proceed('//input[@id="username"]', {'value': account['user_name']})
+        self.fill_field_and_proceed('//input[@id="password"]', {'value': account['password'], 'confirm_button': '//button[@id="login"]'})
 
     def product_loop(self):
         while not self.did_submit and not self.failed:
