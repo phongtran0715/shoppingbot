@@ -11,9 +11,10 @@ from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from webhook import DiscordWebhook, DiscordEmbed
 from chromedriver_py import binary_path as driver_path
 import json, platform, random, settings, threading, hashlib, base64, string, re
+import logging
 
 normal_color = Fore.CYAN
-
+logger = logging.getLogger(__name__)
 
 def write_data(path, data):
     with open(path, "w") as file:
@@ -47,15 +48,19 @@ class BirdLogger:
 
     def normal(self, task_id, msg):
         print(normal_color + "[{}][TASK {}] {}".format(self.ts(), task_id, msg))
+        logger.info("[TASK {}] {}".format(task_id, msg))
 
     def alt(self, task_id, msg):
         print(Fore.MAGENTA + "[{}][TASK {}] {}".format(self.ts(), task_id, msg))
+        logger.info("[TASK {}] {}".format(task_id, msg))
 
     def error(self, task_id, msg):
         print(Fore.RED + "[{}][TASK {}] {}".format(self.ts(), task_id, msg))
+        logger.info("[TASK {}] {}".format(task_id, msg))
 
     def success(self, task_id, msg):
         print(Fore.GREEN + "[{}][TASK {}] {}".format(self.ts(), task_id, msg))
+        logger.info("[TASK {}] {}".format(task_id, msg))
 
 
 class Encryption:

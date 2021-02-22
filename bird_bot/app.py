@@ -13,14 +13,24 @@ from theming.styles import globalStyles
 from PyQt5 import QtWidgets, uic, QtGui, QtCore
 from PyQt5.QtWidgets import *
 from PyQt5.QtSql import QSqlDatabase
+import logging
 
 
 def no_abort(a, b, c):
 	sys.__excepthook__(a, b, c)
 
-
 sys.excepthook = no_abort
 
+logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s',
+                            datefmt='%H:%M:%S',
+                            level=logging.INFO,
+                            handlers=[
+        logging.FileHandler("app.log"),
+        logging.StreamHandler()
+    ])
+
+logger = logging.getLogger('__name__')
+logger.addHandler(logging.StreamHandler())
 
 class MainWindow(QtWidgets.QMainWindow):
 

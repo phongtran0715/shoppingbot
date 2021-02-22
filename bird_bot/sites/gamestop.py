@@ -14,6 +14,9 @@ from utils import (random_delay, send_webhook,
 	get_proxy_by_account)
 from utils.selenium_utils import change_driver
 import urllib, requests, time, lxml.html, json, sys, settings
+import logging
+logger = logging.getLogger(__name__)
+
 
 class GameStop:
 	def __init__(self, task_id, status_signal, image_signal, product, monitor_proxies,
@@ -62,7 +65,7 @@ class GameStop:
 		# firefox
 		shopping_proxy = get_proxy_raw(account['proxy'])
 		if shopping_proxy is not None and shopping_proxy != "":
-			print("Gamestop | TASK {} - Shopping proxy : {}".format(self.task_id, str(shopping_proxy)))
+			logger.info("Gamestop | TASK {} - Shopping proxy : {}".format(self.task_id, str(shopping_proxy)))
 			firefox_capabilities = webdriver.DesiredCapabilities.FIREFOX
 			firefox_capabilities['marionette'] = True
 			firefox_capabilities['proxy'] = {
@@ -118,9 +121,9 @@ class GameStop:
 		monitor_proxy = get_proxy(self.monitor_proxies)
 		if monitor_proxy is not None and monitor_proxy != "":
 			self.session.proxies.update(monitor_proxy)
-			print("Gamestop | TASK {} - Monitoring by proxy{}".format(self.task_id, monitor_proxy))
+			logger.info("Gamestop | TASK {} - Monitoring by proxy{}".format(self.task_id, monitor_proxy))
 		else:
-			print("Gamestop | TASK {} - Monitoring without proxy".format(self.task_id))
+			logger.info("Gamestop | TASK {} - Monitoring without proxy".format(self.task_id))
 		while True:
 			self.status_signal.emit(create_msg("Monitoring Product ..", "normal"))
 			try:
@@ -128,7 +131,7 @@ class GameStop:
 				if r.status_code == 200:
 					doc = lxml.html.fromstring(r.text)
 					if self.is_product_disable(doc, '//button[@data-buttontext="Add to Cart"][@disabled="disabled"]'):
-						print("Gamestop | TASK {} - Product is not available".format(self.task_id))
+						logger.error("Gamestop | TASK {} - Product is not available".format(self.task_id))
 						item = doc.xpath("//button[@class='add-to-cart btn btn-primary ']")
 						self.status_signal.emit(create_msg("Waiting For Restock", "normal"))
 						time.sleep(self.MONITOR_DELAY)
@@ -136,21 +139,21 @@ class GameStop:
 						if self.is_xpath_exist(doc, '//button[@data-buttontext="Add to Cart"]'):
 							add_to_cart_btn = doc.xpath('//button[@data-buttontext="Add to Cart"]')[0]
 							if add_to_cart_btn is None:
-								print("Gamestop | TASK {} - Add to cart button not found".format(self.task_id))
+								logger.error("Gamestop | TASK {} - Add to cart button not found".format(self.task_id))
 								self.status_signal.emit(create_msg("Waiting For Restock", "normal"))
 								time.sleep(self.MONITOR_DELAY)
 							else:
-								print("Gamestop | TASK {} - Found product".format(self.task_id))
+								logger.info("Gamestop | TASK {} - Found product".format(self.task_id))
 								# TODO: checking for “Free store pick up” or “Ship to Home”
 								return
 				else:
-					print("Gamestop | TASK {} - Connection error - status code = {} - msg = {}".format(self.task_id, r.status_code, r.text))
+					logger.error("Gamestop | TASK {} - Connection error - status code = {} - msg = {}".format(self.task_id, r.status_code, r.text))
 					self.status_signal.emit(create_msg("Waiting For Restock", "normal"))
 					time.sleep(self.MONITOR_DELAY)
 			except Exception as e :
 				self.status_signal.emit({"msg": "Error Loading Product Page (line {} {} {})".format(
 					sys.exc_info()[-1].tb_lineno, type(e).__name__, e), "status": "error"})
-				print("Not found add to cart button\n");
+				logger.info("Not found add to cart button\n");
 				time.sleep(self.MONITOR_DELAY)
 
 	def add_to_cart(self):

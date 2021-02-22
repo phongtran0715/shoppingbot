@@ -9,7 +9,8 @@ from webdriver_manager.chrome import ChromeDriverManager
 from webdriver_manager.firefox import GeckoDriverManager
 from PyQt5 import QtCore
 import urllib, requests, time, lxml.html, json, sys, settings
-
+import logging
+logger = logging.getLogger(__name__)
 
 class Walmart:
 	def __init__(self, task_id, status_signal, image_signal, wait_poll_signal, polling_wait_condition, product,
@@ -47,7 +48,7 @@ class Walmart:
 			account_item = get_account(account_name)
 			if account_item is None:
 				continue
-			print("Processing for account : {}".format(account_name))
+			logger.info("Processing for account : {}".format(account_name))
 			did_add = self.atc(offer_id, account_item)
 			count_add = 1
 			while did_add is False and count_add <= 3:
@@ -81,7 +82,7 @@ class Walmart:
 				monitor_proxy = get_proxy(self.monitor_proxies)
 				if monitor_proxy is not None and monitor_proxy != "":
 					self.session.proxies.update(monitor_proxy)
-					print("Monitoring by proxy : {}".format(monitor_proxy))
+					logger.info("Monitoring by proxy : {}".format(monitor_proxy))
 
 				r = self.session.get(self.product, headers=headers)
 				if r.status_code == 200:
@@ -134,7 +135,6 @@ class Walmart:
 			"user-agent": settings.userAgent,
 			"wm_offer_id": offer_id
 		}
-		# print("jask | account {}".format(account))
 		profile = get_profile(account['profile'])
 		body = {"offerId": offer_id, "quantity": int(self.max_quantity),
 				"location": {"postalCode": profile["shipping_zipcode"], "city": profile["shipping_city"],
@@ -146,10 +146,10 @@ class Walmart:
 			try:
 				shopping_proxy = get_proxy(account['proxy'])
 				if shopping_proxy is not None and shopping_proxy != "":
-					print("Walmart | Task id : {} - Shopping proxy : : {}".format(self.task_id, shopping_proxy))
+					logger.info("Walmart | Task id : {} - Shopping proxy : : {}".format(self.task_id, shopping_proxy))
 					self.session.proxies.update(shopping_proxy)
 				else:
-					print("Walmart | Task id : {} - Shopping without proxy".format(self.task_id))
+					logger.info("Walmart | Task id : {} - Shopping without proxy".format(self.task_id))
 
 				r = self.session.post("https://www.walmart.com/api/v3/cart/guest/:CID/items", json=body,
 									  headers=headers)
@@ -164,7 +164,7 @@ class Walmart:
 					self.status_signal.emit({"msg": "Added To Cart", "status": "carted"})
 					return True
 				else:
-					print("Walmart | Task id : {} - status code : {}".format(self.task_id, r.status_code))
+					logger.info("Walmart | Task id : {} - status code : {}".format(self.task_id, r.status_code))
 					blocked_url = "https://www.walmart.com" + json.loads(r.text)["redirectUrl"]
 					self.handle_captcha(blocked_url)
 					self.status_signal.emit({"msg": "Error Adding To Cart", "status": "error"})
@@ -377,7 +377,7 @@ class Walmart:
 					self.status_signal.emit({"msg": "Submitted Payment", "status": "normal"})
 					return pi_hash
 				self.status_signal.emit({"msg": "Error Submitting Payment", "status": "error"})
-				print("Walmart | Task id : {} - Error Submitting Payment - Status code : {} - msg : {}".format(self.task_id, r.status_code, r.text))
+				logger.error("Walmart | Task id : {} - Error Submitting Payment - Status code : {} - msg : {}".format(self.task_id, r.status_code, r.text))
 				if self.check_browser(account):
 					return
 				time.sleep(self.error_delay)
@@ -507,7 +507,7 @@ class Walmart:
 		# options.add_argument('--ignore-certificate-errors') #removes SSL errors from terminal
 		# options.add_experimental_option("excludeSwitches", ["enable-logging"]) #removes device adapter errors from terminal
 		# browser = webdriver.Chrome(ChromeDriverManager().install(),chrome_options=options)
-		print("Walmart | Task id : {} - handle captcha; url: {}".format(self.task_id, url_to_open))
+		logger.info("Walmart | Task id : {} - handle captcha; url: {}".format(self.task_id, url_to_open))
 		browser = webdriver.Firefox(executable_path=GeckoDriverManager().install())
 		browser.get(url_to_open)
 
@@ -533,7 +533,7 @@ class Walmart:
 			#     self.captcha_mutex.unlock()
 			
 			# solve captcha by api
-			print("Walmart | Task id : {} - Waiting 2captcha to solve recaptcha...".format(self.task_id))
+			logger.info("Walmart | Task id : {} - Waiting 2captcha to solve recaptcha...".format(self.task_id))
 			sitekey = browser.find_element_by_xpath('//*[@id="px-captcha"]/div').get_attribute("data-sitekey")
 			captcha_result  = twocaptcha_utils.solve_captcha(str(browser.current_url), str(sitekey))
 
