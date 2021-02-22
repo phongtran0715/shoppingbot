@@ -223,6 +223,7 @@ class HomePage(QtWidgets.QWidget):
 			task['task_id'] = str(task_id)
 			self.add_tab(task)
 			new_tasks_data.append(task)
+			task_id += 1
 		write_data("./data/tasks.json",new_tasks_data)
 
 	def add_tab(self, task):
@@ -265,52 +266,4 @@ class HomePage(QtWidgets.QWidget):
 				task.delete(None)
 			except:
 				pass
-
-class TaskThread(QtCore.QThread):
-	status_signal = QtCore.pyqtSignal("PyQt_PyObject")
-	image_signal = QtCore.pyqtSignal("PyQt_PyObject")
-	wait_poll_signal = QtCore.pyqtSignal()
-	def __init__(self):
-		QtCore.QThread.__init__(self)
-
-	def set_data(self,task_id,site,product,profile,monitor_proxies,shopping_proxies,monitor_delay,error_delay,max_price, max_quantity):
-		self.task_id,self.site,self.product,self.profile,self.monitor_proxies,self.shopping_proxies,self.monitor_delay,self.error_delay,self.max_price,self.max_quantity = task_id,site,product,profile,monitor_proxies,shopping_proxies,monitor_delay,error_delay,max_price,max_quantity
-
-	def run(self):
-		profile = get_profile(self.profile)
-		if profile is None:
-			self.status_signal.emit({"msg": "Invalid profile", "status": "error"})
-			return
-		if self.site == "Walmart":
-			Walmart(self.task_id,self.status_signal, self.image_signal,  self.wait_poll_signal, self.wait_condition, self.product, profile, self.monitor_proxies, self.shopping_proxies, self.monitor_delay, self.error_delay, self.max_price, self.max_quantity)
-		elif self.site == "Bestbuy":
-			BestBuy(self.status_signal, self.image_signal, self.product, profile, self.monitor_proxies,self.shopping_proxies, self.monitor_delay, self.error_delay) #TODO: Readd Discord Webhook
-		elif self.site == "Target":
-			Target(self.task_id, self.status_signal, self.image_signal, self.product, profile, self.monitor_proxies,self.shopping_proxies, self.monitor_delay, self.error_delay)
-		elif self.site == "GameStop":
-			GameStop(self.task_id, self.status_signal, self.image_signal, self.product, profile, self.monitor_proxies, self.shopping_proxies, self.monitor_delay, self.error_delay, self.max_price, self.max_quantity)
-
-	def stop(self):
-		self.terminate()
-
-class ImageThread(QtCore.QThread):
-	finished_signal = QtCore.pyqtSignal("PyQt_PyObject")
-	def __init__(self,image_url):
-		self.image_url = image_url
-		QtCore.QThread.__init__(self)
-
-	def run(self):
-		data = urllib.request.urlopen(self.image_url).read()
-		pixmap = QtGui.QPixmap()
-		pixmap.loadFromData(data)
-		self.finished_signal.emit(pixmap)
-
-class BrowserThread(QtCore.QThread):
-	def __init__(self):
-		QtCore.QThread.__init__(self)
-
-	def set_data(self,url,cookies):
-		self.url,self.cookies = url,cookies
-	def run(self):
-		open_browser(self.url,self.cookies)
 

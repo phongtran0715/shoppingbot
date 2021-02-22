@@ -10,9 +10,15 @@ import settings, time
 
 
 class Target:
-    def __init__(self, task_id, status_signal, image_signal, product, profile, monitor_proxy, shopping_proxy, monitor_delay, error_delay):
-        self.task_id, self.status_signal, self.image_signal, self.product, self.profile, self.monitor_delay, self.error_delay = task_id, status_signal, image_signal, product, profile, float(
-            monitor_delay), float(error_delay)
+    def __init__(self, task_id, status_signal, image_signal, product,
+        monitor_proxy, monitor_delay, error_delay, account):
+        self.task_id = task_id
+        self.status_signal = status_signal
+        self.image_signal = image_signal
+        self.product = product
+        self.monitor_delay = float(monitor_delay)
+        self.error_delay = float(error_delay)
+        self.account = account
         self.xpath_sequence = [
             {'type': 'method', 'path': '//button[@data-test="orderPickupButton"] | //button[@data-test="shipItButton"]', 'method': self.find_and_click_atc, 'message': 'Added to cart', 'message_type': 'normal', 'optional': False}
             , {'type': 'button', 'path': '//button[@data-test="espModalContent-declineCoverageButton"]', 'message': 'Declining Coverage', 'message_type': 'normal', 'optional': True}

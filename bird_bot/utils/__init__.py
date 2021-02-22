@@ -114,6 +114,26 @@ def get_proxy_raw(list_name):
     for proxy_list in proxies:
         if proxy_list["list_name"] == list_name:
             return random.choice(proxy_list["proxies"].splitlines())
+    return None
+
+def get_account(account_name):
+    accounts = return_data("./data/accounts.json")
+    for account in accounts:
+        if account['name'] == account_name:
+            return account
+
+def get_proxy_by_account(account_name):
+    accounts = return_data("./data/accounts.json")
+    for account in accounts:
+        if account['name'] == account_name:
+            return account['proxy']
+    return None
+
+def get_profile_by_account(account_name):
+    accounts = return_data("./data/accounts.json")
+    for account in accounts:
+        if account['name'] == account_name:
+            return account['profile']
     return None    
 
 def format_proxy(proxy):
@@ -146,7 +166,7 @@ def send_webhook(webhook_type, site, profile, task_id, image_url):
             embed = DiscordEmbed(title="Payment Failed", color=0xfc5151)
         embed.set_footer(text="Via Bird Bot", icon_url="https://i.imgur.com/60G42xE.png")
         embed.add_embed_field(name="Site", value=site, inline=True)
-        embed.add_embed_field(name="Profile", value=profile, inline=True)
+        embed.add_embed_field(name="Account", value=profile, inline=True)
         embed.add_embed_field(name="Task ID", value=task_id, inline=True)
         embed.set_thumbnail(url=image_url)
         webhook.add_embed(embed)

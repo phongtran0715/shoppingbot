@@ -49,10 +49,16 @@ options.add_argument("user-data-dir=.profile-bb")
 
 class BestBuy:
 
-    def __init__(self, status_signal, image_signal, product, profile, monitor_proxies, shopping_proxies, monitor_delay, error_delay):
-        self.status_signal, self.image_signal, self.product, self.profile, self.monitor_delay, self.error_delay = status_signal, image_signal, product, profile, float(monitor_delay), float(error_delay)
+    def __init__(self, status_signal, image_signal, product,
+        monitor_proxies, monitor_delay, error_delay, account):
+        self.status_signal = status_signal
+        self.image_signal = image_signal
+        self.product = product
+        self.profile = profile
+        self.monitor_delay = float(monitor_delay)
+        self.error_delay = float(monitor_delay)
         self.monitor_proxies = monitor_proxies
-        self.shopping_proxies = shopping_proxies
+        self.account = account
         self.sku_id = parse.parse_qs(parse.urlparse(self.product).query)['skuId'][0]
         self.session = requests.Session()
         # TODO: Refactor Bird Bot Auto Checkout Functionality. For now, it will just open the cart link.
@@ -63,8 +69,8 @@ class BestBuy:
 
         # TODO: Add Product Image To UI
 
-        if self.shopping_proxies:
-            self.session.proxies.update(get_proxy(self.shopping_proxies))
+        # if self.shopping_proxies:
+        #     self.session.proxies.update(get_proxy(self.shopping_proxies))
 
         adapter = HTTPAdapter(
             max_retries=Retry(

@@ -1,5 +1,9 @@
 from sites.walmart_encryption import walmart_encryption as w_e
-from utils import send_webhook, random_delay, get_proxy, twocaptcha_utils
+from utils import (send_webhook, random_delay,
+	get_proxy, twocaptcha_utils,
+	get_profile, get_account,
+	get_profile_by_account,
+	get_proxy_by_account)
 from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
 from webdriver_manager.firefox import GeckoDriverManager
@@ -8,13 +12,18 @@ import urllib, requests, time, lxml.html, json, sys, settings
 
 
 class Walmart:
-	def __init__(self, task_id, status_signal, image_signal, wait_poll_signal, polling_wait_condition, product, profile,
-				 monitor_proxies, shopping_proxies, monitor_delay, error_delay, max_price, max_quantity):
-		self.task_id, self.status_signal, self.image_signal, self.product, self.profile, self.monitor_delay, self.error_delay, self.max_price, self.max_quantity = task_id, status_signal, image_signal, product, profile, float(
-			monitor_delay), float(error_delay), max_price, max_quantity
-
+	def __init__(self, task_id, status_signal, image_signal, wait_poll_signal, polling_wait_condition, product,
+				 monitor_proxies, monitor_delay, error_delay, max_price, max_quantity, account):
+		self.task_id = task_id
+		self.status_signal = status_signal
+		self.image_signal = image_signal
+		self.product = product
 		self.monitor_proxies = monitor_proxies
-		self.shopping_proxies = shopping_proxies
+		self.monitor_delay = float(monitor_delay)
+		self.error_delay = float(error_delay)
+		self.max_price = max_price
+		self.max_quantity = max_quantity
+		self.account =account
 		####### Browser/Captcha Polling Variables ######
 		self.captcha_mutex = QtCore.QMutex()
 		self.captcha_wait_condition = polling_wait_condition
@@ -22,9 +31,9 @@ class Walmart:
 		#################################################
 
 		self.session = requests.Session()
-		shopping_proxy = get_proxy(self.shopping_proxies)
-		if shopping_proxy is not None and shopping_proxy != "":
-			self.session.proxies.update(shopping_proxy)
+		# shopping_proxy = get_proxy(self.shopping_proxies)
+		# if shopping_proxy is not None and shopping_proxy != "":
+		# 	self.session.proxies.update(shopping_proxy)
 
 		if self.max_quantity is None or self.max_quantity == "":
 			self.max_quantity = 1
@@ -34,21 +43,26 @@ class Walmart:
 		self.product_image, offer_id = self.monitor()
 		if offer_id is None:
 			return
-		did_add = self.atc(offer_id)
-		count_add = 1
-		while did_add is False and count_add <= 3:
-			did_add = self.atc(offer_id)
-			count_add += 1
-		if did_add is False:
-			return
+		for account_name in self.account.split(','):
+			account_item = get_account(account_name)
+			if account_item is None:
+				continue
+			print("Processing for account : {}".format(account_name))
+			did_add = self.atc(offer_id, account_item)
+			count_add = 1
+			while did_add is False and count_add <= 3:
+				did_add = self.atc(offer_id, account_item)
+				count_add += 1
+			if did_add is False:
+				return
 
-		item_id, fulfillment_option, ship_method = self.check_cart_items()
-		self.submit_shipping_method(item_id, fulfillment_option, ship_method)
-		self.submit_shipping_address()
-		card_data, PIE_key_id, PIE_phase = self.get_PIE()
-		pi_hash = self.submit_payment(card_data, PIE_key_id, PIE_phase)
-		self.submit_billing(pi_hash)
-		# self.submit_order()
+			item_id, fulfillment_option, ship_method = self.check_cart_items(account_item)
+			self.submit_shipping_method(item_id, fulfillment_option, ship_method, account_item)
+			self.submit_shipping_address(account_item)
+			card_data, PIE_key_id, PIE_phase = self.get_PIE(account_item)
+			pi_hash = self.submit_payment(card_data, PIE_key_id, PIE_phase, account_item)
+			self.submit_billing(pi_hash, account_item)
+			self.submit_order(account_item)
 
 	def monitor(self):
 		headers = {
@@ -74,7 +88,7 @@ class Walmart:
 					# check for captcha page
 					if self.is_captcha(r.text):
 						self.status_signal.emit({"msg": "CAPTCHA - Opening Product Page", "status": "error"})
-						self.handle_captcha(self.product, "monitor")
+						self.handle_captcha(self.product)
 						continue
 
 					doc = lxml.html.fromstring(r.text)
@@ -109,7 +123,7 @@ class Walmart:
 					sys.exc_info()[-1].tb_lineno, type(e).__name__, e), "status": "error"})
 				time.sleep(self.error_delay)
 
-	def atc(self, offer_id):
+	def atc(self, offer_id, account):
 		headers = {
 			"accept": "application/json",
 			"accept-encoding": "gzip, deflate, br",
@@ -120,15 +134,17 @@ class Walmart:
 			"user-agent": settings.userAgent,
 			"wm_offer_id": offer_id
 		}
+		# print("jask | account {}".format(account))
+		profile = get_profile(account['profile'])
 		body = {"offerId": offer_id, "quantity": int(self.max_quantity),
-				"location": {"postalCode": self.profile["shipping_zipcode"], "city": self.profile["shipping_city"],
-							 "state": self.profile["shipping_state"], "isZipLocated": True},
+				"location": {"postalCode": profile["shipping_zipcode"], "city": profile["shipping_city"],
+							 "state": profile["shipping_state"], "isZipLocated": True},
 				"shipMethodDefaultRule": "SHIP_RULE_1"}
 
 		while True:
 			self.status_signal.emit({"msg": "Adding To Cart", "status": "normal"})
 			try:
-				shopping_proxy = get_proxy(self.shopping_proxies)
+				shopping_proxy = get_proxy(account['proxy'])
 				if shopping_proxy is not None and shopping_proxy != "":
 					print("Walmart | Task id : {} - Shopping proxy : : {}".format(self.task_id, shopping_proxy))
 					self.session.proxies.update(shopping_proxy)
@@ -141,7 +157,7 @@ class Walmart:
 				# check for captcha page
 				if self.is_captcha(r.text):
 					self.status_signal.emit({"msg": "Opening CAPTCHA", "status": "error"})
-					self.handle_captcha(self.product, "shopping")
+					self.handle_captcha(self.product)
 					return False
 
 				if r.status_code == 201 or r.status_code == 200 and json.loads(r.text)["checkoutable"] == True:
@@ -150,7 +166,7 @@ class Walmart:
 				else:
 					print("Walmart | Task id : {} - status code : {}".format(self.task_id, r.status_code))
 					blocked_url = "https://www.walmart.com" + json.loads(r.text)["redirectUrl"]
-					self.handle_captcha(blocked_url, "shopping")
+					self.handle_captcha(blocked_url)
 					self.status_signal.emit({"msg": "Error Adding To Cart", "status": "error"})
 					time.sleep(self.error_delay)
 					return False
@@ -160,7 +176,7 @@ class Walmart:
 				time.sleep(self.error_delay)
 				return False
 
-	def check_cart_items(self):
+	def check_cart_items(self, account):
 		headers = {
 			"accept": "application/json, text/javascript, */*; q=0.01",
 			"accept-encoding": "gzip, deflate, br",
@@ -173,7 +189,7 @@ class Walmart:
 			"wm_cvv_in_session": "true",
 		}
 
-		profile = self.profile
+		profile = get_profile(account['profile'])
 		body = {"postalCode": profile["shipping_zipcode"], "city": profile["shipping_city"],
 				"state": profile["shipping_state"], "isZipLocated": True, "crt:CRT": "", "customerId:CID": "",
 				"customerType:type": "", "affiliateInfo:com.wm.reflector": "", "storeList": []}
@@ -198,7 +214,7 @@ class Walmart:
 							random_delay(self.monitor_delay, settings.random_delay_start, settings.random_delay_stop))
 					else:
 						if self.is_captcha(r.text):
-							self.handle_captcha("https://www.walmart.com/checkout", "shopping")
+							self.handle_captcha("https://www.walmart.com/checkout")
 						self.status_signal.emit(
 							{"msg": "Error Loading Cart Items, Got Response: " + str(r.text), "status": "error"})
 						time.sleep(self.error_delay)
@@ -207,7 +223,7 @@ class Walmart:
 					sys.exc_info()[-1].tb_lineno, type(e).__name__, e), "status": "error"})
 				time.sleep(self.error_delay)
 
-	def submit_shipping_method(self, item_id, fulfillment_option, ship_method):
+	def submit_shipping_method(self, item_id, fulfillment_option, ship_method, account):
 		headers = {
 			"accept": "application/json, text/javascript, */*; q=0.01",
 			"accept-encoding": "gzip, deflate, br",
@@ -238,7 +254,7 @@ class Walmart:
 					sys.exc_info()[-1].tb_lineno, type(e).__name__, e), "status": "error"})
 				time.sleep(self.error_delay)
 
-	def submit_shipping_address(self):
+	def submit_shipping_address(self, account):
 		headers = {
 			"accept": "application/json, text/javascript, */*; q=0.01",
 			"accept-encoding": "gzip, deflate, br",
@@ -250,7 +266,7 @@ class Walmart:
 			"user-agent": settings.userAgent,
 			"wm_vertical_id": "0"
 		}
-		profile = self.profile
+		profile = get_profile(account['profile'])
 		body = {
 			"addressLineOne": profile["shipping_a1"],
 			"city": profile["shipping_city"],
@@ -286,7 +302,7 @@ class Walmart:
 					sys.exc_info()[-1].tb_lineno, type(e).__name__, e), "status": "error"})
 				time.sleep(self.error_delay)
 
-	def get_PIE(self):
+	def get_PIE(self, account):
 		headers = {
 			"Accept": "*/*",
 			"Accept-Encoding": "gzip, deflate, br",
@@ -296,7 +312,7 @@ class Walmart:
 			"Referer": "https://www.walmart.com/",
 			"User-Agent": settings.userAgent
 		}
-		profile = self.profile
+		profile = get_profile(account['profile'])
 		while True:
 			self.status_signal.emit({"msg": "Getting Checkout Data", "status": "normal"})
 			try:
@@ -320,7 +336,7 @@ class Walmart:
 					sys.exc_info()[-1].tb_lineno, type(e).__name__, e), "status": "error"})
 				time.sleep(self.error_delay)
 
-	def submit_payment(self, card_data, PIE_key_id, PIE_phase):
+	def submit_payment(self, card_data, PIE_key_id, PIE_phase, account):
 		headers = {
 			"accept": "application/json",
 			"accept-encoding": "gzip, deflate, br",
@@ -331,7 +347,7 @@ class Walmart:
 			"user-agent": settings.userAgent
 		}
 		# "inkiru_precedence": "false",
-		profile = self.profile
+		profile = get_profile(account['profile'])
 		body = {
 			"encryptedPan": card_data[0],
 			"encryptedCvv": card_data[1],
@@ -362,7 +378,7 @@ class Walmart:
 					return pi_hash
 				self.status_signal.emit({"msg": "Error Submitting Payment", "status": "error"})
 				print("Walmart | Task id : {} - Error Submitting Payment - Status code : {} - msg : {}".format(self.task_id, r.status_code, r.text))
-				if self.check_browser():
+				if self.check_browser(account):
 					return
 				time.sleep(self.error_delay)
 			except Exception as e:
@@ -370,7 +386,7 @@ class Walmart:
 					sys.exc_info()[-1].tb_lineno, type(e).__name__, e), "status": "error"})
 				time.sleep(self.error_delay)
 
-	def submit_billing(self, pi_hash):
+	def submit_billing(self, pi_hash, account):
 		headers = {
 			"accept": "application/json, text/javascript, */*; q=0.01",
 			"accept-encoding": "gzip, deflate, br",
@@ -382,8 +398,8 @@ class Walmart:
 			"wm_vertical_id": "0"
 		}
 
-		profile = self.profile
-		card_data, PIE_key_id, PIE_phase = self.get_PIE()
+		profile = get_profile(account['profile'])
+		card_data, PIE_key_id, PIE_phase = self.get_PIE(account)
 		body = {
 			"payments": [{
 				"paymentType": "CREDITCARD",
@@ -420,7 +436,7 @@ class Walmart:
 					except:
 						pass
 				self.status_signal.emit({"msg": "Error Submitting Billing", "status": "error"})
-				if self.check_browser():
+				if self.check_browser(account):
 					return
 				time.sleep(self.error_delay)
 			except Exception as e:
@@ -428,7 +444,7 @@ class Walmart:
 					sys.exc_info()[-1].tb_lineno, type(e).__name__, e), "status": "error"})
 				time.sleep(self.error_delay)
 
-	def submit_order(self):
+	def submit_order(self, account):
 		headers = {
 			"accept": "application/json, text/javascript, */*; q=0.01",
 			"accept-encoding": "gzip, deflate, br",
@@ -439,11 +455,11 @@ class Walmart:
 			"user-agent": settings.userAgent,
 			"wm_vertical_id": "0"
 		}
+		profile = get_profile(account['profile'])
 		if settings.dont_buy is True:
 			# TODO: this used to open the page up with everything filled out but only works for some users
-			self.status_signal.emit({"msg":"Opening Checkout Page","status":"alt"})
-			self.handle_captcha("https://www.walmart.com/checkout/#/payment", close_window_after=False,redirect=True) # OPEN BROWSER TO SEE IF SHIT WORKED
-			self.check_browser()  
+			self.status_signal.emit({"msg":"Mock Opening Checkout Page","status":"alt"})
+			send_webhook("OP", "Walmart", account["name"], self.task_id, self.product_image)
 			return             
 
 		while True:
@@ -454,17 +470,17 @@ class Walmart:
 				try:
 					json.loads(r.text)["order"]
 					self.status_signal.emit({"msg": "Order Placed", "status": "success"})
-					send_webhook("OP", "Walmart", self.profile["profile_name"], self.task_id, self.product_image)
+					send_webhook("OP", "Walmart", account["name"], self.task_id, self.product_image)
 					return
 				except:
 					self.status_signal.emit({"msg": "Payment Failed", "status": "error"})
 
 					# open the page for checkout if failed to auto submit
-					self.handle_captcha("https://www.walmart.com/checkout/#/payment", "shopping")
-					if self.check_browser():
+					self.handle_captcha("https://www.walmart.com/checkout/#/payment")
+					if self.check_browser(account):
 						return
 
-					send_webhook("PF", "Walmart", self.profile["profile_name"], self.task_id, self.product_image)
+					send_webhook("PF", "Walmart", account["name"], self.task_id, self.product_image)
 					# delay for next time
 					time.sleep(self.SHORT_TIMEOUT)
 					return
@@ -473,17 +489,18 @@ class Walmart:
 					sys.exc_info()[-1].tb_lineno, type(e).__name__, e), "status": "error"})
 				time.sleep(self.error_delay)
 
-	def check_browser(self):
+	def check_browser(self, account):
+		profile = get_profile(account['profile'])
 		if settings.browser_on_failed:
 			self.status_signal.emit(
 				{"msg": "Browser Ready", "status": "alt", "url": "https://www.walmart.com/checkout/#/payment",
 				 "cookies": [{"name": cookie.name, "value": cookie.value, "domain": cookie.domain} for cookie in
 							 self.session.cookies]})
-			send_webhook("B", "Walmart", self.profile["profile_name"], self.task_id, self.product_image)
+			send_webhook("B", "Walmart", account["name"], self.task_id, self.product_image)
 			return True
 		return False
 
-	def handle_captcha(self, url_to_open, session_type, close_window_after=True,redirect=False):
+	def handle_captcha(self, url_to_open, close_window_after=True,redirect=False):
 		'''added redirect arg since captchas are lost when redirecting to the page that triggered them
 		this opens up chrome browser to get prompted with captcha'''
 		# options = webdriver.ChromeOptions()

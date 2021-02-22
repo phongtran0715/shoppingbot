@@ -5,17 +5,22 @@ from utils import return_data,write_data,get_profile,Encryption
 
 
 class NewTask(QtWidgets.QDialog):
-	def __init__(self, parent=None):
+	def __init__(self, parent=None, modifyMode=None, task_id=None):
 		super(NewTask, self).__init__()
 		dirname = os.path.dirname(__file__)
 		uic.loadUi(os.path.join(dirname, "ui", "new_task_dialog.ui"), self)
 		self.homepage = parent
+		self.modifyMode = modifyMode
+		self.task_id = task_id
+		self.init_data()
+
+		if modifyMode is True:
+			self.load_data()
 		self.show()
 		self.center()
 		
 		# connect action for button
 		self.btnAccountAdd.clicked.connect(self.btnAccountAdd_clicked)
-		self.init_data()
 
 	def center(self):
 		qr = self.frameGeometry()
@@ -31,6 +36,26 @@ class NewTask(QtWidgets.QDialog):
 		accounts = return_data("./data/accounts.json")
 		for account in accounts:
 			self.cbAccount.addItem(account['name'])
+
+	def load_data(self):
+		tasks = return_data("./data/tasks.json")
+		for task in tasks:
+			if task['task_id'] == self.task_id:
+				self.txtLink.setText(task['product'])
+				index = self.cbSite.findText(task['site'], QtCore.Qt.MatchFixedString)
+				if index >= 0:
+					self.cbSite.setCurrentIndex(index)
+
+				index = self.cbMonitorProxy.findText(task['monitor_proxy'], QtCore.Qt.MatchFixedString)
+				if index >= 0:
+					self.cbMonitorProxy.setCurrentIndex(index)
+
+				self.txtMonitorDelay.setText(task['monitor_delay'])
+				self.txtErrorDelay.setText(task['error_delay'])
+				self.txtMaxPrice.setText(task['max_price'])
+				self.txtMaxQuantity.setText(task['max_quantity'])
+				self.txtAccount.setText(task['account'])
+				break
 
 	def btnAccountAdd_clicked(self):
 		account_name = self.cbAccount.currentText()
@@ -61,6 +86,7 @@ class NewTask(QtWidgets.QDialog):
 
 	def update_task(self):
 		task_data = {
+			'task_id' : self.task_id,
 			'site' : self.cbSite.currentText(),
 			'product' : self.txtLink.text(),
 			'monitor_proxy' : self.cbMonitorProxy.currentText(),
@@ -71,5 +97,8 @@ class NewTask(QtWidgets.QDialog):
 			'account' : self.txtAccount.text()
 		}
 		tasks = return_data("./data/tasks.json")
+		for task in tasks:
+			if task['task_id'] == self.task_id:
+				tasks.remove(task)
 		tasks.append(task_data)
 		write_data("./data/tasks.json",tasks)
