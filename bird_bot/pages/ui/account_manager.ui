@@ -20,6 +20,20 @@
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
+    <item row="2" column="3">
+     <widget class="QPushButton" name="btnDelete">
+      <property name="text">
+       <string>Delete</string>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="4">
+     <widget class="QPushButton" name="btnExit">
+      <property name="text">
+       <string>Exit</string>
+      </property>
+     </widget>
+    </item>
     <item row="2" column="1">
      <widget class="QPushButton" name="btnAdd">
       <property name="font">
@@ -29,6 +43,13 @@
       </property>
       <property name="text">
        <string>Add</string>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="2">
+     <widget class="QPushButton" name="btnEdit">
+      <property name="text">
+       <string>Edit</string>
       </property>
      </widget>
     </item>
@@ -85,27 +106,6 @@
         <string>Profile</string>
        </property>
       </column>
-     </widget>
-    </item>
-    <item row="2" column="4">
-     <widget class="QPushButton" name="btnExit">
-      <property name="text">
-       <string>Exit</string>
-      </property>
-     </widget>
-    </item>
-    <item row="2" column="2">
-     <widget class="QPushButton" name="btnEdit">
-      <property name="text">
-       <string>Edit</string>
-      </property>
-     </widget>
-    </item>
-    <item row="2" column="3">
-     <widget class="QPushButton" name="btnDelete">
-      <property name="text">
-       <string>Delete</string>
-      </property>
      </widget>
     </item>
    </layout>

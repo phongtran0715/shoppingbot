@@ -140,10 +140,13 @@ class MainWindow(QtWidgets.QMainWindow):
 		
 		self.profilespage = ProfilesPage(self.centralwidget)
 		self.profilespage.hide()
+
 		self.proxiespage = ProxiesPage(self.centralwidget)
 		self.proxiespage.hide()
+
 		self.settingspage = SettingsPage(self.centralwidget)
 		self.settingspage.hide()
+		
 		MainWindow.setCentralWidget(self.centralwidget)
 		QtCore.QMetaObject.connectSlotsByName(MainWindow)
 		self.set_functions()

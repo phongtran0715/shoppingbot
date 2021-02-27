@@ -67,31 +67,37 @@ class HomePage(QtWidgets.QWidget):
 		self.product_table_header.setFont(font)
 		self.product_table_header.setStyleSheet("color: rgb(234, 239, 239);border: none;")
 		self.product_table_header.setText("Product")
+
 		self.profile_table_header = QtWidgets.QLabel(self.tasks_card)
 		self.profile_table_header.setGeometry(QtCore.QRect(590, 7, 61, 31))
 		self.profile_table_header.setFont(font)
 		self.profile_table_header.setStyleSheet("color: rgb(234, 239, 239);border: none;")
 		self.profile_table_header.setText("Account")
+		
 		self.status_table_header = QtWidgets.QLabel(self.tasks_card)
 		self.status_table_header.setGeometry(QtCore.QRect(650, 7, 61, 31))
 		self.status_table_header.setFont(font)
 		self.status_table_header.setStyleSheet("color: rgb(234, 239, 239);border: none;")
 		self.status_table_header.setText("Status")
+		
 		self.actions_table_header = QtWidgets.QLabel(self.tasks_card)
 		self.actions_table_header.setGeometry(QtCore.QRect(890, 7, 61, 31))
 		self.actions_table_header.setFont(font)
 		self.actions_table_header.setStyleSheet("color: rgb(234, 239, 239);border: none;")
 		self.actions_table_header.setText("Actions")
+		
 		self.site_table_header = QtWidgets.QLabel(self.tasks_card)
 		self.site_table_header.setGeometry(QtCore.QRect(160, 7, 61, 31))
 		self.site_table_header.setFont(font)
 		self.site_table_header.setStyleSheet("color: rgb(234, 239, 239);border: none;")
 		self.site_table_header.setText("Site")
+
 		self.id_header = QtWidgets.QLabel(self.tasks_card)
 		self.id_header.setGeometry(QtCore.QRect(110, 7, 31, 31))
 		self.id_header.setFont(font)
 		self.id_header.setStyleSheet("color: rgb(234, 239, 239);border: none;")
 		self.id_header.setText("ID")
+		
 		self.tasks_header = QtWidgets.QLabel(self.homepage)
 		self.tasks_header.setGeometry(QtCore.QRect(30, 10, 61, 31))
 		self.tasks_header.setText("Tasks")
@@ -130,14 +136,17 @@ class HomePage(QtWidgets.QWidget):
 		self.checkouts_count.setStyleSheet("color: #34C693;border: none;")
 		self.checkouts_count.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
 		self.checkouts_count.setText("0")
+		
 		self.tasks_total_card = QtWidgets.QWidget(self.homepage)
 		self.tasks_total_card.setGeometry(QtCore.QRect(30, 45, 181, 51))
 		self.tasks_total_card.setStyleSheet("background-color: {};border-radius: 10px;border: 1px solid #2e2d2d;".format(globalStyles["backgroundLight"]))
+		
 		self.tasks_total_label = QtWidgets.QLabel(self.tasks_total_card)
 		self.tasks_total_label.setGeometry(QtCore.QRect(80, 10, 91, 31))
 		self.tasks_total_label.setFont(font)
 		self.tasks_total_label.setStyleSheet("color: rgb(234, 239, 239);border: none;")
 		self.tasks_total_label.setText("Total Tasks")
+		
 		self.tasks_total_icon = QtWidgets.QLabel(self.tasks_total_card)
 		self.tasks_total_icon.setGeometry(QtCore.QRect(10, 10, 31, 31))
 		self.tasks_total_icon.setStyleSheet("border: none;")
