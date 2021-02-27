@@ -54,19 +54,6 @@ class Target:
         send_webhook("OP", "Target", self.profile["profile_name"], self.task_id, self.product_image)
 
     def init_driver(self, account):
-        # driver_manager = ChromeDriverManager()
-        # driver_manager.install()
-        # change_driver(self.status_signal, driver_path)
-        # var = driver_path
-        # browser = webdriver.Chrome(driver_path)
-
-        # browser.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {
-        #     "source": """
-        #           Object.defineProperty(navigator, 'webdriver', {
-        #            get: () => undefined
-        #           })
-        #         """
-        # })
         shopping_proxy = get_proxy_raw(account['proxy'])
         if shopping_proxy is not None and shopping_proxy != "":
             print("Gamestop | TASK {} - Shopping proxy : {}".format(self.task_id, str(shopping_proxy)))
@@ -89,9 +76,7 @@ class Target:
         self.browser.find_element_by_id("account").click()
         wait(self.browser, self.TIMEOUT_LONG).until(EC.element_to_be_clickable((By.ID, "accountNav-signIn"))).click()
         wait(self.browser, self.TIMEOUT_LONG).until(EC.presence_of_element_located((By.ID, "username")))
-        print('jack | 0001')
         self.fill_and_authenticate(account)
-        print('jack | 0002')
 
         # Gives it time for the login to complete
         time.sleep(random_delay(self.monitor_delay, settings.random_delay_start, settings.random_delay_stop))
