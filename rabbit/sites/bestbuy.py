@@ -1,4 +1,4 @@
-import json, settings, webbrowser, urllib3, requests, sys, time, lxml.html
+import json, webbrowser, urllib3, requests, sys, time, lxml.html
 from time import sleep
 from urllib import parse
 from chromedriver_py import binary_path  # this will get you the path variable
@@ -19,6 +19,10 @@ from utils import (random_delay, send_webhook, create_msg,
 	get_proxy_by_account,
 	get_profile_by_account)
 import logging
+from model.task_model import TaskModel
+
+
+
 logger = logging.getLogger(__name__)
 
 
@@ -26,23 +30,22 @@ DEFAULT_HEADERS = {
 	"accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
 	"accept-encoding": "gzip, deflate, br",
 	"accept-language": "en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7",
-	"user-agent": settings.userAgent,
+	"user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.20 Safari/537.36",
 	"origin": "https://www.bestbuy.com",
 }
 
 class BestBuy:
 
-	def __init__(self, task_id, status_signal, image_signal, product,
-		monitor_proxies, monitor_delay, error_delay, account, max_quantity):
-		self.task_id = task_id
+	def __init__(self, status_signal, image_signal, task_model):
 		self.status_signal = status_signal
 		self.image_signal = image_signal
-		self.product = product
-		self.monitor_delay = float(monitor_delay)
-		self.error_delay = float(monitor_delay)
-		self.monitor_proxies = monitor_proxies
-		self.account = account
-		self.max_quantity = max_quantity
+		self.product = task_model.get_product()
+		self.task_id = task_model.get_task_id()
+		self.monitor_delay = float(task_model.get_monitor_delay())
+		self.error_delay = float(task_model.get_error_delay())
+		self.monitor_proxies = task_model.get_monitor_proxy()
+		self.account = task_model.get_account()
+		self.max_quantity = task_model.get_max_quantity()
 		self.is_login = True
 
 		self.SHORT_TIMEOUT = 5
@@ -52,7 +55,8 @@ class BestBuy:
 		self.sku_id = parse.parse_qs(parse.urlparse(self.product).query)['skuId'][0]
 		self.auto_buy = False
 		starting_msg = "Starting GameStop"
-		if settings.dont_buy:
+		dont_buy=True
+		if self.dont_buy:
 			starting_msg = "Starting GameStop in dev mode; will not actually checkout."
 		self.status_signal.emit(create_msg(starting_msg, "normal"))
 
@@ -175,7 +179,7 @@ class BestBuy:
 			pass
 
 		# send summit button
-		if settings.dont_buy is True:
+		if self.dont_buy is True:
 			self.status_signal.emit(create_msg("Mock Order Placed", "success"))
 			send_webhook("OP", "BestBuy", account["name"], self.task_id, self.product_image)
 		else:

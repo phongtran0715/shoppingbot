@@ -1,26 +1,25 @@
 import os
 from PyQt5 import QtWidgets, uic, QtGui, QtCore
 from PyQt5.QtWidgets import *
-# from utils import return_data,write_data,get_profile,Encryption
+from PyQt5.QtSql import QSqlDatabase, QSqlTableModel, QSqlQuery
 
 
 class NewTask(QtWidgets.QDialog):
-	def __init__(self, parent=None, modifyMode=None, task_id=None):
+	def __init__(self, modifyMode=False, task_id=None):
 		super(NewTask, self).__init__()
+		self.db_conn = QSqlDatabase.database("supreme_db_conn", open=False)
 		dirname = os.path.dirname(__file__)
 		uic.loadUi(os.path.join(dirname, "../ui", "new_task_dialog.ui"), self)
-		self.homepage = parent
-		self.modifyMode = modifyMode
 		self.task_id = task_id
-		# self.init_data()
+		self.init_data()
+		if modifyMode is True:
+			self.load_data()
+		self.show()
+		self.center()
 
-		# if modifyMode is True:
-		# 	self.load_data()
-		# self.show()
-		# self.center()
-		
-		# # connect action for button
-		# self.btnAccountAdd.clicked.connect(self.btnAccountAdd_clicked)
+		# create signal for button
+		self.btnAccountAdd.clicked.connect(self.btnAccountAddClicked)
+		self.txtLink.textChanged.connect(self.txtLinkChanged)
 
 	def center(self):
 		qr = self.frameGeometry()
@@ -29,76 +28,94 @@ class NewTask(QtWidgets.QDialog):
 		self.move(qr.topLeft())
 
 	def init_data(self):
-		proxies = return_data("./data/proxies.json")
-		for proxy in proxies:
-			self.cbMonitorProxy.addItem(proxy['list_name'])
+		query = QSqlQuery("SELECT id, name FROM proxies", self.db_conn)
+		while query.next():
+			self.cbMonitorProxy.addItem(query.value(1))
 
-		accounts = return_data("./data/accounts.json")
-		for account in accounts:
-			self.cbAccount.addItem(account['name'])
+		query = QSqlQuery("SELECT id, name FROM account", self.db_conn)
+		while query.next():
+			self.cbAccount.addItem(query.value(1))
 
 	def load_data(self):
-		tasks = return_data("./data/tasks.json")
-		for task in tasks:
-			if task['task_id'] == self.task_id:
-				self.txtLink.setText(task['product'])
-				index = self.cbSite.findText(task['site'], QtCore.Qt.MatchFixedString)
-				if index >= 0:
-					self.cbSite.setCurrentIndex(index)
+		query = QSqlQuery("""
+			SELECT product, site, monitor_proxy, monitor_delay, error_delay, max_price, max_quantity, account 
+			FROM task WHERE id = """ + str(self.task_id), self.db_conn)
+		if query.next():
+			self.txtLink.setText(query.value(0))
 
-				index = self.cbMonitorProxy.findText(task['monitor_proxy'], QtCore.Qt.MatchFixedString)
-				if index >= 0:
-					self.cbMonitorProxy.setCurrentIndex(index)
+			index = self.cbSite.findText(query.value(1), QtCore.Qt.MatchFixedString)
+			if index >= 0:
+				self.cbSite.setCurrentIndex(index)
 
-				self.txtMonitorDelay.setText(task['monitor_delay'])
-				self.txtErrorDelay.setText(task['error_delay'])
-				self.txtMaxPrice.setText(task['max_price'])
-				self.txtMaxQuantity.setText(task['max_quantity'])
-				self.txtAccount.setText(task['account'])
-				break
+			index = self.cbMonitorProxy.findText(query.value(2), QtCore.Qt.MatchFixedString)
+			if index >= 0:
+				self.cbMonitorProxy.setCurrentIndex(index)
 
-	def btnAccountAdd_clicked(self):
-		account_name = self.cbAccount.currentText()
-		if account_name is not None and account_name != "":
-			current_account = self.txtAccount.text()
-			if current_account is not None and current_account != "":
-				self.txtAccount.setText(current_account + "," + account_name)
-			else:
-				self.txtAccount.setText(account_name)
+			self.txtMonitorDelay.setText(str(query.value(3)))
+			self.txtErrorDelay.setText(str(query.value(4)))
+			self.txtMaxPrice.setText(str(query.value(5)))
+			self.txtMaxQuantity.setText(str(query.value(6)))
+			self.txtAccount.setText(query.value(7))
 
-	def save_task(self):
-		task_id = int(self.homepage.tasks_total_count.text()) + 1
-		task_data = {
-			'task_id' : str(task_id),
-			'site' : self.cbSite.currentText(),
-			'product' : self.txtLink.text(),
-			'monitor_proxy' : self.cbMonitorProxy.currentText(),
-			'monitor_delay' : self.txtMonitorDelay.text(),
-			'error_delay' : self.txtErrorDelay.text(),
-			'max_price' : self.txtMaxPrice.text(),
-			'max_quantity' : self.txtMaxQuantity.text(),
-			'account' : self.txtAccount.text()
-		}
-		tasks = return_data("./data/tasks.json")
-		tasks.append(task_data)
-		write_data("./data/tasks.json",tasks)
-		self.homepage.add_tab(task_data)
+	def create_task(self):
+		query = QSqlQuery(self.db_conn)
+		query.prepare(""" INSERT INTO task (product, site, monitor_proxy, monitor_delay, error_delay, 
+			max_price, max_quantity, account) VALUES (?, ?, ?, ?, ?, ?, ?, ?)""")
+		query.addBindValue(self.txtLink.text())
+		query.addBindValue(self.cbSite.currentText())
+		query.addBindValue(self.cbMonitorProxy.currentText())
+		query.addBindValue(int(self.txtMonitorDelay.text()))
+		query.addBindValue(int(self.txtErrorDelay.text()))
+		query.addBindValue(int(self.txtMaxPrice.text()))
+		query.addBindValue(int(self.txtMaxQuantity.text()))
+		query.addBindValue(self.txtAccount.text())
+		if not query.exec():
+			QMessageBox.critical(self, "Rabbit - Error!", 'Database Error: %s' % query.lastError().text(),)
+		else:
+			self.close()
 
 	def update_task(self):
-		task_data = {
-			'task_id' : self.task_id,
-			'site' : self.cbSite.currentText(),
-			'product' : self.txtLink.text(),
-			'monitor_proxy' : self.cbMonitorProxy.currentText(),
-			'monitor_delay' : self.txtMonitorDelay.text(),
-			'error_delay' : self.txtErrorDelay.text(),
-			'max_price' : self.txtMaxPrice.text(),
-			'max_quantity' : self.txtMaxQuantity.text(),
-			'account' : self.txtAccount.text()
-		}
-		tasks = return_data("./data/tasks.json")
-		for task in tasks:
-			if task['task_id'] == self.task_id:
-				tasks.remove(task)
-		tasks.append(task_data)
-		write_data("./data/tasks.json",tasks)
+		query = QSqlQuery(self.db_conn)
+		query.prepare(""" UPDATE task SET product = ?, site = ?, monitor_proxy = ?, monitor_delay = ?, error_delay = ?, 
+			max_price = ? , max_quantity = ? , account = ? WHERE id = ?""")
+		query.addBindValue(self.txtLink.text())
+		query.addBindValue(self.cbSite.currentText())
+		query.addBindValue(self.cbMonitorProxy.currentText())
+		query.addBindValue(self.txtMonitorDelay.text())
+		query.addBindValue(self.txtErrorDelay.text())
+		query.addBindValue(self.txtMaxPrice.text())
+		query.addBindValue(self.txtMaxQuantity.text())
+		query.addBindValue(self.txtAccount.text())
+		query.addBindValue(self.task_id)
+		if not query.exec():
+			QMessageBox.critical(self, "Rabbit - Error!", 'Database Error: %s' % query.lastError().text(),)
+		else:
+			self.close()
+
+	def btnAccountAddClicked(self):
+		account = self.txtAccount.text()
+		if account is None or account == "":
+			account += self.cbAccount.currentText()
+		else:
+			account += "," + self.cbAccount.currentText()
+
+		self.txtAccount.setText(account)
+
+	def txtLinkChanged(self):
+		product = self.txtLink.text()
+		if "gamestop" in product:
+			index = self.cbSite.findText("GameStop", QtCore.Qt.MatchFixedString)
+			if index >= 0:
+				self.cbSite.setCurrentIndex(index)
+		elif "walmart" in product:
+			index = self.cbSite.findText("Walmart", QtCore.Qt.MatchFixedString)
+			if index >= 0:
+				self.cbSite.setCurrentIndex(index)
+		elif "bestbuy" in product:
+			index = self.cbSite.findText("Bestbuy", QtCore.Qt.MatchFixedString)
+			if index >= 0:
+				self.cbSite.setCurrentIndex(index)
+		elif "target" in product:
+			index = self.cbSite.findText("Target", QtCore.Qt.MatchFixedString)
+			if index >= 0:
+				self.cbSite.setCurrentIndex(index)

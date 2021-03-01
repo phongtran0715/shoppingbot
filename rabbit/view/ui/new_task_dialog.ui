@@ -211,18 +211,18 @@
    </hints>
   </connection>
   <connection>
-   <sender>buttonBox</sender>
-   <signal>rejected()</signal>
-   <receiver>Dialog</receiver>
-   <slot>reject()</slot>
+   <sender>txtLink</sender>
+   <signal>textChanged(QString)</signal>
+   <receiver>cbSite</receiver>
+   <slot>setCurrentText(QString)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>316</x>
-     <y>260</y>
+     <x>315</x>
+     <y>26</y>
     </hint>
     <hint type="destinationlabel">
-     <x>286</x>
-     <y>274</y>
+     <x>167</x>
+     <y>64</y>
     </hint>
    </hints>
   </connection>

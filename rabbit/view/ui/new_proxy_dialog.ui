@@ -66,19 +66,6 @@
     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Email address&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
    </property>
   </widget>
-  <widget class="QLineEdit" name="txtUsername">
-   <property name="geometry">
-    <rect>
-     <x>99</x>
-     <y>54</y>
-     <width>231</width>
-     <height>181</height>
-    </rect>
-   </property>
-   <property name="toolTip">
-    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Telephone number&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-   </property>
-  </widget>
   <widget class="QLabel" name="label_2">
    <property name="geometry">
     <rect>
@@ -98,10 +85,19 @@
     <number>5</number>
    </property>
   </widget>
+  <widget class="QPlainTextEdit" name="txtContent">
+   <property name="geometry">
+    <rect>
+     <x>100</x>
+     <y>60</y>
+     <width>231</width>
+     <height>161</height>
+    </rect>
+   </property>
+  </widget>
  </widget>
  <tabstops>
   <tabstop>txtName</tabstop>
-  <tabstop>txtUsername</tabstop>
  </tabstops>
  <resources/>
  <connections>

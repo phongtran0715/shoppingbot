@@ -8,9 +8,9 @@ from colorama import init, Fore
 from datetime import datetime
 from selenium.webdriver import Chrome, ChromeOptions
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
-from webhook import DiscordWebhook, DiscordEmbed
+from notification.webhook import DiscordWebhook, DiscordEmbed
 from chromedriver_py import binary_path as driver_path
-import json, platform, random, settings, threading, hashlib, base64, string, re
+import json, platform, random, threading, hashlib, base64, string, re
 import logging
 
 normal_color = Fore.CYAN
@@ -154,31 +154,32 @@ def format_proxy(proxy):
 
 
 def send_webhook(webhook_type, site, profile, task_id, image_url):
-    if settings.webhook != "":
-        webhook = DiscordWebhook(url=settings.webhook, username="Bird Bot",
-                                 avatar_url="https://i.imgur.com/60G42xE.png")
-        if webhook_type == "OP":
-            if not settings.webhook_on_order:
-                return
-            embed = DiscordEmbed(title="Order Placed", color=0x34c693)
-        elif webhook_type == "B":
-            if not settings.webhook_on_browser:
-                return
-            embed = DiscordEmbed(title="Complete Order in Browser", color=0xf2a689)
-        elif webhook_type == "PF":
-            if not settings.webhook_on_failed:
-                return
-            embed = DiscordEmbed(title="Payment Failed", color=0xfc5151)
-        embed.set_footer(text="Via Bird Bot", icon_url="https://i.imgur.com/60G42xE.png")
-        embed.add_embed_field(name="Site", value=site, inline=True)
-        embed.add_embed_field(name="Account", value=profile, inline=True)
-        embed.add_embed_field(name="Task ID", value=task_id, inline=True)
-        embed.set_thumbnail(url=image_url)
-        webhook.add_embed(embed)
-        try:
-            webhook.execute()
-        except:
-            pass
+    pass
+    # if settings.webhook != "":
+    #     webhook = DiscordWebhook(url=settings.webhook, username="Bird Bot",
+    #                              avatar_url="https://i.imgur.com/60G42xE.png")
+    #     if webhook_type == "OP":
+    #         if not settings.webhook_on_order:
+    #             return
+    #         embed = DiscordEmbed(title="Order Placed", color=0x34c693)
+    #     elif webhook_type == "B":
+    #         if not settings.webhook_on_browser:
+    #             return
+    #         embed = DiscordEmbed(title="Complete Order in Browser", color=0xf2a689)
+    #     elif webhook_type == "PF":
+    #         if not settings.webhook_on_failed:
+    #             return
+    #         embed = DiscordEmbed(title="Payment Failed", color=0xfc5151)
+    #     embed.set_footer(text="Via Bird Bot", icon_url="https://i.imgur.com/60G42xE.png")
+    #     embed.add_embed_field(name="Site", value=site, inline=True)
+    #     embed.add_embed_field(name="Account", value=profile, inline=True)
+    #     embed.add_embed_field(name="Task ID", value=task_id, inline=True)
+    #     embed.set_thumbnail(url=image_url)
+    #     webhook.add_embed(embed)
+    #     try:
+    #         webhook.execute()
+    #     except:
+    #         pass
 
 def random_delay(delay, start, stop):
     """

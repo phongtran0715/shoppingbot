@@ -8,23 +8,25 @@ from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
 from webdriver_manager.firefox import GeckoDriverManager
 from PyQt5 import QtCore
-import urllib, requests, time, lxml.html, json, sys, settings
+import urllib, requests, time, lxml.html, json, sys
 import logging
+from model.task_model import TaskModel
+
 logger = logging.getLogger(__name__)
 
 class Walmart:
-	def __init__(self, task_id, status_signal, image_signal, wait_poll_signal, polling_wait_condition, product,
-				 monitor_proxies, monitor_delay, error_delay, max_price, max_quantity, account):
+	def __init__(self, task_id, status_signal, image_signal, wait_poll_signal, polling_wait_condition, task_model):
 		self.task_id = task_id
 		self.status_signal = status_signal
 		self.image_signal = image_signal
-		self.product = product
-		self.monitor_proxies = monitor_proxies
-		self.monitor_delay = float(monitor_delay)
-		self.error_delay = float(error_delay)
-		self.max_price = max_price
-		self.max_quantity = max_quantity
-		self.account =account
+		self.product = task_model.get_product()
+		self.task_id = task_model.get_task_id()
+		self.monitor_delay = float(task_model.get_monitor_delay())
+		self.error_delay = float(task_model.get_error_delay())
+		self.monitor_proxies = task_model.get_monitor_proxy()
+		self.account = task_model.get_account()
+		self.max_quantity = task_model.get_max_quantity()
+		self.max_price = task_model.get_max_price()
 		####### Browser/Captcha Polling Variables ######
 		self.captcha_mutex = QtCore.QMutex()
 		self.captcha_wait_condition = polling_wait_condition
@@ -72,7 +74,7 @@ class Walmart:
 			"accept-language": "en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7",
 			"cache-control": "max-age=0",
 			"upgrade-insecure-requests": "1",
-			"user-agent": settings.userAgent
+			"user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.20 Safari/537.36"
 		}
 		image_found = False
 		product_image = ""
@@ -107,18 +109,17 @@ class Walmart:
 							if float(self.max_price) < price:
 								self.status_signal.emit({"msg": "Waiting For Price Restock", "status": "normal"})
 								self.session.cookies.clear()
-								time.sleep(random_delay(self.monitor_delay, settings.random_delay_start,
-														settings.random_delay_stop))
+								time.sleep(self.monitor_delay)
 								continue
 						offer_id = json.loads(doc.xpath('//script[@id="item"]/text()')[0])["item"]["product"]["buyBox"][
 							"products"][0]["offerId"]
 						return product_image, offer_id
 					self.status_signal.emit({"msg": "Waiting For Restock", "status": "normal"})
 					self.session.cookies.clear()
-					time.sleep(random_delay(self.monitor_delay, settings.random_delay_start, settings.random_delay_stop))
+					time.sleep(self.monitor_delay)
 				else:
 					self.status_signal.emit({"msg": "Product Not Found", "status": "normal"})
-					time.sleep(random_delay(self.monitor_delay, settings.random_delay_start, settings.random_delay_stop))
+					time.sleep(self.monitor_delay)
 			except Exception as e:
 				self.status_signal.emit({"msg": "Error Loading Product Page (line {} {} {})".format(
 					sys.exc_info()[-1].tb_lineno, type(e).__name__, e), "status": "error"})
@@ -132,7 +133,7 @@ class Walmart:
 			"content-type": "application/json",
 			"origin": "https://www.walmart.com",
 			"referer": self.product,
-			"user-agent": settings.userAgent,
+			"user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.20 Safari/537.36",
 			"wm_offer_id": offer_id
 		}
 		profile = get_profile(account['profile'])
@@ -184,7 +185,7 @@ class Walmart:
 			"content-type": "application/json",
 			"origin": "https://www.walmart.com",
 			"referer": "https://www.walmart.com/checkout/",
-			"user-agent": settings.userAgent,
+			"user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.20 Safari/537.36",
 			"wm_vertical_id": "0",
 			"wm_cvv_in_session": "true",
 		}
@@ -210,8 +211,7 @@ class Walmart:
 				else:
 					if json.loads(r.text)["message"] == "Item is no longer in stock.":
 						self.status_signal.emit({"msg": "Waiting For Restock", "status": "normal"})
-						time.sleep(
-							random_delay(self.monitor_delay, settings.random_delay_start, settings.random_delay_stop))
+						time.sleep(self.monitor_delay)
 					else:
 						if self.is_captcha(r.text):
 							self.handle_captcha("https://www.walmart.com/checkout")
@@ -231,7 +231,7 @@ class Walmart:
 			"content-type": "application/json",
 			"origin": "https://www.walmart.com",
 			"referer": "https://www.walmart.com/checkout/",
-			"user-agent": settings.userAgent,
+			"user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.20 Safari/537.36",
 			"wm_vertical_id": "0"
 		}
 		body = {"groups": [{"fulfillmentOption": fulfillment_option, "itemIds": [item_id], "shipMethod": ship_method}]}
@@ -263,7 +263,7 @@ class Walmart:
 			"inkiru_precedence": "false",
 			"origin": "https://www.walmart.com",
 			"referer": "https://www.walmart.com/checkout/",
-			"user-agent": settings.userAgent,
+			"user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.20 Safari/537.36",
 			"wm_vertical_id": "0"
 		}
 		profile = get_profile(account['profile'])
@@ -310,7 +310,7 @@ class Walmart:
 			"Connection": "keep-alive",
 			"Host": "securedataweb.walmart.com",
 			"Referer": "https://www.walmart.com/",
-			"User-Agent": settings.userAgent
+			"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.20 Safari/537.36"
 		}
 		profile = get_profile(account['profile'])
 		while True:
@@ -344,7 +344,7 @@ class Walmart:
 			"content-type": "application/json",
 			"origin": "https://www.walmart.com",
 			"referer": "https://www.walmart.com/checkout/",
-			"user-agent": settings.userAgent
+			"user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.20 Safari/537.36"
 		}
 		# "inkiru_precedence": "false",
 		profile = get_profile(account['profile'])
@@ -394,7 +394,7 @@ class Walmart:
 			"content-type": "application/json",
 			"origin": "https://www.walmart.com",
 			"referer": "https://www.walmart.com/checkout/",
-			"user-agent": settings.userAgent,
+			"user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.20 Safari/537.36",
 			"wm_vertical_id": "0"
 		}
 
@@ -452,11 +452,11 @@ class Walmart:
 			"content-type": "application/json",
 			"origin": "https://www.walmart.com",
 			"referer": "https://www.walmart.com/checkout/",
-			"user-agent": settings.userAgent,
+			"user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.20 Safari/537.36",
 			"wm_vertical_id": "0"
 		}
 		profile = get_profile(account['profile'])
-		if settings.dont_buy is True:
+		if self.dont_buy is True:
 			# TODO: this used to open the page up with everything filled out but only works for some users
 			self.status_signal.emit({"msg":"Mock Opening Checkout Page","status":"alt"})
 			send_webhook("OP", "Walmart", account["name"], self.task_id, self.product_image)
@@ -491,7 +491,7 @@ class Walmart:
 
 	def check_browser(self, account):
 		profile = get_profile(account['profile'])
-		if settings.browser_on_failed:
+		if True:
 			self.status_signal.emit(
 				{"msg": "Browser Ready", "status": "alt", "url": "https://www.walmart.com/checkout/#/payment",
 				 "cookies": [{"name": cookie.name, "value": cookie.value, "domain": cookie.domain} for cookie in

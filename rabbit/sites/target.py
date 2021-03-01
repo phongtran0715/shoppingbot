@@ -10,19 +10,22 @@ from utils import (random_delay, send_webhook, create_msg,
     get_proxy_by_account,
     get_profile_by_account)
 from utils.selenium_utils import change_driver
-import settings, time
+import time
+from model.task_model import TaskModel
 
 
 class Target:
-    def __init__(self, task_id, status_signal, image_signal, product,
-        monitor_proxy, monitor_delay, error_delay, account):
+    def __init__(self, status_signal, image_signal, task_model):
         self.task_id = task_id
         self.status_signal = status_signal
         self.image_signal = image_signal
-        self.product = product
-        self.monitor_delay = float(monitor_delay)
-        self.error_delay = float(error_delay)
-        self.account = account
+        self.product = task_model.get_product()
+        self.task_id = task_model.get_task_id()
+        self.monitor_delay = float(task_model.get_monitor_delay())
+        self.error_delay = float(task_model.get_error_delay())
+        self.monitor_proxies = task_model.get_monitor_proxy()
+        self.account = task_model.get_account()
+        self.max_quantity = task_model.get_max_quantity()
         account_item = get_account(self.account)
         self.profile = get_profile(account_item['profile'])
 
@@ -79,7 +82,7 @@ class Target:
         self.fill_and_authenticate(account)
 
         # Gives it time for the login to complete
-        time.sleep(random_delay(self.monitor_delay, settings.random_delay_start, settings.random_delay_stop))
+        time.sleep(5)
 
     def fill_and_authenticate(self, account):
         if self.browser.find_elements_by_id('username'):
@@ -131,7 +134,7 @@ class Target:
                 continue
             else:
                 self.status_signal.emit(create_msg("Waiting on Restock", "normal"))
-                time.sleep(random_delay(self.monitor_delay, settings.random_delay_start, settings.random_delay_stop))
+                time.sleep(5)
                 self.browser.refresh()
 
     def atc_and_checkout(self):

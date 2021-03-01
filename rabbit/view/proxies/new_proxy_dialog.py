@@ -2,17 +2,20 @@ import os
 from PyQt5 import QtWidgets, uic, QtGui, QtCore
 from PyQt5.QtWidgets import *
 from utils import return_data,write_data,get_profile,Encryption
+from PyQt5.QtSql import QSqlDatabase, QSqlTableModel, QSqlQuery
 
 
-class NewAccount(QtWidgets.QDialog):
-	def __init__(self, mode='new', account_name=None):
-		super(NewAccount, self).__init__()
+class NewProxy(QtWidgets.QDialog):
+	def __init__(self, modifyMode=False, proxy_id=None):
+		super(NewProxy, self).__init__()
+		self.db_conn = QSqlDatabase.database("supreme_db_conn", open=False)
 		dirname = os.path.dirname(__file__)
-		uic.loadUi(os.path.join(dirname, "ui", "new_account.ui"), self)
+		uic.loadUi(os.path.join(dirname, "../ui", "new_proxy_dialog.ui"), self)
 		self.center()
-		self.mode = mode
-		self.account_name = account_name
-		self.init_data()
+		self.modifyMode = modifyMode
+		self.proxy_id = proxy_id
+		if modifyMode is True:
+			self.load_edit_data()
 
 	def center(self):
 		qr = self.frameGeometry()
@@ -20,61 +23,30 @@ class NewAccount(QtWidgets.QDialog):
 		qr.moveCenter(cp)
 		self.move(qr.topLeft())
 
-	def init_data(self):
-		proxies = return_data("./data/proxies.json")
-		for proxy in proxies:
-			self.cbProxy.addItem(proxy['list_name'])
-
-		profiles = return_data("./data/profiles.json")
-		for profile in profiles:
-			self.cbProfile.addItem(profile['profile_name'])
-
 	def load_edit_data(self):
-		accounts = return_data("./data/accounts.json")
-		for account in accounts:
-			if account['name'] == self.account_name:
-				index = self.cbType.findText(account['account_type'], QtCore.Qt.MatchFixedString)
-				if index >= 0:
-					self.cbType.setCurrentIndex(index)
+		query = QSqlQuery("SELECT name, content FROM proxies WHERE id = " + str(self.proxy_id), self.db_conn)
+		if query.next():
+			self.txtName.setText(query.value(0))
+			self.txtContent.setPlainText(query.value(1))
 
-				self.txtName.setText(account['name'])
-				self.txtUsername.setText(account['user_name'])
-				self.txtPassword.setText(account['password'])
+	def update_proxy(self):
+		query = QSqlQuery(self.db_conn)
+		query.prepare("UPDATE proxies SET name = ?, content = ? WHERE id = ?")
+		query.addBindValue(self.txtName.text())
+		query.addBindValue(self.txtContent.toPlainText())
+		query.addBindValue(int(self.proxy_id))
+		if not query.exec():
+			QMessageBox.critical(self, "Rabbit - Error!", 'Database Error: %s' % query.lastError().databaseText(),)
+		else:
+			self.close()
 
-				index = self.cbProxy.findText(account['proxy'], QtCore.Qt.MatchFixedString)
-				if index >= 0:
-					self.cbProxy.setCurrentIndex(index)
-
-				index = self.cbProfile.findText(account['profile'], QtCore.Qt.MatchFixedString)
-				if index >= 0:
-					self.cbProfile.setCurrentIndex(index)
-
-	def update_account(self):
-		account_data = {
-			'account_type' : self.cbType.currentText(),
-			'name' : self.txtName.text(),
-			'user_name' : self.txtUsername.text(),
-			'password' : self.txtPassword.text(),
-			'proxy' : self.cbProxy.currentText(),
-			'profile' : self.cbProfile.currentText()
-		}
-		accounts = return_data("./data/accounts.json")
-		for account in accounts:
-			if account['name'] == self.txtName.text():
-				accounts.remove(account)
-
-		accounts.append(account_data)
-		write_data("./data/accounts.json",accounts)
-
-	def save_account(self):
-		account_data = {
-			'account_type' : self.cbType.currentText(),
-			'name' : self.txtName.text(),
-			'user_name' : self.txtUsername.text(),
-			'password' : self.txtPassword.text(),
-			'proxy' : self.cbProxy.currentText(),
-			'profile' : self.cbProfile.currentText()
-		}
-		accounts = return_data("./data/accounts.json")
-		accounts.append(account_data)
-		write_data("./data/accounts.json",accounts)
+	def create_proxy(self):
+		query = QSqlQuery(self.db_conn)
+		query.prepare("INSERT INTO proxies (name, content) VALUES (?, ?)")
+		query.addBindValue(self.txtName.text())
+		query.addBindValue(self.txtContent.toPlainText())
+		if not query.exec():
+			QMessageBox.critical(self, "Rabbit - Error!", 'Database Error: %s' % query.lastError().databaseText(),)
+		else:
+			self.close()
+		

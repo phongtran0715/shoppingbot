@@ -2,17 +2,20 @@ import os
 from PyQt5 import QtWidgets, uic, QtGui, QtCore
 from PyQt5.QtWidgets import *
 from utils import return_data,write_data,get_profile,Encryption
+from PyQt5.QtSql import QSqlDatabase, QSqlTableModel, QSqlQuery
 
 
 class NewAccount(QtWidgets.QDialog):
-	def __init__(self, mode='new', account_name=None):
+	def __init__(self, modifyMode=False, account_id=None):
 		super(NewAccount, self).__init__()
+		self.db_conn = QSqlDatabase.database("supreme_db_conn", open=False)
 		dirname = os.path.dirname(__file__)
-		uic.loadUi(os.path.join(dirname, "ui", "new_account.ui"), self)
+		uic.loadUi(os.path.join(dirname, "../ui", "new_account.ui"), self)
 		self.center()
-		self.mode = mode
-		self.account_name = account_name
+		self.account_id = account_id
 		self.init_data()
+		if modifyMode is True:
+			self.load_edit_data()
 
 	def center(self):
 		qr = self.frameGeometry()
@@ -20,61 +23,85 @@ class NewAccount(QtWidgets.QDialog):
 		qr.moveCenter(cp)
 		self.move(qr.topLeft())
 
-	def init_data(self):
-		proxies = return_data("./data/proxies.json")
-		for proxy in proxies:
-			self.cbProxy.addItem(proxy['list_name'])
 
-		profiles = return_data("./data/profiles.json")
-		for profile in profiles:
-			self.cbProfile.addItem(profile['profile_name'])
+	def init_data(self):
+		query = QSqlQuery("SELECT id, profile_name FROM profile", self.db_conn)
+		while query.next():
+			self.cbProfile.addItem(query.value(1))
+
+		query = QSqlQuery("SELECT id, name FROM proxies", self.db_conn)
+		while query.next():
+			self.cbProxy.addItem(query.value(1))
 
 	def load_edit_data(self):
-		accounts = return_data("./data/accounts.json")
-		for account in accounts:
-			if account['name'] == self.account_name:
-				index = self.cbType.findText(account['account_type'], QtCore.Qt.MatchFixedString)
-				if index >= 0:
-					self.cbType.setCurrentIndex(index)
+		query = QSqlQuery("SELECT * FROM account WHERE id = " + str(self.account_id), self.db_conn)
+		if query.next():
+			index = self.cbSite.findText(query.value(1), QtCore.Qt.MatchFixedString)
+			if index >= 0:
+				self.cbSite.setCurrentIndex(index)
 
-				self.txtName.setText(account['name'])
-				self.txtUsername.setText(account['user_name'])
-				self.txtPassword.setText(account['password'])
+			self.txtName.setText(query.value(2))
+			self.txtUsername.setText(query.value(3))
+			self.txtPassword.setText(query.value(4))
 
-				index = self.cbProxy.findText(account['proxy'], QtCore.Qt.MatchFixedString)
-				if index >= 0:
-					self.cbProxy.setCurrentIndex(index)
+			index = self.cbProxy.findText(query.value(5), QtCore.Qt.MatchFixedString)
+			if index >= 0:
+				self.cbProxy.setCurrentIndex(index)
 
-				index = self.cbProfile.findText(account['profile'], QtCore.Qt.MatchFixedString)
-				if index >= 0:
-					self.cbProfile.setCurrentIndex(index)
+			index = self.cbProfile.findText(query.value(6), QtCore.Qt.MatchFixedString)
+			if index >= 0:
+				self.cbProfile.setCurrentIndex(index)
 
 	def update_account(self):
-		account_data = {
-			'account_type' : self.cbType.currentText(),
-			'name' : self.txtName.text(),
-			'user_name' : self.txtUsername.text(),
-			'password' : self.txtPassword.text(),
-			'proxy' : self.cbProxy.currentText(),
-			'profile' : self.cbProfile.currentText()
-		}
-		accounts = return_data("./data/accounts.json")
-		for account in accounts:
-			if account['name'] == self.txtName.text():
-				accounts.remove(account)
+		query = QSqlQuery(self.db_conn)
+		query.prepare(
+				"""
+				UPDATE account SET 
+					site = ?,
+					name = ?,
+					user_name = ?,
+					password = ?,
+					proxy = ?,
+					billing_profile = ? 
+				WHERE id = ?
+				"""
+			)
+		query.addBindValue(self.cbSite.currentText())
 
-		accounts.append(account_data)
-		write_data("./data/accounts.json",accounts)
+		query.addBindValue(self.txtName.text())
+		query.addBindValue(self.txtUsername.text())
+		query.addBindValue(self.txtPassword.text())
+		query.addBindValue(self.cbProxy.currentText())
+		query.addBindValue(self.cbProfile.currentText())
+		query.addBindValue(str(self.account_id))
+		if not query.exec():
+			QMessageBox.critical(self, "Rabbit - Error!", 'Database Error: %s' % query.lastError().text(),)
+		else:
+			self.close()
 
-	def save_account(self):
-		account_data = {
-			'account_type' : self.cbType.currentText(),
-			'name' : self.txtName.text(),
-			'user_name' : self.txtUsername.text(),
-			'password' : self.txtPassword.text(),
-			'proxy' : self.cbProxy.currentText(),
-			'profile' : self.cbProfile.currentText()
-		}
-		accounts = return_data("./data/accounts.json")
-		accounts.append(account_data)
-		write_data("./data/accounts.json",accounts)
+	def create_account(self):
+		query = QSqlQuery(self.db_conn)
+		query.prepare(
+				"""
+				INSERT INTO account (
+					site,
+					name,
+					user_name,
+					password,
+					proxy,
+					billing_profile
+				)
+				VALUES (?, ?, ?, ?, ?, ?)
+				"""
+			)
+		query.addBindValue(self.cbSite.currentText())
+
+		query.addBindValue(self.txtName.text())
+		query.addBindValue(self.txtUsername.text())
+		query.addBindValue(self.txtPassword.text())
+		query.addBindValue(self.cbProxy.currentText())
+		query.addBindValue(self.cbProfile.currentText())
+		if not query.exec():
+			QMessageBox.critical(self, "Supreme - Error!", 'Database Error: %s' % query.lastError().text(),)
+		else:
+			self.close()

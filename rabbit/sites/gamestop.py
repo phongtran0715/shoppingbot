@@ -13,24 +13,25 @@ from utils import (random_delay, send_webhook,
 	get_profile_by_account,
 	get_proxy_by_account)
 from utils.selenium_utils import change_driver
-import urllib, requests, time, lxml.html, json, sys, settings
+import urllib, requests, time, lxml.html, json, sys
 import logging
+from model.task_model import TaskModel
+
+
 logger = logging.getLogger(__name__)
 
 
 class GameStop:
-	def __init__(self, task_id, status_signal, image_signal, product, monitor_proxies,
-		monitor_delay, error_delay, max_price, max_quantity, account):
-		self.task_id = task_id
+	def __init__(self, status_signal, image_signal, task_model):
 		self.status_signal = status_signal
 		self.image_signal = image_signal
-		self.product = product
-		self.monitor_delay = float(monitor_delay)
-		self.error_delay = float(error_delay)
-		self.max_price = max_price
-		self.max_quantity = max_quantity
-		self.monitor_proxies = monitor_proxies
-		self.account = account
+		self.product = task_model.get_product()
+		self.task_id = task_model.get_task_id()
+		self.monitor_delay = float(task_model.get_monitor_delay())
+		self.error_delay = float(task_model.get_error_delay())
+		self.monitor_proxies = task_model.get_monitor_proxy()
+		self.account = task_model.get_account()
+		self.max_quantity = task_model.get_max_quantity()
 		self.is_login = True
 
 		starting_msg = "Starting GameStop"
@@ -39,9 +40,10 @@ class GameStop:
 		self.SHORT_TIMEOUT = 5
 		self.LONG_TIMEOUT = 20
 		self.MONITOR_DELAY = 15
+		self.dont_buy = True
 
-		if settings.dont_buy:
-			starting_msg = "Starting GameStop in dev mode; will not actually checkout."
+		# if self.dont_buy:
+		# 	starting_msg = "Starting GameStop in dev mode; will not actually checkout."
 
 		self.status_signal.emit(create_msg(starting_msg, "normal"))
 		self.monitor()
@@ -115,7 +117,7 @@ class GameStop:
 			"accept-language": "en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7",
 			"cache-control": "max-age=0",
 			"upgrade-insecure-requests": "1",
-			"user-agent": settings.userAgent
+			"user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.20 Safari/537.36"
 		}
 		self.session = requests.Session()
 		monitor_proxy = get_proxy(self.monitor_proxies)
@@ -292,7 +294,7 @@ class GameStop:
 
 		wait(self.browser, self.LONG_TIMEOUT).until(EC.element_to_be_clickable((By.CLASS_NAME, 'btn.btn-primary.btn-block.place-order')))
 
-		if settings.dont_buy is True:
+		if self.dont_buy is True:
 			self.status_signal.emit(create_msg("Mock Order Placed", "success"))
 			send_webhook("OP", "GameStop", account["name"], self.task_id, self.product_image)
 		else:
