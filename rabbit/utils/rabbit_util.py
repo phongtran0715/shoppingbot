@@ -42,7 +42,7 @@ class RabbitUtil():
 			return None
 		query = QSqlQuery("SELECT * FROM profile WHERE profile_name = '" + profile_name + "'", db_conn)
 		if query.next():
-			billing_profile_model = ProfileMode(str(query.value(0)), query.value(1),query.value(2),query.value(3),
+			billing_profile_model = ProfileModel(str(query.value(0)), query.value(1),query.value(2),query.value(3),
 									query.value(4),query.value(5),query.value(6),query.value(7),
 									query.value(8), query.value(9),query.value(10),query.value(11),
 									query.value(12),query.value(13),query.value(14),query.value(15),

@@ -38,8 +38,8 @@ class AccountModel():
 	def set_proxy(self, proxy):
 		self.proxy = proxy
 
-	def get_billing_profile(self):
+	def get_profile(self):
 		return self.billing_profile
 
-	def set_billing_profile(self, billing_profile):
+	def set_profile(self, billing_profile):
 		self.billing_profile = billing_profile

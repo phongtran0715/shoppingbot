@@ -57,7 +57,7 @@ class Target:
         self.login(account_item)
         self.img_found = False
         # self.product_loop()
-        send_webhook("OP", "Target", self.profile["profile_name"], self.task_id, self.product_image)
+        RabbitUtil.send_webhook("OP", "Target", self.profile["profile_name"], self.task_id, self.product_image)
 
     def init_driver(self, account):
         shopping_proxy = RabbitUtil.get_proxy_raw(account.get_proxy(), self.db_conn)
@@ -172,7 +172,7 @@ class Target:
                 if 'https://www.target.com/co-thankyou' in self.browser.current_url:
                     self.status_signal.emit(create_msg("Order Placed", "success", self.task_id))
                         
-                    send_webhook("OP", "Target", self.profile["profile_name"], self.task_id, self.product_image)
+                    send_webhook.send_webhook("OP", "Target", self.profile["profile_name"], self.task_id, self.product_image)
                     self.did_submit = True
             except:
                 self.status_signal.emit(create_msg('Retrying submit order until success', 'normal', self.task_id))

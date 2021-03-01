@@ -17,6 +17,7 @@ from utils.selenium_utils import enable_headless
 from utils.rabbit_util import RabbitUtil
 import logging
 from model.task_model import TaskModel
+from PyQt5.QtSql import QSqlDatabase
 
 
 
@@ -61,7 +62,7 @@ class BestBuy:
 		self.dont_buy=True
 		if self.dont_buy:
 			starting_msg = "Starting GameStop in dev mode; will not actually checkout."
-		self.status_signal.emit(create_msg(starting_msg, "normal", self.task_id))
+		self.status_signal.emit(RabbitUtil.create_msg(starting_msg, "normal", self.task_id))
 
 		# TODO: Add Product Image To UI
 		self.monitor()
@@ -121,7 +122,7 @@ class BestBuy:
 		monitor_browser = self.init_monitor_driver()
 
 		while True:
-			self.status_signal.emit(create_msg("Monitoring Product ..", "normal", self.task_id))
+			self.status_signal.emit(RabbitUtil.create_msg("Monitoring Product ..", "normal", self.task_id))
 			monitor_browser.get(self.product)
 			try:
 				wait(monitor_browser, self.LONG_TIMEOUT).until(EC.element_to_be_clickable((By.XPATH, '//button[text()="Add to Cart"]')))
@@ -132,17 +133,17 @@ class BestBuy:
 					return
 				else:
 					logger.info("BestBuy | Task id : {} - Product is not available".format(self.task_id));	
-					self.status_signal.emit(create_msg("Waiting For Restock", "normal", self.task_id))
+					self.status_signal.emit(RabbitUtil.create_msg("Waiting For Restock", "normal", self.task_id))
 					time.sleep(self.MONITOR_DELAY)
 			except Exception as e :
 				self.status_signal.emit({"msg": "Error Loading Product Page (line {} {} {})".format(
-					sys.exc_info()[-1].tb_lineno, type(e).__name__, e), "status": "error"})
+					sys.exc_info()[-1].tb_lineno, type(e).__name__, e), "status": "error", "task_id" : self.task_id})
 				logger.info("Not found add to cart button\n");
 				time.sleep(self.MONITOR_DELAY)
 
 
 	def login(self, account):
-		self.status_signal.emit(create_msg("Logging...", "normal", self.task_id))
+		self.status_signal.emit(RabbitUtil.create_msg("Logging...", "normal", self.task_id))
 		self.browser.get("https://www.bestbuy.com/identity/global/signin")
 		self.browser.find_element_by_xpath('//*[@id="fld-e"]').send_keys(account.get_user_name())
 		self.browser.find_element_by_xpath('//*[@id="fld-p1"]').send_keys(account.get_password())
@@ -153,7 +154,7 @@ class BestBuy:
 	def add_to_cart(self, account):
 		result = False
 		try:
-			self.status_signal.emit(create_msg("Adding To Cart..", "normal", self.task_id))
+			self.status_signal.emit(RabbitUtil.create_msg("Adding To Cart..", "normal", self.task_id))
 			self.browser.get(self.product)
 			wait(self.browser, self.LONG_TIMEOUT).until(lambda _: self.browser.current_url == self.product)
 			wait(self.browser, self.LONG_TIMEOUT).until(EC.element_to_be_clickable((By.CLASS_NAME, 'btn-lg')))
@@ -161,17 +162,17 @@ class BestBuy:
 			add_to_cart_btn.click()
 			time.sleep(self.SHORT_TIMEOUT)
 			result = True
-			self.status_signal.emit(create_msg("Added to cart", "normal", self.task_id))
+			self.status_signal.emit(RabbitUtil.create_msg("Added to cart", "normal", self.task_id))
 		except Exception as e:
 			self.status_signal.emit({"msg": "Error Adding to card (line {} {} {})".format(
-					sys.exc_info()[-1].tb_lineno, type(e).__name__, e), "status": "error"})
+					sys.exc_info()[-1].tb_lineno, type(e).__name__, e), "status": "error", "task_id" : self.task_id})
 
 	def submit_billing(self, account):
-		self.browser.get("https://www.bestbuy.com/checkout/r/fast-track")
-		wait(self.browser, self.LONG_TIMEOUT).until(lambda _: self.browser.current_url == "https://www.bestbuy.com/checkout/r/fast-track")
+		self.browser.get("https://www.bestbuy.com/checkout/r/fulfillment")
+		wait(self.browser, self.LONG_TIMEOUT).until(lambda _: self.browser.current_url == "https://www.bestbuy.com/checkout/r/fulfillment")
 
-		profile = RabbitUtil.get_profile(account.get_profile(), seelf.db_conn)
-		self.status_signal.emit(create_msg("Entering billing info", "normal", self.task_id))
+		profile = RabbitUtil.get_profile(account.get_profile(), self.db_conn)
+		self.status_signal.emit(RabbitUtil.create_msg("Entering billing info", "normal", self.task_id))
 		if self.is_login:
 			# just fill cvv
 			wait(self.browser, self.LONG_TIMEOUT).until(EC.element_to_be_clickable((By.ID, "credit-card-cvv")))
@@ -183,8 +184,8 @@ class BestBuy:
 
 		# send summit button
 		if self.dont_buy is True:
-			self.status_signal.emit(create_msg("Mock Order Placed", "success", self.task_id))
-			send_webhook("OP", "BestBuy", account.get_account_name(), self.task_id, self.product_image)
+			self.status_signal.emit(RabbitUtil.create_msg("Mock Order Placed", "success", self.task_id))
+			RabbitUtil.send_webhook("OP", "BestBuy", account.get_account_name(), self.task_id, self.product_image)
 		else:
 			wait(self.browser, self.LONG_TIMEOUT).until(EC.element_to_be_clickable((By.XPATH, '//div[@class="button--place-order-fast-track"]//button[@data-track="Place your Order - Contact Card"]')))
 			order_review_btn = self.browser.find_element_by_xpath('//div[@class="button--place-order-fast-track"]//button[@data-track="Place your Order - Contact Card"]')

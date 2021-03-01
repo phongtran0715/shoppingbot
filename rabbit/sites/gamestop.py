@@ -69,9 +69,7 @@ class GameStop:
 
 	def init_shopping_driver(self, account):
 		# firefox
-		print("jack | init_shopping_driver, account _ proxy : {}".format(account.get_proxy()))
 		shopping_proxy = RabbitUtil.get_proxy_raw(account.get_proxy(), self.db_conn)
-		print("jack | init_shopping_driver, shopping_proxy : {}".format(shopping_proxy))
 		if shopping_proxy is not None and shopping_proxy != "":
 			logger.info("Gamestop | TASK {} - Shopping proxy : {}".format(self.task_id, str(shopping_proxy)))
 			firefox_capabilities = webdriver.DesiredCapabilities.FIREFOX
@@ -161,7 +159,7 @@ class GameStop:
 					time.sleep(self.MONITOR_DELAY)
 			except Exception as e :
 				self.status_signal.emit({"msg": "Error Loading Product Page (line {} {} {})".format(
-					sys.exc_info()[-1].tb_lineno, type(e).__name__, e), "status": "error"})
+					sys.exc_info()[-1].tb_lineno, type(e).__name__, e), "status": "error", "task_id" : self.task_id})
 				logger.info("Not found add to cart button\n");
 				time.sleep(self.MONITOR_DELAY)
 
@@ -179,7 +177,7 @@ class GameStop:
 			self.status_signal.emit(RabbitUtil.create_msg("Added to cart", "normal", self.task_id))
 		except Exception as e:
 			self.status_signal.emit({"msg": "Error Adding to card (line {} {} {})".format(
-					sys.exc_info()[-1].tb_lineno, type(e).__name__, e), "status": "error", self.task_id})
+					sys.exc_info()[-1].tb_lineno, type(e).__name__, e), "status": "error", 'task_id': self.task_id})
 
 
 	def submit_shipping(self, account):
@@ -304,12 +302,12 @@ class GameStop:
 
 		if self.dont_buy is True:
 			self.status_signal.emit(RabbitUtil.create_msg("Mock Order Placed", "success", self.task_id))
-			send_webhook("OP", "GameStop", account.get_account_name(), self.task_id, self.product_image)
+			RabbitUtil.send_webhook("OP", "GameStop", account.get_account_name(), self.task_id, self.product_image)
 		else:
 			order_review_btn = self.browser.find_element_by_class_name("btn.btn-primary.btn-block.place-order")
 			order_review_btn.click()
 			self.status_signal.emit(RabbitUtil.create_msg("Order Placed", "success", self.task_id))
-			send_webhook("OP", "GameStop", account.get_account_name(), self.task_id, self.product_image)
+			RabbitUtil.send_webhook("OP", "GameStop", account.get_account_name(), self.task_id, self.product_image)
 
 	def is_xpath_exist(self, doc, xpath_str):
 		result = False
