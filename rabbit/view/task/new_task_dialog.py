@@ -57,6 +57,8 @@ class NewTask(QtWidgets.QDialog):
 			self.txtMaxQuantity.setText(str(query.value(6)))
 			self.txtAccount.setText(query.value(7))
 
+			self.txtLinkChanged()
+
 	def create_task(self):
 		query = QSqlQuery(self.db_conn)
 		query.prepare(""" INSERT INTO task (product, site, monitor_proxy, monitor_delay, error_delay, 
@@ -107,15 +109,35 @@ class NewTask(QtWidgets.QDialog):
 			index = self.cbSite.findText("GameStop", QtCore.Qt.MatchFixedString)
 			if index >= 0:
 				self.cbSite.setCurrentIndex(index)
+
+				self.cbAccount.clear()
+				query = QSqlQuery("SELECT id, name FROM account WHERE site = 'GameStop'", self.db_conn)
+				while query.next():
+					self.cbAccount.addItem(query.value(1))
 		elif "walmart" in product:
 			index = self.cbSite.findText("Walmart", QtCore.Qt.MatchFixedString)
 			if index >= 0:
 				self.cbSite.setCurrentIndex(index)
+
+				self.cbAccount.clear()
+				query = QSqlQuery("SELECT id, name FROM account WHERE site = 'Walmart'", self.db_conn)
+				while query.next():
+					self.cbAccount.addItem(query.value(1))
 		elif "bestbuy" in product:
 			index = self.cbSite.findText("Bestbuy", QtCore.Qt.MatchFixedString)
 			if index >= 0:
 				self.cbSite.setCurrentIndex(index)
+
+				self.cbAccount.clear()
+				query = QSqlQuery("SELECT id, name FROM account WHERE site = 'Bestbuy'", self.db_conn)
+				while query.next():
+					self.cbAccount.addItem(query.value(1))
 		elif "target" in product:
 			index = self.cbSite.findText("Target", QtCore.Qt.MatchFixedString)
 			if index >= 0:
 				self.cbSite.setCurrentIndex(index)
+
+				self.cbAccount.clear()
+				query = QSqlQuery("SELECT id, name FROM account WHERE site = 'Target'", self.db_conn)
+				while query.next():
+					self.cbAccount.addItem(query.value(1))

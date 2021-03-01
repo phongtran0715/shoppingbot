@@ -3,8 +3,21 @@ import os
 from PyQt5.QtWidgets import *
 from PyQt5.QtSql import QSqlDatabase
 from view.rabbit import MainWindow
+import logging
+
 
 if __name__ == "__main__":
+	logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s',
+                            datefmt='%H:%M:%S',
+                            level=logging.INFO,
+                            handlers=[
+        logging.FileHandler("app.log"),
+        logging.StreamHandler()
+    ])
+
+	logger = logging.getLogger('__name__')
+	logger.addHandler(logging.StreamHandler())
+
 	app = QApplication(sys.argv)
 	db_file = os.path.join('data', 'supreme_db.sqlite')
 

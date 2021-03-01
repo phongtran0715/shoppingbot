@@ -146,5 +146,22 @@
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>tbAccount</sender>
+   <signal>itemDoubleClicked(QTableWidgetItem*)</signal>
+   <receiver>btnEdit</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>456</x>
+     <y>174</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>349</x>
+     <y>363</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

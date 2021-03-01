@@ -5,10 +5,7 @@ from selenium.webdriver.support.ui import WebDriverWait as wait
 from webdriver_manager.chrome import ChromeDriverManager
 from webdriver_manager.firefox import GeckoDriverManager
 from chromedriver_py import binary_path as driver_path
-from utils import (random_delay, send_webhook, create_msg,
-    get_profile, get_proxy, get_proxy_raw, get_account,
-    get_proxy_by_account,
-    get_profile_by_account)
+from utils.rabbit_util import RabbitUtil
 from utils.selenium_utils import change_driver
 import time
 from model.task_model import TaskModel
@@ -16,6 +13,12 @@ from model.task_model import TaskModel
 
 class Target:
     def __init__(self, status_signal, image_signal, task_model):
+        self.db_conn = QSqlDatabase.addDatabase("QSQLITE", "target_db_conn_" + str(task_mode.get_task_id()))
+        self.db_conn.setDatabaseName('/home/jack/Documents/SourceCode/shopping_bot/rabbit/data/supreme_db.sqlite')
+        if not self.db_conn.open():
+            print("jack | gamestop open conection false!")
+        else:
+            print("jack | gamestop open conection ok!")
         self.task_id = task_id
         self.status_signal = status_signal
         self.image_signal = image_signal
@@ -26,8 +29,8 @@ class Target:
         self.monitor_proxies = task_model.get_monitor_proxy()
         self.account = task_model.get_account()
         self.max_quantity = task_model.get_max_quantity()
-        account_item = get_account(self.account)
-        self.profile = get_profile(account_item['profile'])
+        account_item = RabbitUtil.get_account(self.account, self.db_conn)
+        self.profile = RabbitUtil.get_profile(account_item['profile'], self.db_conn)
 
         self.xpath_sequence = [
             {'type': 'method', 'path': '//button[@data-test="orderPickupButton"] | //button[@data-test="shipItButton"]', 'method': self.find_and_click_atc, 'message': 'Added to cart', 'message_type': 'normal', 'optional': False}
@@ -49,15 +52,15 @@ class Target:
         self.did_submit = False
         self.failed = False
         self.retry_attempts = 10
-        self.status_signal.emit(create_msg(starting_msg, "normal"))
-        self.status_signal.emit(create_msg("Logging In..", "normal"))
+        self.status_signal.emit(create_msg(starting_msg, "normal", self.task_id))
+        self.status_signal.emit(create_msg("Logging In..", "normal", self.task_id))
         self.login(account_item)
         self.img_found = False
         # self.product_loop()
         send_webhook("OP", "Target", self.profile["profile_name"], self.task_id, self.product_image)
 
     def init_driver(self, account):
-        shopping_proxy = get_proxy_raw(account['proxy'])
+        shopping_proxy = RabbitUtil.get_proxy_raw(account.get_proxy(), self.db_conn)
         if shopping_proxy is not None and shopping_proxy != "":
             print("Gamestop | TASK {} - Shopping proxy : {}".format(self.task_id, str(shopping_proxy)))
             firefox_capabilities = webdriver.DesiredCapabilities.FIREFOX
@@ -86,8 +89,8 @@ class Target:
 
     def fill_and_authenticate(self, account):
         if self.browser.find_elements_by_id('username'):
-            self.fill_field_and_proceed('//input[@id="username"]', {'value': account['user_name']})
-        self.fill_field_and_proceed('//input[@id="password"]', {'value': account['password'], 'confirm_button': '//button[@id="login"]'})
+            self.fill_field_and_proceed('//input[@id="username"]', {'value': account.get_user_name()})
+        self.fill_field_and_proceed('//input[@id="password"]', {'value': account.get_password(), 'confirm_button': '//button[@id="login"]'})
 
     def product_loop(self):
         while not self.did_submit and not self.failed:
@@ -133,7 +136,7 @@ class Target:
             if self.in_stock:
                 continue
             else:
-                self.status_signal.emit(create_msg("Waiting on Restock", "normal"))
+                self.status_signal.emit(create_msg("Waiting on Restock", "normal", self.task_id))
                 time.sleep(5)
                 self.browser.refresh()
 
@@ -150,10 +153,10 @@ class Target:
                             break
                         elif attempt == self.retry_attempts:
                             if not self.check_stock(new_tab=True):
-                                self.status_signal.emit(create_msg('Product is out of stock. Resuming monitoring.', 'error'))
+                                self.status_signal.emit(create_msg('Product is out of stock. Resuming monitoring.', 'error', self.task_id))
                                 return
                             else:
-                                self.status_signal.emit(create_msg('Encountered unknown page while product in stock. Quitting.', 'error'))
+                                self.status_signal.emit(create_msg('Encountered unknown page while product in stock. Quitting.', 'error', self.task_id))
                                 self.failed = True
                                 return
                         self.process_interruptions(attempt=attempt)
@@ -167,12 +170,12 @@ class Target:
                 self.browser.find_element_by_xpath('//button[@data-test="placeOrderButton"]').click()
                 time.sleep(5)
                 if 'https://www.target.com/co-thankyou' in self.browser.current_url:
-                    self.status_signal.emit(create_msg("Order Placed", "success"))
+                    self.status_signal.emit(create_msg("Order Placed", "success", self.task_id))
                         
                     send_webhook("OP", "Target", self.profile["profile_name"], self.task_id, self.product_image)
                     self.did_submit = True
             except:
-                self.status_signal.emit(create_msg('Retrying submit order until success', 'normal'))
+                self.status_signal.emit(create_msg('Retrying submit order until success', 'normal', self.task_id))
 
     def find_and_click(self, xpath):
         self.browser.find_element_by_xpath(xpath).click()
@@ -201,7 +204,7 @@ class Target:
     def process_step(self, xpath_step, wait_after=False, silent=False):
         if self.browser.find_elements_by_xpath(xpath_step['path']):
             if not silent:
-                self.status_signal.emit(create_msg(xpath_step['message'], xpath_step['message_type']))
+                self.status_signal.emit(create_msg(xpath_step['message'], xpath_step['message_type'], self.task_id))
             if xpath_step['type'] == 'button':
                 self.find_and_click(xpath_step['path'])
             elif xpath_step['type'] == 'method':
@@ -213,7 +216,7 @@ class Target:
         
     def process_interruptions(self, attempt=0, silent=False):
         if not silent:
-            self.status_signal.emit(create_msg(f'Interrupted, attempting to resolve ({attempt+1}/{self.retry_attempts})', 'error'))
+            self.status_signal.emit(create_msg(f'Interrupted, attempting to resolve ({attempt+1}/{self.retry_attempts})', 'error', self.task_id))
         for xpath_step in self.xpath_sequence:
             if xpath_step['optional']:
                 self.process_step(xpath_step, wait_after=True, silent=True)

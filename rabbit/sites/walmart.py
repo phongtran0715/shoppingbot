@@ -1,9 +1,5 @@
 from sites.walmart_encryption import walmart_encryption as w_e
-from utils import (send_webhook, random_delay,
-	get_proxy, twocaptcha_utils,
-	get_profile, get_account,
-	get_profile_by_account,
-	get_proxy_by_account)
+from utils.rabbit_util import RabbitUtil 
 from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
 from webdriver_manager.firefox import GeckoDriverManager
@@ -15,8 +11,13 @@ from model.task_model import TaskModel
 logger = logging.getLogger(__name__)
 
 class Walmart:
-	def __init__(self, task_id, status_signal, image_signal, wait_poll_signal, polling_wait_condition, task_model):
-		self.task_id = task_id
+	def __init__(self, status_signal, image_signal, wait_poll_signal, polling_wait_condition, task_model):
+		self.db_conn = QSqlDatabase.addDatabase("QSQLITE", "walmart_db_conn_" + str(task_model.get_task_id()))
+		self.db_conn.setDatabaseName('/home/jack/Documents/SourceCode/shopping_bot/rabbit/data/supreme_db.sqlite')
+		if not self.db_conn.open():
+			print("jack | gamestop open conection false!")
+		else:
+			print("jack | gamestop open conection ok!")
 		self.status_signal = status_signal
 		self.image_signal = image_signal
 		self.product = task_model.get_product()
@@ -47,7 +48,7 @@ class Walmart:
 		if offer_id is None:
 			return
 		for account_name in self.account.split(','):
-			account_item = get_account(account_name)
+			account_item = RabbitUtil.get_account(account_name, self.db_conn)
 			if account_item is None:
 				continue
 			logger.info("Processing for account : {}".format(account_name))
@@ -81,7 +82,7 @@ class Walmart:
 		while True:
 			self.status_signal.emit({"msg": "Monitoring Product Page", "status": "normal"})
 			try:
-				monitor_proxy = get_proxy(self.monitor_proxies)
+				monitor_proxy = RabbitUtil.get_proxy(self.monitor_proxies, self.db_conn)
 				if monitor_proxy is not None and monitor_proxy != "":
 					self.session.proxies.update(monitor_proxy)
 					logger.info("Monitoring by proxy : {}".format(monitor_proxy))
@@ -136,16 +137,16 @@ class Walmart:
 			"user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.20 Safari/537.36",
 			"wm_offer_id": offer_id
 		}
-		profile = get_profile(account['profile'])
+		profile = get_profile(account.get_profile())
 		body = {"offerId": offer_id, "quantity": int(self.max_quantity),
-				"location": {"postalCode": profile["shipping_zipcode"], "city": profile["shipping_city"],
-							 "state": profile["shipping_state"], "isZipLocated": True},
+				"location": {"postalCode": profile.get_shipping_zipcode(), "city": profile.get_shipping_city(),
+							 "state": profile.get_shipping_state(), "isZipLocated": True},
 				"shipMethodDefaultRule": "SHIP_RULE_1"}
 
 		while True:
 			self.status_signal.emit({"msg": "Adding To Cart", "status": "normal"})
 			try:
-				shopping_proxy = get_proxy(account['proxy'])
+				shopping_proxy = RabbitUtil.get_proxy(account.get_proxy(), self.db_conn)
 				if shopping_proxy is not None and shopping_proxy != "":
 					logger.info("Walmart | Task id : {} - Shopping proxy : : {}".format(self.task_id, shopping_proxy))
 					self.session.proxies.update(shopping_proxy)
@@ -190,7 +191,7 @@ class Walmart:
 			"wm_cvv_in_session": "true",
 		}
 
-		profile = get_profile(account['profile'])
+		profile = get_profile(account.get_profile())
 		body = {"postalCode": profile["shipping_zipcode"], "city": profile["shipping_city"],
 				"state": profile["shipping_state"], "isZipLocated": True, "crt:CRT": "", "customerId:CID": "",
 				"customerType:type": "", "affiliateInfo:com.wm.reflector": "", "storeList": []}
@@ -266,23 +267,23 @@ class Walmart:
 			"user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.20 Safari/537.36",
 			"wm_vertical_id": "0"
 		}
-		profile = get_profile(account['profile'])
+		profile = get_profile(account.get_profile())
 		body = {
-			"addressLineOne": profile["shipping_a1"],
-			"city": profile["shipping_city"],
-			"firstName": profile["shipping_fname"],
-			"lastName": profile["shipping_lname"],
-			"phone": profile["shipping_phone"],
-			"email": profile["shipping_email"],
+			"addressLineOne": profile.get_shipping_address_1(),
+			"city": profile.get_shipping_city(),
+			"firstName": profile.get_shipping_first_name(),
+			"lastName": profile.get_shipping_last_name(),
+			"phone": profile.get_shipping_phone(),
+			"email": profile.get_shipping_email(),
 			"marketingEmailPref": False,
-			"postalCode": profile["shipping_zipcode"],
-			"state": profile["shipping_state"],
+			"postalCode": profile.get_shipping_zipcode(),
+			"state": profile.get_shipping_state(),
 			"countryCode": "USA",
 			"addressType": "RESIDENTIAL",
 			"changedFields": []
 		}
-		if profile["shipping_a2"] != "":
-			body.update({"addressLineTwo": profile["shipping_a2"]})
+		if profile.get_shipping_address_2() != "":
+			body.update({"addressLineTwo": profile.get_shipping_address_2()})
 		while True:
 			self.status_signal.emit({"msg": "Submitting Shipping Address", "status": "normal"})
 			try:
@@ -312,7 +313,7 @@ class Walmart:
 			"Referer": "https://www.walmart.com/",
 			"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.20 Safari/537.36"
 		}
-		profile = get_profile(account['profile'])
+		profile = get_profile(account.get_profile())
 		while True:
 			self.status_signal.emit({"msg": "Getting Checkout Data", "status": "normal"})
 			try:
@@ -325,7 +326,7 @@ class Walmart:
 					PIE_K = str(r.text.split('PIE.K = "')[1].split('";')[0])
 					PIE_key_id = str(r.text.split('PIE.key_id = "')[1].split('";')[0])
 					PIE_phase = int(r.text.split('PIE.phase = ')[1].split(';')[0])
-					card_data = w_e.encrypt(profile["card_number"], profile["card_cvv"], PIE_L, PIE_E, PIE_K,
+					card_data = w_e.encrypt(profile.get_card_number(), profile.get_card_cvv(), PIE_L, PIE_E, PIE_K,
 											PIE_key_id, PIE_phase)
 					self.status_signal.emit({"msg": "Got Checkout Data", "status": "normal"})
 					return card_data, PIE_key_id, PIE_phase
@@ -347,24 +348,24 @@ class Walmart:
 			"user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.20 Safari/537.36"
 		}
 		# "inkiru_precedence": "false",
-		profile = get_profile(account['profile'])
+		profile = get_profile(account.get_profile())
 		body = {
 			"encryptedPan": card_data[0],
 			"encryptedCvv": card_data[1],
 			"integrityCheck": card_data[2],
 			"keyId": PIE_key_id,
 			"phase": PIE_phase,
-			"state": profile["billing_state"],
-			"postalCode": profile["billing_zipcode"],
-			"addressLineOne": profile["billing_a1"],
-			"addressLineTwo": profile["billing_a2"],
-			"city": profile["billing_city"],
-			"firstName": profile["billing_fname"],
-			"lastName": profile["billing_lname"],
-			"expiryMonth": profile["card_month"],
-			"expiryYear": profile["card_year"],
-			"phone": profile["billing_phone"],
-			"cardType": profile["card_type"].upper(),
+			"state": profile.get_billing_state(),
+			"postalCode": profile.get_billing_zipcode(),
+			"addressLineOne": profile.get_billing_address_1(),
+			"addressLineTwo": profile.get_billing_address_2(),
+			"city": profile.get_billing_city(),
+			"firstName": profile.get_billing_first_name(),
+			"lastName": profile.get_billing_last_name(),
+			"expiryMonth": profile.get_exp_month(),
+			"expiryYear": profile.get_exp_year(),
+			"phone": profile.get_billing_phone(),
+			"cardType": profile.get_card_type().upper(),
 			"isGuest": True
 		}
 		while True:
@@ -398,23 +399,23 @@ class Walmart:
 			"wm_vertical_id": "0"
 		}
 
-		profile = get_profile(account['profile'])
+		profile = get_profile(account.get_profile())
 		card_data, PIE_key_id, PIE_phase = self.get_PIE(account)
 		body = {
 			"payments": [{
 				"paymentType": "CREDITCARD",
-				"cardType": profile["card_type"].upper(),
-				"firstName": profile["billing_fname"],
-				"lastName": profile["billing_lname"],
-				"addressLineOne": profile["billing_a1"],
-				"addressLineTwo": profile["billing_a2"],
-				"city": profile["billing_city"],
-				"state": profile["billing_state"],
-				"postalCode": profile["billing_zipcode"],
-				"expiryMonth": profile["card_month"],
-				"expiryYear": profile["card_year"],
-				"email": profile["billing_email"],
-				"phone": profile["billing_phone"],
+				"cardType": profile.get_card_type().upper(),
+				"firstName": profile.get_billing_first_name(),
+				"lastName": profile.get_billing_last_name(),
+				"addressLineOne": profile.get_billing_address_1(),
+				"addressLineTwo": profile.get_billing_address_2(),
+				"city": profile.get_billing_city(),
+				"state": profile.get_billing_state(),
+				"postalCode": profile.get_billing_zipcode(),
+				"expiryMonth": profile.get_exp_month(),
+				"expiryYear": profile.get_exp_year(),
+				"email": profile.get_billing_email(),
+				"phone": profile.get_billing_phone(),
 				"encryptedPan": card_data[0],
 				"encryptedCvv": card_data[1],
 				"integrityCheck": card_data[2],
@@ -455,11 +456,11 @@ class Walmart:
 			"user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.20 Safari/537.36",
 			"wm_vertical_id": "0"
 		}
-		profile = get_profile(account['profile'])
+		profile = get_profile(account.get_profile())
 		if self.dont_buy is True:
 			# TODO: this used to open the page up with everything filled out but only works for some users
 			self.status_signal.emit({"msg":"Mock Opening Checkout Page","status":"alt"})
-			send_webhook("OP", "Walmart", account["name"], self.task_id, self.product_image)
+			send_webhook("OP", "Walmart", account.get_account_name(), self.task_id, self.product_image)
 			return             
 
 		while True:
@@ -470,7 +471,7 @@ class Walmart:
 				try:
 					json.loads(r.text)["order"]
 					self.status_signal.emit({"msg": "Order Placed", "status": "success"})
-					send_webhook("OP", "Walmart", account["name"], self.task_id, self.product_image)
+					send_webhook("OP", "Walmart", account.get_account_name(), self.task_id, self.product_image)
 					return
 				except:
 					self.status_signal.emit({"msg": "Payment Failed", "status": "error"})
@@ -480,7 +481,7 @@ class Walmart:
 					if self.check_browser(account):
 						return
 
-					send_webhook("PF", "Walmart", account["name"], self.task_id, self.product_image)
+					send_webhook("PF", "Walmart", account.get_account_name(), self.task_id, self.product_image)
 					# delay for next time
 					time.sleep(self.SHORT_TIMEOUT)
 					return
@@ -490,13 +491,13 @@ class Walmart:
 				time.sleep(self.error_delay)
 
 	def check_browser(self, account):
-		profile = get_profile(account['profile'])
+		profile = get_profile(account.get_profile())
 		if True:
 			self.status_signal.emit(
 				{"msg": "Browser Ready", "status": "alt", "url": "https://www.walmart.com/checkout/#/payment",
 				 "cookies": [{"name": cookie.name, "value": cookie.value, "domain": cookie.domain} for cookie in
 							 self.session.cookies]})
-			send_webhook("B", "Walmart", account["name"], self.task_id, self.product_image)
+			send_webhook("B", "Walmart", account.get_account_name(), self.task_id, self.product_image)
 			return True
 		return False
 

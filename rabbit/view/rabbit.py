@@ -1,7 +1,7 @@
 import sys
 import os
 import logging
-from PyQt5 import QtWidgets, uic, QtGui, QtCore
+from PyQt5 import QtWidgets, uic, QtGui, QtCore, Qt
 from PyQt5.QtWidgets import *
 from PyQt5.QtSql import QSqlDatabase, QSqlTableModel, QSqlQuery
 
@@ -19,7 +19,10 @@ from sites.target import Target
 from sites.gamestop import GameStop
 
 from model.task_model import TaskModel
+import logging
 
+
+logger = logging.getLogger(__name__)
 
 class TaskThread(QtCore.QThread):
 	status_signal = QtCore.pyqtSignal("PyQt_PyObject")
@@ -125,10 +128,19 @@ class MainWindow(QtWidgets.QMainWindow):
 				if query.next():
 					task_model = TaskModel(str(query.value(0)),
 						query.value(1), query.value(2), query.value(3) , str(query.value(4)),
-						str(query.value(5)), str(query.value(6)),str(query.value(7)), query.value(8)
-						)
+						str(query.value(5)), str(query.value(6)),str(query.value(7)), query.value(8))
 					self.dict_tasks[task_model.get_task_id()] = TaskThread(task_model)
+					self.dict_tasks[task_model.get_task_id()].status_signal.connect(self.update_status)
+					self.dict_tasks[task_model.get_task_id()].image_signal.connect(self.update_image)
+					self.dict_tasks[task_model.get_task_id()].wait_condition = QtCore.QWaitCondition()
 					self.dict_tasks[task_model.get_task_id()].start()
+					# update task status on table
+					msg = {
+						'task_id' : task_id,
+						'message' : 'Running',
+						'status' : 'normal'
+					}
+					self.update_status(msg)
 				else:
 					print("Could not found task")
 
@@ -152,7 +164,13 @@ class MainWindow(QtWidgets.QMainWindow):
 			if task_status == 'Stop':
 				QMessageBox.critical(self, "Rabbit", 'Task have already stopped!',)
 			else:
-				pass
+				self.dict_tasks[task_id].stop()
+				msg = {
+						'task_id' : task_id,
+						'message' : 'Stop',
+						'status' : 'normal'
+					}
+				self.update_status(msg)
 		else:
 			QMessageBox.critical(self, "Rabbit", 'You must select one task!',)
 
@@ -160,14 +178,17 @@ class MainWindow(QtWidgets.QMainWindow):
 		ret = QMessageBox.question(self, 'MessageBox', "Do you want to stop all task?", QMessageBox.Yes | QMessageBox.No )
 		if ret == QMessageBox.Yes:
 			# stop all task
-			self.task_manager.remove_all_task()
-			# update database
 			for row in range(self.tbListTask.rowCount()): 
 				task_id = self.tbListTask.item(row, 0).text()
 				task_status = self.tbListTask.item(row, 4).text()
 				if task_status == 'Running':
-					pass
-			self.loadTaskData()
+					self.dict_tasks[task_id].stop()
+					msg = {
+						'task_id' : task_id,
+						'message' : 'Stop',
+						'status' : 'normal'
+					}
+					self.update_status(msg)
 
 	def btnEditClicked(self):
 		index = self.tbListTask.currentRow()
@@ -212,9 +233,6 @@ class MainWindow(QtWidgets.QMainWindow):
 				logging.info("Delete all task successful")
 				self.loadTaskData()
 
-				# update task manager
-				self.task_manager.remove_all_task()
-
 	def btnNewTaskClicked(self):
 		self.create_task_frm = NewTask()
 		if self.create_task_frm.exec_() == QtWidgets.QDialog.Accepted:
@@ -223,3 +241,20 @@ class MainWindow(QtWidgets.QMainWindow):
 
 	def btnExit_clicked(self):
 		self.close()
+
+	def update_status(self, msg):
+		print("msg: {}".format(msg))
+		for index in range(self.tbListTask.rowCount()):
+			if msg['task_id'] == self.tbListTask.item(index, 0).text():
+				self.tbListTask.item(index, 4).setText(msg['message'])
+				if msg['status'] == 'normal':
+					self.tbListTask.item(index, 4).setBackground(QtGui.QColor('green'))
+				else:
+					self.tbListTask.item(index, 4).setBackground(QtGui.QColor('red'))
+				break
+
+	def update_image(self,image_url):
+		pass
+		# self.image_thread = ImageThread(image_url)
+		# self.image_thread.finished_signal.connect(self.set_image)
+		# self.image_thread.start()

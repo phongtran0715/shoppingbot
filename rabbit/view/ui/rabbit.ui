@@ -497,5 +497,22 @@ font: 11pt &quot;Cantarell&quot;;</string>
   </action>
  </widget>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>tbListTask</sender>
+   <signal>itemDoubleClicked(QTableWidgetItem*)</signal>
+   <receiver>btnEdit</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>619</x>
+     <y>385</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>689</x>
+     <y>649</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

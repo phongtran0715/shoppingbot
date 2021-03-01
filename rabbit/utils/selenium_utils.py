@@ -6,7 +6,7 @@ from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.support.wait import WebDriverWait
-from utils import create_msg
+from utils.rabbit_util import RabbitUtil
 import random, re, requests, string, threading
 
 # https://github.com/Hari-Nagarajan/nvidia-bot/blob/master/utils/selenium_utils.py
@@ -160,7 +160,7 @@ def change_driver(status_signal, loc):
 
     if result is not None:
         try:
-            status_signal.emit(create_msg("Changing value in Chromedriver", "normal"))
+            status_signal.emit(create_msg("Changing value in Chromedriver", "normal"), None)
             data = data.replace(result.group(0), val.encode())
             fin.close()
             fin = open(loc, 'wb')
@@ -168,7 +168,7 @@ def change_driver(status_signal, loc):
             fin.write(data)
             fin.close()
         except:
-            status_signal.emit(create_msg("Error modifying chromedriver", "error"))
+            status_signal.emit(create_msg("Error modifying chromedriver", "error"), None)
     else:
         fin.close()
 

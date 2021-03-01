@@ -1,7 +1,7 @@
 import os
 from PyQt5 import QtWidgets, uic, QtGui, QtCore
 from PyQt5.QtWidgets import *
-from utils import return_data,write_data,get_profile,Encryption
+from utils.rabbit_util import RabbitUtil
 from PyQt5.QtSql import QSqlDatabase, QSqlTableModel, QSqlQuery
 
 

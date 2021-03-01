@@ -226,5 +226,21 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>Dialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>436</x>
+     <y>254</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>264</x>
+     <y>142</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
 </ui>

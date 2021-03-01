@@ -14,10 +14,7 @@ from webdriver_manager.firefox import GeckoDriverManager
 
 from utils.json_utils import find_values
 from utils.selenium_utils import enable_headless
-from utils import (random_delay, send_webhook, create_msg,
-	get_profile, get_proxy, get_proxy_raw, get_account,
-	get_proxy_by_account,
-	get_profile_by_account)
+from utils.rabbit_util import RabbitUtil
 import logging
 from model.task_model import TaskModel
 
@@ -37,6 +34,12 @@ DEFAULT_HEADERS = {
 class BestBuy:
 
 	def __init__(self, status_signal, image_signal, task_model):
+		self.db_conn = QSqlDatabase.addDatabase("QSQLITE", "bestbuy_db_conn_" + str(task_model.get_task_id()))
+		self.db_conn.setDatabaseName('/home/jack/Documents/SourceCode/shopping_bot/rabbit/data/supreme_db.sqlite')
+		if not self.db_conn.open():
+			print("jack | gamestop open conection false!")
+		else:
+			print("jack | gamestop open conection ok!")
 		self.status_signal = status_signal
 		self.image_signal = image_signal
 		self.product = task_model.get_product()
@@ -55,16 +58,16 @@ class BestBuy:
 		self.sku_id = parse.parse_qs(parse.urlparse(self.product).query)['skuId'][0]
 		self.auto_buy = False
 		starting_msg = "Starting GameStop"
-		dont_buy=True
+		self.dont_buy=True
 		if self.dont_buy:
 			starting_msg = "Starting GameStop in dev mode; will not actually checkout."
-		self.status_signal.emit(create_msg(starting_msg, "normal"))
+		self.status_signal.emit(create_msg(starting_msg, "normal", self.task_id))
 
 		# TODO: Add Product Image To UI
 		self.monitor()
 		pass
 		for account_name in self.account.split(','):
-			account_item = get_account(account_name)
+			account_item = RabbitUtil.get_account(account_name, self.db_conn)
 			if account_item is None:
 				continue
 			self.browser = self.init_driver(account_item)
@@ -79,7 +82,7 @@ class BestBuy:
 			self.submit_billing(account_item)
 
 	def init_driver(self, account):
-		shopping_proxy = get_proxy_raw(account['proxy'])
+		shopping_proxy = RabbitUtil.get_proxy_raw(account.get_proxy(), self.db_conn)
 		if shopping_proxy is not None and shopping_proxy != "":
 			print("Bestbuy | TASK {} - Shopping proxy : {}".format(self.task_id, str(shopping_proxy)))
 			firefox_capabilities = webdriver.DesiredCapabilities.FIREFOX
@@ -97,7 +100,7 @@ class BestBuy:
 		return browser
 
 	def init_monitor_driver(self):
-		monitor_proxy = get_proxy_raw(self.monitor_proxies)
+		monitor_proxy = RabbitUtil.get_proxy_raw(self.monitor_proxies, self.db_conn)
 		if monitor_proxy is not None and monitor_proxy != "":
 			print("Bestbuy | TASK {} - Shopping proxy : {}".format(self.task_id, str(monitor_proxy)))
 			firefox_capabilities = webdriver.DesiredCapabilities.FIREFOX
@@ -118,7 +121,7 @@ class BestBuy:
 		monitor_browser = self.init_monitor_driver()
 
 		while True:
-			self.status_signal.emit(create_msg("Monitoring Product ..", "normal"))
+			self.status_signal.emit(create_msg("Monitoring Product ..", "normal", self.task_id))
 			monitor_browser.get(self.product)
 			try:
 				wait(monitor_browser, self.LONG_TIMEOUT).until(EC.element_to_be_clickable((By.XPATH, '//button[text()="Add to Cart"]')))
@@ -129,7 +132,7 @@ class BestBuy:
 					return
 				else:
 					logger.info("BestBuy | Task id : {} - Product is not available".format(self.task_id));	
-					self.status_signal.emit(create_msg("Waiting For Restock", "normal"))
+					self.status_signal.emit(create_msg("Waiting For Restock", "normal", self.task_id))
 					time.sleep(self.MONITOR_DELAY)
 			except Exception as e :
 				self.status_signal.emit({"msg": "Error Loading Product Page (line {} {} {})".format(
@@ -139,10 +142,10 @@ class BestBuy:
 
 
 	def login(self, account):
-		self.status_signal.emit(create_msg("Logging...", "normal"))
+		self.status_signal.emit(create_msg("Logging...", "normal", self.task_id))
 		self.browser.get("https://www.bestbuy.com/identity/global/signin")
-		self.browser.find_element_by_xpath('//*[@id="fld-e"]').send_keys(account['user_name'])
-		self.browser.find_element_by_xpath('//*[@id="fld-p1"]').send_keys(account['password'])
+		self.browser.find_element_by_xpath('//*[@id="fld-e"]').send_keys(account.get_user_name())
+		self.browser.find_element_by_xpath('//*[@id="fld-p1"]').send_keys(account.get_password())
 		self.browser.find_element_by_xpath('//button[@data-track="Sign In"]').click()
 		wait(self.browser, self.LONG_TIMEOUT).until(lambda x: "Official Online Store" in self.browser.title)
 
@@ -150,7 +153,7 @@ class BestBuy:
 	def add_to_cart(self, account):
 		result = False
 		try:
-			self.status_signal.emit(create_msg("Adding To Cart..", "normal"))
+			self.status_signal.emit(create_msg("Adding To Cart..", "normal", self.task_id))
 			self.browser.get(self.product)
 			wait(self.browser, self.LONG_TIMEOUT).until(lambda _: self.browser.current_url == self.product)
 			wait(self.browser, self.LONG_TIMEOUT).until(EC.element_to_be_clickable((By.CLASS_NAME, 'btn-lg')))
@@ -158,7 +161,7 @@ class BestBuy:
 			add_to_cart_btn.click()
 			time.sleep(self.SHORT_TIMEOUT)
 			result = True
-			self.status_signal.emit(create_msg("Added to cart", "normal"))
+			self.status_signal.emit(create_msg("Added to cart", "normal", self.task_id))
 		except Exception as e:
 			self.status_signal.emit({"msg": "Error Adding to card (line {} {} {})".format(
 					sys.exc_info()[-1].tb_lineno, type(e).__name__, e), "status": "error"})
@@ -167,21 +170,21 @@ class BestBuy:
 		self.browser.get("https://www.bestbuy.com/checkout/r/fast-track")
 		wait(self.browser, self.LONG_TIMEOUT).until(lambda _: self.browser.current_url == "https://www.bestbuy.com/checkout/r/fast-track")
 
-		profile = get_profile(account['profile'])
-		self.status_signal.emit(create_msg("Entering billing info", "normal"))
+		profile = RabbitUtil.get_profile(account.get_profile(), seelf.db_conn)
+		self.status_signal.emit(create_msg("Entering billing info", "normal", self.task_id))
 		if self.is_login:
 			# just fill cvv
 			wait(self.browser, self.LONG_TIMEOUT).until(EC.element_to_be_clickable((By.ID, "credit-card-cvv")))
 			securityCode = self.browser.find_element_by_id("credit-card-cvv")
-			securityCode.send_keys(profile["card_cvv"])
+			securityCode.send_keys(profile.get_card_cvv())
 		else:
 			# TODO: fill billing info
 			pass
 
 		# send summit button
 		if self.dont_buy is True:
-			self.status_signal.emit(create_msg("Mock Order Placed", "success"))
-			send_webhook("OP", "BestBuy", account["name"], self.task_id, self.product_image)
+			self.status_signal.emit(create_msg("Mock Order Placed", "success", self.task_id))
+			send_webhook("OP", "BestBuy", account.get_account_name(), self.task_id, self.product_image)
 		else:
 			wait(self.browser, self.LONG_TIMEOUT).until(EC.element_to_be_clickable((By.XPATH, '//div[@class="button--place-order-fast-track"]//button[@data-track="Place your Order - Contact Card"]')))
 			order_review_btn = self.browser.find_element_by_xpath('//div[@class="button--place-order-fast-track"]//button[@data-track="Place your Order - Contact Card"]')
