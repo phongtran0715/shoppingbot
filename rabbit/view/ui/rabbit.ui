@@ -23,7 +23,7 @@
   </property>
   <property name="windowIcon">
    <iconset>
-    <normaloff>C:/Users/Admin/Downloads/34649764Untitled-3-512.png</normaloff>C:/Users/Admin/Downloads/34649764Untitled-3-512.png</iconset>
+    <normaloff>../../../../../../.designer/backup/C:/Users/Admin/Downloads/34649764Untitled-3-512.png</normaloff>../../../../../../.designer/backup/C:/Users/Admin/Downloads/34649764Untitled-3-512.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QHBoxLayout" name="_2">
@@ -48,7 +48,7 @@
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>30</y>
+         <y>35</y>
          <width>171</width>
          <height>51</height>
         </rect>
@@ -96,7 +96,7 @@ font: 11pt &quot;Cantarell&quot;;</string>
          <string/>
         </property>
         <property name="pixmap">
-         <pixmap>../../../bird_bot/images/tasks.png</pixmap>
+         <pixmap>../../images/tasks.png</pixmap>
         </property>
         <property name="scaledContents">
          <bool>true</bool>
@@ -107,7 +107,7 @@ font: 11pt &quot;Cantarell&quot;;</string>
        <property name="geometry">
         <rect>
          <x>200</x>
-         <y>30</y>
+         <y>35</y>
          <width>171</width>
          <height>51</height>
         </rect>
@@ -155,7 +155,7 @@ font: 11pt &quot;Cantarell&quot;;</string>
          <string/>
         </property>
         <property name="pixmap">
-         <pixmap>../../../bird_bot/images/cart.png</pixmap>
+         <pixmap>../../images/cart.png</pixmap>
         </property>
         <property name="scaledContents">
          <bool>true</bool>
@@ -166,7 +166,7 @@ font: 11pt &quot;Cantarell&quot;;</string>
        <property name="geometry">
         <rect>
          <x>380</x>
-         <y>30</y>
+         <y>35</y>
          <width>171</width>
          <height>51</height>
         </rect>
@@ -214,7 +214,7 @@ font: 11pt &quot;Cantarell&quot;;</string>
          <string/>
         </property>
         <property name="pixmap">
-         <pixmap>../../../bird_bot/images/success.png</pixmap>
+         <pixmap>../../images/success.png</pixmap>
         </property>
         <property name="scaledContents">
          <bool>true</bool>
@@ -227,7 +227,7 @@ font: 11pt &quot;Cantarell&quot;;</string>
          <x>580</x>
          <y>30</y>
          <width>611</width>
-         <height>51</height>
+         <height>61</height>
         </rect>
        </property>
        <property name="styleSheet">
@@ -245,6 +245,11 @@ font: 11pt &quot;Cantarell&quot;;</string>
         <property name="text">
          <string>New Task</string>
         </property>
+        <property name="icon">
+         <iconset>
+          <selectedon>../../images/tasks.png</selectedon>
+         </iconset>
+        </property>
        </widget>
        <widget class="QPushButton" name="btnStartAll">
         <property name="geometry">
@@ -257,6 +262,11 @@ font: 11pt &quot;Cantarell&quot;;</string>
         </property>
         <property name="text">
          <string>Start All</string>
+        </property>
+        <property name="icon">
+         <iconset>
+          <selectedon>../../images/play.png</selectedon>
+         </iconset>
         </property>
        </widget>
        <widget class="QPushButton" name="btnStopAll">
@@ -271,6 +281,11 @@ font: 11pt &quot;Cantarell&quot;;</string>
         <property name="text">
          <string>Stop All</string>
         </property>
+        <property name="icon">
+         <iconset>
+          <selectedon>../../images/stop.png</selectedon>
+         </iconset>
+        </property>
        </widget>
        <widget class="QPushButton" name="btnDeleteAll">
         <property name="geometry">
@@ -283,6 +298,11 @@ font: 11pt &quot;Cantarell&quot;;</string>
         </property>
         <property name="text">
          <string>Delete All</string>
+        </property>
+        <property name="icon">
+         <iconset>
+          <selectedon>../../images/trash.png</selectedon>
+         </iconset>
         </property>
        </widget>
       </widget>
@@ -320,7 +340,7 @@ font: 11pt &quot;Cantarell&quot;;</string>
            <number>5</number>
           </property>
           <attribute name="horizontalHeaderVisible">
-           <bool>true</bool>
+           <bool>false</bool>
           </attribute>
           <attribute name="horizontalHeaderHighlightSections">
            <bool>true</bool>
@@ -375,6 +395,11 @@ font: 11pt &quot;Cantarell&quot;;</string>
        <property name="text">
         <string>Start</string>
        </property>
+       <property name="icon">
+        <iconset>
+         <selectedon>../../images/play.png</selectedon>
+        </iconset>
+       </property>
       </widget>
       <widget class="QPushButton" name="btnStop">
        <property name="geometry">
@@ -387,6 +412,11 @@ font: 11pt &quot;Cantarell&quot;;</string>
        </property>
        <property name="text">
         <string>Stop</string>
+       </property>
+       <property name="icon">
+        <iconset>
+         <selectedon>../../images/trash.png</selectedon>
+        </iconset>
        </property>
       </widget>
       <widget class="QPushButton" name="btnEdit">
@@ -461,6 +491,11 @@ font: 11pt &quot;Cantarell&quot;;</string>
    </property>
   </action>
   <action name="actionExit">
+   <property name="icon">
+    <iconset>
+     <activeon>../../images/stop.png</activeon>
+    </iconset>
+   </property>
    <property name="text">
     <string>Exit</string>
    </property>
@@ -476,21 +511,41 @@ font: 11pt &quot;Cantarell&quot;;</string>
    </property>
   </action>
   <action name="actionAccount">
+   <property name="icon">
+    <iconset>
+     <activeon>../../images/tasks.png</activeon>
+    </iconset>
+   </property>
    <property name="text">
     <string>Account</string>
    </property>
   </action>
   <action name="actionBilling_Profile">
+   <property name="icon">
+    <iconset>
+     <activeon>../../images/profiles_alt.png</activeon>
+    </iconset>
+   </property>
    <property name="text">
     <string>Billing Profile</string>
    </property>
   </action>
   <action name="actionProxies">
+   <property name="icon">
+    <iconset>
+     <activeon>../../images/proxies_alt.png</activeon>
+    </iconset>
+   </property>
    <property name="text">
     <string>Proxies</string>
    </property>
   </action>
   <action name="actionSetting">
+   <property name="icon">
+    <iconset>
+     <activeon>../../images/settings_alt.png</activeon>
+    </iconset>
+   </property>
    <property name="text">
     <string>Setting</string>
    </property>

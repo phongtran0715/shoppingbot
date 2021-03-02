@@ -9,6 +9,7 @@ from utils.rabbit_util import RabbitUtil
 from utils.selenium_utils import change_driver
 import time
 from model.task_model import TaskModel
+from configparser import ConfigParser
 
 
 class Target:
@@ -31,6 +32,9 @@ class Target:
         self.max_quantity = task_model.get_max_quantity()
         account_item = RabbitUtil.get_account(self.account, self.db_conn)
         self.profile = RabbitUtil.get_profile(account_item['profile'], self.db_conn)
+
+        self.config = ConfigParser()
+        self.config.read(os.path.join('data', 'config.ini'))
 
         self.xpath_sequence = [
             {'type': 'method', 'path': '//button[@data-test="orderPickupButton"] | //button[@data-test="shipItButton"]', 'method': self.find_and_click_atc, 'message': 'Added to cart', 'message_type': 'normal', 'optional': False}

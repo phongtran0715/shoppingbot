@@ -54,7 +54,7 @@
       </rect>
      </property>
     </widget>
-    <widget class="QCheckBox" name="checkBox">
+    <widget class="QCheckBox" name="btnBrowerOpened">
      <property name="geometry">
       <rect>
        <x>30</x>
@@ -67,7 +67,7 @@
       <string>Browser Opened</string>
      </property>
     </widget>
-    <widget class="QCheckBox" name="checkBox_2">
+    <widget class="QCheckBox" name="btnOrderPlaced">
      <property name="geometry">
       <rect>
        <x>30</x>
@@ -80,7 +80,7 @@
       <string>Order Placed</string>
      </property>
     </widget>
-    <widget class="QCheckBox" name="checkBox_3">
+    <widget class="QCheckBox" name="btnPaymentFalse">
      <property name="geometry">
       <rect>
        <x>30</x>
@@ -106,7 +106,7 @@
     <property name="title">
      <string>Generral</string>
     </property>
-    <widget class="QCheckBox" name="checkBox_4">
+    <widget class="QCheckBox" name="btnDevMode">
      <property name="geometry">
       <rect>
        <x>30</x>
@@ -119,7 +119,7 @@
       <string>Don't actual buy items (Used for dev and testing)</string>
      </property>
     </widget>
-    <widget class="QCheckBox" name="checkBox_5">
+    <widget class="QCheckBox" name="btnBrowserPaymentFalse">
      <property name="geometry">
       <rect>
        <x>30</x>
@@ -132,7 +132,7 @@
       <string>Open browser on payment failed</string>
      </property>
     </widget>
-    <widget class="QCheckBox" name="checkBox_6">
+    <widget class="QCheckBox" name="btnStopAll">
      <property name="geometry">
       <rect>
        <x>30</x>

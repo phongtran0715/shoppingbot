@@ -9,6 +9,8 @@ from model.task_model import TaskModel
 from PyQt5.QtSql import QSqlDatabase
 from utils.rabbit_util import RabbitUtil
 from utils.twocaptcha_utils import solve_captcha
+from configparser import ConfigParser
+
 
 logger = logging.getLogger(__name__)
 
@@ -35,6 +37,11 @@ class Walmart:
 		self.captcha_wait_condition = polling_wait_condition
 		self.wait_poll_signal = wait_poll_signal
 		#################################################
+		self.config = ConfigParser()
+		self.config.read(os.path.join('data', 'config.ini'))
+		self.dont_buy = True
+		if self.config.getint('general', 'dev_mode') == 0:
+			self.dont_buy = False
 
 		self.session = requests.Session()
 		# shopping_proxy = get_proxy(self.shopping_proxies)

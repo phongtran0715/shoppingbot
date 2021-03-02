@@ -13,6 +13,7 @@ import urllib, requests, time, lxml.html, json, sys
 import logging, os
 from model.task_model import TaskModel
 from PyQt5.QtSql import QSqlDatabase
+from configparser import ConfigParser
 
 
 logger = logging.getLogger(__name__)
@@ -41,11 +42,16 @@ class GameStop:
 		starting_msg = "Starting GameStop"
 		self.product_image = None
 
+		self.config = ConfigParser()
+		self.config.read(os.path.join('data', 'config.ini'))
+
 		self.SHORT_TIMEOUT = 5
 		self.LONG_TIMEOUT = 20
 		self.MONITOR_DELAY = 15
+		
 		self.dont_buy = True
-
+		if self.config.getint('general', 'dev_mode') == 0:
+			self.dont_buy = False
 		# if self.dont_buy:
 		# 	starting_msg = "Starting GameStop in dev mode; will not actually checkout."
 
@@ -158,7 +164,7 @@ class GameStop:
 					self.status_signal.emit(RabbitUtil.create_msg("Waiting For Restock", "normal", self.task_id))
 					time.sleep(self.MONITOR_DELAY)
 			except Exception as e :
-				self.status_signal.emit({"msg": "Error Loading Product Page (line {} {} {})".format(
+				self.status_signal.emit({"message": "Error Loading Product Page (line {} {} {})".format(
 					sys.exc_info()[-1].tb_lineno, type(e).__name__, e), "status": "error", "task_id" : self.task_id})
 				logger.info("Not found add to cart button\n");
 				time.sleep(self.MONITOR_DELAY)
@@ -176,7 +182,7 @@ class GameStop:
 			result = True
 			self.status_signal.emit(RabbitUtil.create_msg("Added to cart", "normal", self.task_id))
 		except Exception as e:
-			self.status_signal.emit({"msg": "Error Adding to card (line {} {} {})".format(
+			self.status_signal.emit({"message": "Error Adding to card (line {} {} {})".format(
 					sys.exc_info()[-1].tb_lineno, type(e).__name__, e), "status": "error", 'task_id': self.task_id})
 
 

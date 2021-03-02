@@ -3,6 +3,8 @@ from PyQt5 import QtWidgets, uic, QtGui, QtCore
 from PyQt5.QtWidgets import *
 from PyQt5.QtSql import QSqlDatabase, QSqlTableModel, QSqlQuery
 from view.profile.new_profile import NewProfile
+from configparser import ConfigParser
+
 
 
 class SettingManager(QtWidgets.QMainWindow):
@@ -12,21 +14,11 @@ class SettingManager(QtWidgets.QMainWindow):
 		uic.loadUi(os.path.join(dirname, "../ui", "setting_manager.ui"), self)
 		self.center()
 
-		self.db_conn = QSqlDatabase.database("rabbit_db_conn", open=False)
-		
-		# create connection for button
-		# self.btnAdd.clicked.connect(self.btnAdd_clicked)
-		# self.btnEdit.clicked.connect(self.btnEdit_clicked)
-		# self.btnDelete.clicked.connect(self.btnDelete_clicked)
-		# self.btnDeleteAll.clicked.connect(self.btnDeleteAll_clicked)
+		self.config = ConfigParser()
+		self.config.read(os.path.join('data', 'config.ini'))
+		self.loadSettingData()
 
-		# self.tbProfile.setHorizontalHeaderLabels(["ID", "PROFILE NAME", "EMAIL", "PHONE", "CARD TYPE"])
-		# self.tbProfile.setSelectionBehavior(QAbstractItemView.SelectRows)
-		# self.tbProfile.setEditTriggers(QtWidgets.QTableWidget.NoEditTriggers)
-
-		# self.tbProfile.setColumnHidden(0, True);
-
-		# self.loadProfileData()
+		self.btnSave.clicked.connect(self.btnSave_clicked)
 
 	def center(self):
 		qr = self.frameGeometry()
@@ -34,59 +26,59 @@ class SettingManager(QtWidgets.QMainWindow):
 		qr.moveCenter(cp)
 		self.move(qr.topLeft())
 
-	def loadProfileData(self):
-		self.tbProfile.setRowCount(0)
-		query = QSqlQuery("SELECT * FROM profile", self.db_conn)
-		while query.next():
-			rows = self.tbProfile.rowCount()
-			self.tbProfile.setRowCount(rows + 1)
-			self.tbProfile.setItem(rows, 0, QTableWidgetItem(str(query.value(0))))
-			self.tbProfile.setItem(rows, 1, QTableWidgetItem(query.value(1)))
-			self.tbProfile.setItem(rows, 2, QTableWidgetItem(query.value(3)))
-			self.tbProfile.setItem(rows, 3, QTableWidgetItem(query.value(4)))
-			self.tbProfile.setItem(rows, 4, QTableWidgetItem(query.value(15)))
+	def loadSettingData(self):
+		self.txtWebhook.setText(self.config.get('notification', 'webhook'))
+		self.btnBrowerOpened.setChecked(self.config.getint('notification', 'browser_opened'))
+		self.btnOrderPlaced.setChecked(self.config.getint('notification', 'order_placed'))
+		self.btnPaymentFalse.setChecked(self.config.getint('notification', 'payment_failed'))
 
-	def btnAdd_clicked(self):
-		self.createProfileFrm = NewProfile()
-		if self.createProfileFrm.exec_() == QtWidgets.QDialog.Accepted:
-			self.createProfileFrm.updateProfile()
-			self.loadProfileData()
+		self.btnBrowserPaymentFalse.setChecked(self.config.getint('general', 'open_browser_payment_false'))
+		self.btnStopAll.setChecked(self.config.getint('general', 'stop_all_after_success'))
+		self.btnDevMode.setChecked(self.config.getint('general', 'dev_mode'))
 
-	def btnEdit_clicked(self):
-		index = self.tbProfile.currentRow()
-		if index >= 0:
-			profile_id = self.tbProfile.item(index, 0).text()
-			self.editProfileFrm = NewProfile('modify', profile_id)
-			self.editProfileFrm.loadEditData()
-			if self.editProfileFrm.exec_() == QtWidgets.QDialog.Accepted:
-				self.editProfileFrm.updateProfile()
-				self.loadProfileData()
+	def btnSave_clicked(self):
+		parser = ConfigParser()
+		
+		parser.add_section('notification')
+		parser.set('notification', 'webhook', self.txtWebhook.text())
+
+		if self.btnBrowerOpened.isChecked():
+			parser.set('notification', 'browser_opened', '1')
 		else:
-			QMessageBox.critical(self, "Rabbit", 'You must select one profile!',)
+			parser.set('notification', 'browser_opened', '0')
 
-	def btnDelete_clicked(self):
-		index = self.tbProfile.currentRow()
-		if index >= 0:
-			profile_id = self.tbProfile.item(index, 0).text()
-			query = QSqlQuery(self.db_conn)
-			query.prepare("DELETE FROM profile WHERE id = ?")
-			query.addBindValue(profile_id)
-			if not query.exec():
-				QMessageBox.critical(self, "Rabbit - Error!", 'Database Error: %s' % self.query.lastError().databaseText(),)
-			else:
-				self.loadProfileData()
+		if self.btnOrderPlaced.isChecked():
+			parser.set('notification', 'order_placed', '1')
 		else:
-			QMessageBox.critical(self, "Rabbit - Error!", 'You must select one profile to delete!',)
+			parser.set('notification', 'order_placed', '0')
 
-	def btnDeleteAll_clicked(self):
-		ret = QMessageBox.question(self, 'MessageBox', "Do you want to delete all profile?", QMessageBox.Yes | QMessageBox.No )
-		if ret == QMessageBox.Yes:
-			query = QSqlQuery(self.db_conn)
-			query.prepare("DELETE FROM profile")
-			if not query.exec():
-				QMessageBox.critical(self, "Rabbit - Error!", 'Database Error: %s' % self.query.lastError().databaseText(),)
-			else:
-				self.loadProfileData()
+		if self.btnPaymentFalse.isChecked():
+			parser.set('notification', 'payment_failed', '1')
+		else:
+			parser.set('notification', 'payment_failed', '0')
+
+
+		parser.add_section('general')
+		if self.btnBrowserPaymentFalse.isChecked():
+			parser.set('general', 'open_browser_payment_false', '1')
+		else:
+			parser.set('general', 'open_browser_payment_false', '0')
+
+		if self.btnStopAll.isChecked():
+			parser.set('general', 'stop_all_after_success', '1')
+		else:
+			parser.set('general', 'stop_all_after_success', '0')
+
+		if self.btnDevMode.isChecked():
+			parser.set('general', 'dev_mode', '1')
+		else:
+			parser.set('general', 'dev_mode', '0')
+
+		with open(os.path.join('data', 'config.ini'), 'w') as configfile:
+			parser.write(configfile)
+
+		QMessageBox.about(self, "Rabbit", 'Save setting successful')
+
 
 	def __exit__(self, exc_type, exc_val, exc_tb):
 		print("__exit__")
