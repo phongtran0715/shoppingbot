@@ -8,7 +8,7 @@ from model.task_model import TaskModel
 
 class TaskManager():
 	def __init__(self):
-		self.db_conn = QSqlDatabase.database("supreme_db_conn", open=False)
+		self.db_conn = QSqlDatabase.database("rabbit_db_conn", open=False)
 
 	def get_task(self):
 		

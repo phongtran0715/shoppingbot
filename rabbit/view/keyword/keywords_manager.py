@@ -12,7 +12,7 @@ class KeywordManager(QtWidgets.QDialog):
 		self.center()
 		self.mode = mode
 		self.task_id = task_id
-		self.db_conn = QSqlDatabase.database("supreme_db_conn", open=False)
+		self.db_conn = QSqlDatabase.database("rabbit_db_conn", open=False)
 
 		query = QSqlQuery("SELECT * FROM profile", self.db_conn)
 		while query.next():
@@ -78,7 +78,7 @@ class KeywordManager(QtWidgets.QDialog):
 			query.addBindValue(self.txtProxy.text())
 			query.addBindValue('Stop')
 			if not query.exec():
-				QMessageBox.critical(self, "Supreme - Error!", 'Database Error: {}'.format(query.lastError().databaseText()),)
+				QMessageBox.critical(self, "Rabbit - Error!", 'Database Error: {}'.format(query.lastError().databaseText()),)
 			else:
 				self.close()
 		else:
@@ -107,6 +107,6 @@ class KeywordManager(QtWidgets.QDialog):
 			query.addBindValue(self.cbStatus.currentText())
 			query.addBindValue(self.task_id)
 			if not query.exec():
-				QMessageBox.critical(self, "Supreme - Error!", 'Database Error: %s' % self.query.lastError().databaseText(),)
+				QMessageBox.critical(self, "Rabbit - Error!", 'Database Error: %s' % self.query.lastError().databaseText(),)
 			else:
 				self.close()

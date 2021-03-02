@@ -19,22 +19,22 @@ if __name__ == "__main__":
 	logger.addHandler(logging.StreamHandler())
 
 	app = QApplication(sys.argv)
-	db_file = os.path.join('data', 'supreme_db.sqlite')
+	db_file = os.path.join('data', 'rabbit_db.sqlite')
 
 	# setting database conection
 	if not os.path.isfile(db_file):
 		QMessageBox.critical(
 			None,
-			'Supreme - Error!',
+			'Rabbit - Error!',
 			'Can not find database file: %s' % db_file,
 			)
 		sys.exit(1)
-	db_conn = QSqlDatabase.addDatabase("QSQLITE", "supreme_db_conn")
-	db_conn.setDatabaseName(os.path.join('data', 'supreme_db.sqlite'))
+	db_conn = QSqlDatabase.addDatabase("QSQLITE", "rabbit_db_conn")
+	db_conn.setDatabaseName(os.path.join('data', 'rabbit_db.sqlite'))
 	if not db_conn.open():
 		QMessageBox.critical(
 			None,
-			'Supreme - Error!',
+			'Rabbit - Error!',
 			'Database Error: %s' % db_conn.lastError().databaseText(),
 			)
 	else:

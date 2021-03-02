@@ -51,7 +51,7 @@ class MainWindow(QtWidgets.QMainWindow):
 		super(MainWindow, self).__init__()
 		dirname = os.path.dirname(__file__)
 		uic.loadUi(os.path.join(dirname, "ui", "rabbit.ui"), self)
-		self.db_conn = QSqlDatabase.database("supreme_db_conn", open=False)
+		self.db_conn = QSqlDatabase.database("rabbit_db_conn", open=False)
 		self.center()
 
 		# create connection for button

@@ -12,7 +12,7 @@ class AccountManager(QtWidgets.QMainWindow):
 		uic.loadUi(os.path.join(dirname, "../ui", "account_manager.ui"), self)
 		self.center()
 
-		self.db_conn = QSqlDatabase.database("supreme_db_conn", open=False)
+		self.db_conn = QSqlDatabase.database("rabbit_db_conn", open=False)
 		
 		# create connection for button
 		self.btnAdd.clicked.connect(self.btnAdd_clicked)

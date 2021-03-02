@@ -36,7 +36,7 @@ class BestBuy:
 
 	def __init__(self, status_signal, image_signal, task_model):
 		self.db_conn = QSqlDatabase.addDatabase("QSQLITE", "bestbuy_db_conn_" + str(task_model.get_task_id()))
-		self.db_conn.setDatabaseName('/home/jack/Documents/SourceCode/shopping_bot/rabbit/data/supreme_db.sqlite')
+		self.db_conn.setDatabaseName('/home/jack/Documents/SourceCode/shopping_bot/rabbit/data/rabbit_db.sqlite')
 		if not self.db_conn.open():
 			print("jack | gamestop open conection false!")
 		else:

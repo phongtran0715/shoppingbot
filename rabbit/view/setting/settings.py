@@ -12,7 +12,7 @@ class SettingManager(QtWidgets.QMainWindow):
 		uic.loadUi(os.path.join(dirname, "../ui", "setting_manager.ui"), self)
 		self.center()
 
-		self.db_conn = QSqlDatabase.database("supreme_db_conn", open=False)
+		self.db_conn = QSqlDatabase.database("rabbit_db_conn", open=False)
 		
 		# create connection for button
 		# self.btnAdd.clicked.connect(self.btnAdd_clicked)
@@ -62,7 +62,7 @@ class SettingManager(QtWidgets.QMainWindow):
 				self.editProfileFrm.updateProfile()
 				self.loadProfileData()
 		else:
-			QMessageBox.critical(self, "Supreme", 'You must select one profile!',)
+			QMessageBox.critical(self, "Rabbit", 'You must select one profile!',)
 
 	def btnDelete_clicked(self):
 		index = self.tbProfile.currentRow()
@@ -72,11 +72,11 @@ class SettingManager(QtWidgets.QMainWindow):
 			query.prepare("DELETE FROM profile WHERE id = ?")
 			query.addBindValue(profile_id)
 			if not query.exec():
-				QMessageBox.critical(self, "Supreme - Error!", 'Database Error: %s' % self.query.lastError().databaseText(),)
+				QMessageBox.critical(self, "Rabbit - Error!", 'Database Error: %s' % self.query.lastError().databaseText(),)
 			else:
 				self.loadProfileData()
 		else:
-			QMessageBox.critical(self, "Supreme - Error!", 'You must select one profile to delete!',)
+			QMessageBox.critical(self, "Rabbit - Error!", 'You must select one profile to delete!',)
 
 	def btnDeleteAll_clicked(self):
 		ret = QMessageBox.question(self, 'MessageBox', "Do you want to delete all profile?", QMessageBox.Yes | QMessageBox.No )
@@ -84,7 +84,7 @@ class SettingManager(QtWidgets.QMainWindow):
 			query = QSqlQuery(self.db_conn)
 			query.prepare("DELETE FROM profile")
 			if not query.exec():
-				QMessageBox.critical(self, "Supreme - Error!", 'Database Error: %s' % self.query.lastError().databaseText(),)
+				QMessageBox.critical(self, "Rabbit - Error!", 'Database Error: %s' % self.query.lastError().databaseText(),)
 			else:
 				self.loadProfileData()
 

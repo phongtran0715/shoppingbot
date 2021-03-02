@@ -7,7 +7,7 @@ from PyQt5.QtSql import QSqlDatabase, QSqlTableModel, QSqlQuery
 class NewTask(QtWidgets.QDialog):
 	def __init__(self, modifyMode=False, task_id=None):
 		super(NewTask, self).__init__()
-		self.db_conn = QSqlDatabase.database("supreme_db_conn", open=False)
+		self.db_conn = QSqlDatabase.database("rabbit_db_conn", open=False)
 		dirname = os.path.dirname(__file__)
 		uic.loadUi(os.path.join(dirname, "../ui", "new_task_dialog.ui"), self)
 		self.task_id = task_id

@@ -8,7 +8,7 @@ from PyQt5.QtSql import QSqlDatabase, QSqlTableModel, QSqlQuery
 class NewAccount(QtWidgets.QDialog):
 	def __init__(self, modifyMode=False, account_id=None):
 		super(NewAccount, self).__init__()
-		self.db_conn = QSqlDatabase.database("supreme_db_conn", open=False)
+		self.db_conn = QSqlDatabase.database("rabbit_db_conn", open=False)
 		dirname = os.path.dirname(__file__)
 		uic.loadUi(os.path.join(dirname, "../ui", "new_account.ui"), self)
 		self.center()
@@ -102,6 +102,6 @@ class NewAccount(QtWidgets.QDialog):
 		query.addBindValue(self.cbProxy.currentText())
 		query.addBindValue(self.cbProfile.currentText())
 		if not query.exec():
-			QMessageBox.critical(self, "Supreme - Error!", 'Database Error: %s' % query.lastError().text(),)
+			QMessageBox.critical(self, "Rabbit - Error!", 'Database Error: %s' % query.lastError().text(),)
 		else:
 			self.close()

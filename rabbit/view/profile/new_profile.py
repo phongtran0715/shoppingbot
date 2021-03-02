@@ -10,7 +10,7 @@ class NewProfile(QtWidgets.QDialog):
 		dirname = os.path.dirname(__file__)
 		uic.loadUi(os.path.join(dirname, "../ui", "new_billing_profile_dialog.ui"), self)
 		self.center()
-		self.db_conn = QSqlDatabase.database("supreme_db_conn", open=False)
+		self.db_conn = QSqlDatabase.database("rabbit_db_conn", open=False)
 		self.modifyMode = modifyMode
 		self.profile_id = profile_id
 		if modifyMode is True:
@@ -146,7 +146,7 @@ class NewProfile(QtWidgets.QDialog):
 		query.addBindValue(self.cbExpiryMonth.currentText())
 		query.addBindValue(self.cbExpiryYear.currentText())
 		if not query.exec():
-			QMessageBox.critical(self, "Supreme - Error!", 'Database Error: %s' % query.lastError().text(),)
+			QMessageBox.critical(self, "Rabbit - Error!", 'Database Error: %s' % query.lastError().text(),)
 		else:
 			self.close()
 
@@ -218,7 +218,7 @@ class NewProfile(QtWidgets.QDialog):
 
 		query.addBindValue(str(self.profile_id))
 		if not query.exec():
-			QMessageBox.critical(self, "Supreme - Error!", 'Database Error: %s' % query.lastError().text(),)
+			QMessageBox.critical(self, "Rabbit - Error!", 'Database Error: %s' % query.lastError().text(),)
 		else:
 			self.close()
 

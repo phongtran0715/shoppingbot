@@ -12,7 +12,7 @@ class ProxiesManager(QtWidgets.QMainWindow):
 		uic.loadUi(os.path.join(dirname, "../ui", "proxies_manager.ui"), self)
 		self.center()
 
-		self.db_conn = QSqlDatabase.database("supreme_db_conn", open=False)
+		self.db_conn = QSqlDatabase.database("rabbit_db_conn", open=False)
 		
 		# create connection for button
 		self.btnAdd.clicked.connect(self.btnAdd_clicked)
@@ -56,7 +56,7 @@ class ProxiesManager(QtWidgets.QMainWindow):
 				self.edit_proxy_frm.update_proxy()
 				self.loadProxyData()
 		else:
-			QMessageBox.critical(self, "Supreme", 'You must select one proxy!',)
+			QMessageBox.critical(self, "Rabbit", 'You must select one proxy!',)
 
 	def btnDelete_clicked(self):
 		index = self.tbProxies.currentRow()
@@ -66,11 +66,11 @@ class ProxiesManager(QtWidgets.QMainWindow):
 			query.prepare("DELETE FROM Proxies WHERE id = ?")
 			query.addBindValue(proxy_id)
 			if not query.exec():
-				QMessageBox.critical(self, "Supreme - Error!", 'Database Error: %s' % self.query.lastError().databaseText(),)
+				QMessageBox.critical(self, "Rabbit - Error!", 'Database Error: %s' % self.query.lastError().databaseText(),)
 			else:
 				self.loadProxyData()
 		else:
-			QMessageBox.critical(self, "Supreme - Error!", 'You must select one proxy to delete!',)
+			QMessageBox.critical(self, "Rabbit - Error!", 'You must select one proxy to delete!',)
 
 	def btnDeleteAll_clicked(self):
 		ret = QMessageBox.question(self, 'MessageBox', "Do you want to delete all proxy?", QMessageBox.Yes | QMessageBox.No )
@@ -78,7 +78,7 @@ class ProxiesManager(QtWidgets.QMainWindow):
 			query = QSqlQuery(self.db_conn)
 			query.prepare("DELETE FROM proxies")
 			if not query.exec():
-				QMessageBox.critical(self, "Supreme - Error!", 'Database Error: %s' % self.query.lastError().databaseText(),)
+				QMessageBox.critical(self, "Rabbit - Error!", 'Database Error: %s' % self.query.lastError().databaseText(),)
 			else:
 				self.loadProxyData()
 
