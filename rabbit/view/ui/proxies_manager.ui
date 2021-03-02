@@ -36,6 +36,11 @@
     <property name="text">
      <string>Add</string>
     </property>
+    <property name="icon">
+     <iconset>
+      <selectedon>../../images/24x24/add_24x24.png</selectedon>
+     </iconset>
+    </property>
    </widget>
    <widget class="QPushButton" name="btnEdit">
     <property name="geometry">
@@ -48,6 +53,11 @@
     </property>
     <property name="text">
      <string>Edit</string>
+    </property>
+    <property name="icon">
+     <iconset>
+      <selectedon>../../images/edit.png</selectedon>
+     </iconset>
     </property>
    </widget>
    <widget class="QPushButton" name="btnDelete">
@@ -62,6 +72,11 @@
     <property name="text">
      <string>Delete</string>
     </property>
+    <property name="icon">
+     <iconset>
+      <selectedon>../../images/24x24/trash_24x24.png</selectedon>
+     </iconset>
+    </property>
    </widget>
    <widget class="QPushButton" name="btnDeleteAll">
     <property name="geometry">
@@ -74,6 +89,11 @@
     </property>
     <property name="text">
      <string>Delete All</string>
+    </property>
+    <property name="icon">
+     <iconset>
+      <selectedon>../../images/24x24/trash-circle-red-5121.png</selectedon>
+     </iconset>
     </property>
    </widget>
    <widget class="QTableWidget" name="tbProxies">

@@ -431,6 +431,11 @@ font: 11pt &quot;Cantarell&quot;;</string>
        <property name="text">
         <string>Edit</string>
        </property>
+       <property name="icon">
+        <iconset>
+         <selectedon>../../images/edit.png</selectedon>
+        </iconset>
+       </property>
       </widget>
       <widget class="QPushButton" name="btnDelete">
        <property name="geometry">
@@ -443,6 +448,11 @@ font: 11pt &quot;Cantarell&quot;;</string>
        </property>
        <property name="text">
         <string>Delete</string>
+       </property>
+       <property name="icon">
+        <iconset>
+         <selectedon>../../images/trash.png</selectedon>
+        </iconset>
        </property>
       </widget>
      </widget>
@@ -493,7 +503,7 @@ font: 11pt &quot;Cantarell&quot;;</string>
   <action name="actionExit">
    <property name="icon">
     <iconset>
-     <activeon>../../images/stop.png</activeon>
+     <activeon>../../images/24x24/export_24x24.png</activeon>
     </iconset>
    </property>
    <property name="text">
@@ -501,11 +511,21 @@ font: 11pt &quot;Cantarell&quot;;</string>
    </property>
   </action>
   <action name="actionCheck_for_update">
+   <property name="icon">
+    <iconset>
+     <activeon>../../images/24x24/refresh_24x24.png</activeon>
+    </iconset>
+   </property>
    <property name="text">
     <string>Check for update</string>
    </property>
   </action>
   <action name="actionAbout">
+   <property name="icon">
+    <iconset>
+     <activeon>../../images/24x24/question_24x24.png</activeon>
+    </iconset>
+   </property>
    <property name="text">
     <string>About</string>
    </property>

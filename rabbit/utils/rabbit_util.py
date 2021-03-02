@@ -18,6 +18,7 @@ from model.proxy_model import ProxyModel
 from model.account_model import AccountModel
 from model.profile_model import ProfileModel
 from model.task_model import TaskModel
+from configparser import ConfigParser
 
 
 class Encryption:
@@ -120,32 +121,33 @@ class RabbitUtil():
 
 	@staticmethod
 	def send_webhook(webhook_type, site, profile, task_id, image_url):
-		pass
-		# if settings.webhook != "":
-		#     webhook = DiscordWebhook(url=settings.webhook, username="Bird Bot",
-		#                              avatar_url="https://i.imgur.com/60G42xE.png")
-		#     if webhook_type == "OP":
-		#         if not settings.webhook_on_order:
-		#             return
-		#         embed = DiscordEmbed(title="Order Placed", color=0x34c693)
-		#     elif webhook_type == "B":
-		#         if not settings.webhook_on_browser:
-		#             return
-		#         embed = DiscordEmbed(title="Complete Order in Browser", color=0xf2a689)
-		#     elif webhook_type == "PF":
-		#         if not settings.webhook_on_failed:
-		#             return
-		#         embed = DiscordEmbed(title="Payment Failed", color=0xfc5151)
-		#     embed.set_footer(text="Via Bird Bot", icon_url="https://i.imgur.com/60G42xE.png")
-		#     embed.add_embed_field(name="Site", value=site, inline=True)
-		#     embed.add_embed_field(name="Account", value=profile, inline=True)
-		#     embed.add_embed_field(name="Task ID", value=task_id, inline=True)
-		#     embed.set_thumbnail(url=image_url)
-		#     webhook.add_embed(embed)
-		#     try:
-		#         webhook.execute()
-		#     except:
-		#         pass
+		self.config = ConfigParser()
+		self.config.read(os.path.join('data', 'config.ini'))
+		if config.get('notification', 'webhook') is not None and config.get('notification', 'webhook') != "":
+			webhook = DiscordWebhook(url=config.get('notification', 'webhook'), username="Rabbit Bot",
+									 avatar_url="https://i.imgur.com/60G42xE.png")
+			if webhook_type == "OP":
+				if config.getint('notification', 'order_placed') == 0:
+					return
+				embed = DiscordEmbed(title="Order Placed", color=0x34c693)
+			elif webhook_type == "B":
+				if config.getint('notification', 'browser_opened') == 0:
+					return
+				embed = DiscordEmbed(title="Complete Order in Browser", color=0xf2a689)
+			elif webhook_type == "PF":
+				if config.getint('notification', 'payment_failed') == 0:
+					return
+				embed = DiscordEmbed(title="Payment Failed", color=0xfc5151)
+			embed.set_footer(text="Via Bird Bot", icon_url="https://i.imgur.com/60G42xE.png")
+			embed.add_embed_field(name="Site", value=site, inline=True)
+			embed.add_embed_field(name="Account", value=profile, inline=True)
+			embed.add_embed_field(name="Task ID", value=task_id, inline=True)
+			embed.set_thumbnail(url=image_url)
+			webhook.add_embed(embed)
+			try:
+				webhook.execute()
+			except:
+				pass
 
 	@staticmethod
 	def random_delay(delay, start, stop):
