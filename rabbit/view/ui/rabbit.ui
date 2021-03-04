@@ -340,7 +340,7 @@ font: 11pt &quot;Cantarell&quot;;</string>
            <number>5</number>
           </property>
           <attribute name="horizontalHeaderVisible">
-           <bool>false</bool>
+           <bool>true</bool>
           </attribute>
           <attribute name="horizontalHeaderHighlightSections">
            <bool>true</bool>

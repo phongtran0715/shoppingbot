@@ -1,4 +1,4 @@
-import json, webbrowser, urllib3, requests, sys, time, lxml.html
+import json, webbrowser, urllib3, requests, sys, time, lxml.html, os
 from time import sleep
 from urllib import parse
 from chromedriver_py import binary_path  # this will get you the path variable
@@ -149,13 +149,16 @@ class BestBuy:
 
 
 	def login(self, account):
-		self.status_signal.emit(RabbitUtil.create_msg("Logging...", "normal", self.task_id))
-		self.browser.get("https://www.bestbuy.com/identity/global/signin")
-		self.browser.find_element_by_xpath('//*[@id="fld-e"]').send_keys(account.get_user_name())
-		self.browser.find_element_by_xpath('//*[@id="fld-p1"]').send_keys(account.get_password())
-		self.browser.find_element_by_xpath('//button[@data-track="Sign In"]').click()
-		wait(self.browser, self.LONG_TIMEOUT).until(lambda x: "Official Online Store" in self.browser.title)
-
+		try:
+			self.status_signal.emit(RabbitUtil.create_msg("Logging...", "normal", self.task_id))
+			self.browser.get("https://www.bestbuy.com/identity/global/signin")
+			self.browser.find_element_by_xpath('//*[@id="fld-e"]').send_keys(account.get_user_name())
+			self.browser.find_element_by_xpath('//*[@id="fld-p1"]').send_keys(account.get_password())
+			self.browser.find_element_by_xpath('//button[@data-track="Sign In"]').click()
+			wait(self.browser, self.LONG_TIMEOUT).until(lambda x: "Official Online Store" in self.browser.title)
+		except Exception as e:
+			self.status_signal.emit({"message": "Error login (line {} {} {})".format(
+					sys.exc_info()[-1].tb_lineno, type(e).__name__, e), "status": "error", "task_id" : self.task_id})
 
 	def add_to_cart(self, account):
 		result = False
@@ -174,28 +177,32 @@ class BestBuy:
 					sys.exc_info()[-1].tb_lineno, type(e).__name__, e), "status": "error", "task_id" : self.task_id})
 
 	def submit_billing(self, account):
-		self.browser.get("https://www.bestbuy.com/checkout/r/fulfillment")
-		wait(self.browser, self.LONG_TIMEOUT).until(lambda _: self.browser.current_url == "https://www.bestbuy.com/checkout/r/fulfillment")
+		try:
+			self.browser.get("https://www.bestbuy.com/checkout/r/fulfillment")
+			wait(self.browser, self.LONG_TIMEOUT).until(lambda _: self.browser.current_url == "https://www.bestbuy.com/checkout/r/fulfillment")
 
-		profile = RabbitUtil.get_profile(account.get_profile(), self.db_conn)
-		self.status_signal.emit(RabbitUtil.create_msg("Entering billing info", "normal", self.task_id))
-		if self.is_login:
-			# just fill cvv
-			wait(self.browser, self.LONG_TIMEOUT).until(EC.element_to_be_clickable((By.ID, "credit-card-cvv")))
-			securityCode = self.browser.find_element_by_id("credit-card-cvv")
-			securityCode.send_keys(profile.get_card_cvv())
-		else:
-			# TODO: fill billing info
-			pass
+			profile = RabbitUtil.get_profile(account.get_profile(), self.db_conn)
+			self.status_signal.emit(RabbitUtil.create_msg("Entering billing info", "normal", self.task_id))
+			if self.is_login:
+				# just fill cvv
+				wait(self.browser, self.LONG_TIMEOUT).until(EC.element_to_be_clickable((By.ID, "credit-card-cvv")))
+				securityCode = self.browser.find_element_by_id("credit-card-cvv")
+				securityCode.send_keys(profile.get_card_cvv())
+			else:
+				# TODO: fill billing info
+				pass
 
-		# send summit button
-		if self.dont_buy is True:
-			self.status_signal.emit(RabbitUtil.create_msg("Mock Order Placed", "success", self.task_id))
-			RabbitUtil.send_webhook("OP", "BestBuy", account.get_account_name(), self.task_id, self.product_image)
-		else:
-			wait(self.browser, self.LONG_TIMEOUT).until(EC.element_to_be_clickable((By.XPATH, '//div[@class="button--place-order-fast-track"]//button[@data-track="Place your Order - Contact Card"]')))
-			order_review_btn = self.browser.find_element_by_xpath('//div[@class="button--place-order-fast-track"]//button[@data-track="Place your Order - Contact Card"]')
-			order_review_btn.click()
+			# send summit button
+			if self.dont_buy is True:
+				self.status_signal.emit(RabbitUtil.create_msg("Mock Order Placed", "success", self.task_id))
+				RabbitUtil.send_webhook("OP", "BestBuy", account.get_account_name(), self.task_id, self.product_image)
+			else:
+				wait(self.browser, self.LONG_TIMEOUT).until(EC.element_to_be_clickable((By.XPATH, '//div[@class="button--place-order-fast-track"]//button[@data-track="Place your Order - Contact Card"]')))
+				order_review_btn = self.browser.find_element_by_xpath('//div[@class="button--place-order-fast-track"]//button[@data-track="Place your Order - Contact Card"]')
+				order_review_btn.click()
+		except Exception as e:
+			self.status_signal.emit({"message": "Error Adding to card (line {} {} {})".format(
+					sys.exc_info()[-1].tb_lineno, type(e).__name__, e), "status": "error", "task_id" : self.task_id})			
 
 	def is_xpath_exist(self, doc, xpath_str):
 		result = False

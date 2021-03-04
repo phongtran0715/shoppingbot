@@ -3,7 +3,7 @@ from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
 from webdriver_manager.firefox import GeckoDriverManager
 from PyQt5 import QtCore
-import urllib, requests, time, lxml.html, json, sys
+import urllib, requests, time, lxml.html, json, sys, os
 import logging
 from model.task_model import TaskModel
 from PyQt5.QtSql import QSqlDatabase
@@ -377,7 +377,8 @@ class Walmart:
 			"cardType": profile.get_card_type().upper(),
 			"isGuest": True
 		}
-		while True:
+		count = 0
+		while count <= 3:
 			self.status_signal.emit({"message": "Submitting Payment", "status": "normal", "task_id" : self.task_id})
 			try:
 				r = self.session.post("https://www.walmart.com/api/checkout-customer/:CID/credit-card", json=body,
@@ -391,10 +392,12 @@ class Walmart:
 				if self.check_browser(account):
 					return
 				time.sleep(self.error_delay)
+				count += 1
 			except Exception as e:
 				self.status_signal.emit({"message": "Error Submitting Payment (line {} {} {})".format(
 					sys.exc_info()[-1].tb_lineno, type(e).__name__, e), "status": "error", "task_id" : self.task_id})
 				time.sleep(self.error_delay)
+				count += 1
 
 	def submit_billing(self, pi_hash, account):
 		headers = {

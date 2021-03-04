@@ -152,9 +152,26 @@ class MainWindow(QtWidgets.QMainWindow):
 			for row in range(self.tbListTask.rowCount()): 
 				task_id = self.tbListTask.item(row, 0).text()
 				task_status = self.tbListTask.item(row, 4).text()
-				pass
-					
-			self.loadTaskData()
+				if task_status == 'Stop':
+					query = QSqlQuery("SELECT * FROM task WHERE id = " + task_id, self.db_conn)
+					if query.next():
+						task_model = TaskModel(str(query.value(0)),
+							query.value(1), query.value(2), query.value(3) , str(query.value(4)),
+							str(query.value(5)), str(query.value(6)),str(query.value(7)), query.value(8))
+						self.dict_tasks[task_model.get_task_id()] = TaskThread(task_model)
+						self.dict_tasks[task_model.get_task_id()].status_signal.connect(self.update_status)
+						self.dict_tasks[task_model.get_task_id()].image_signal.connect(self.update_image)
+						self.dict_tasks[task_model.get_task_id()].wait_condition = QtCore.QWaitCondition()
+						self.dict_tasks[task_model.get_task_id()].start()
+						# update task status on table
+						msg = {
+							'task_id' : task_id,
+							'message' : 'Running',
+							'status' : 'normal'
+						}
+						self.update_status(msg)
+					else:
+						print("Could not found task")
 						
 	def btnStopClicked(self):
 		index = self.tbListTask.currentRow()
@@ -181,23 +198,26 @@ class MainWindow(QtWidgets.QMainWindow):
 			for row in range(self.tbListTask.rowCount()): 
 				task_id = self.tbListTask.item(row, 0).text()
 				task_status = self.tbListTask.item(row, 4).text()
-				if task_status == 'Running':
-					self.dict_tasks[task_id].stop()
-					msg = {
-						'task_id' : task_id,
-						'message' : 'Stop',
-						'status' : 'normal'
-					}
-					self.update_status(msg)
+				if task_status != 'Stop':
+					try:
+						# TODO: validate process before stop
+						self.dict_tasks[task_id].stop()
+						msg = {
+							'task_id' : task_id,
+							'message' : 'Stop',
+							'status' : 'normal'
+						}
+						self.update_status(msg)
+					except Exception as ex:
+						print("Can not stop task id : {}".format(task_id))
 
 	def btnEditClicked(self):
 		index = self.tbListTask.currentRow()
 		if index >= 0:
 			task_id = self.tbListTask.item(index, 0).text()
-			self.edittask_frm = NewTask(True, task_id)
+			self.edittask_frm = NewTask(True, task_id, self)
 			if self.edittask_frm.exec_() == QtWidgets.QDialog.Accepted:
 				self.edittask_frm.update_task()
-				self.loadTaskData()
 		else:
 			QMessageBox.critical(self, "Rabbit", 'You must select one task!',)
 
@@ -216,8 +236,9 @@ class MainWindow(QtWidgets.QMainWindow):
 				QMessageBox.critical(self, "Rabbit - Error!", 'Database Error: %s' % query.lastError().text(),)
 				logging.info("Delete task id {} false".format(task_id))
 			else:
+				row = self.tbListTask.currentRow()
+				self.tbListTask.removeRow(row)
 				logging.info("Delete task id {} successful".format(task_id))
-				self.loadTaskData()
 		else:
 			QMessageBox.critical(self, "Rabbit - Error!", 'You must select one task to delete!',)
 
@@ -234,16 +255,14 @@ class MainWindow(QtWidgets.QMainWindow):
 				self.loadTaskData()
 
 	def btnNewTaskClicked(self):
-		self.create_task_frm = NewTask()
+		self.create_task_frm = NewTask(parent=self)
 		if self.create_task_frm.exec_() == QtWidgets.QDialog.Accepted:
 			self.create_task_frm.create_task()
-			self.loadTaskData()
 
 	def btnExit_clicked(self):
 		self.close()
 
 	def update_status(self, msg):
-		print("msg: {}".format(msg))
 		for index in range(self.tbListTask.rowCount()):
 			if msg['task_id'] == self.tbListTask.item(index, 0).text():
 				self.tbListTask.item(index, 4).setText(msg['message'])

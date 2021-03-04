@@ -60,7 +60,6 @@ class RabbitUtil():
 		query = QSqlQuery("SELECT content FROM proxies WHERE name = '" + proxy_name + "'", db_conn)
 		if query.next():
 			proxies = (str(query.value(0)).splitlines())
-			print("jack | proxies = {}".format(proxies))
 			return RabbitUtil.format_proxy(random.choice(proxies))
 		else:
 			print("jack | not found proxies")

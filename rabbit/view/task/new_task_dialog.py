@@ -5,12 +5,13 @@ from PyQt5.QtSql import QSqlDatabase, QSqlTableModel, QSqlQuery
 
 
 class NewTask(QtWidgets.QDialog):
-	def __init__(self, modifyMode=False, task_id=None):
+	def __init__(self, modifyMode=False, task_id=None, parent=None):
 		super(NewTask, self).__init__()
 		self.db_conn = QSqlDatabase.database("rabbit_db_conn", open=False)
 		dirname = os.path.dirname(__file__)
 		uic.loadUi(os.path.join(dirname, "../ui", "new_task_dialog.ui"), self)
 		self.task_id = task_id
+		self.parent = parent
 		self.init_data()
 		if modifyMode is True:
 			self.load_data()
@@ -74,6 +75,15 @@ class NewTask(QtWidgets.QDialog):
 		if not query.exec():
 			QMessageBox.critical(self, "Rabbit - Error!", 'Database Error: %s' % query.lastError().text(),)
 		else:
+			# add new row to table
+			last_inserted_id = query.lastInsertId()
+			print("jack | inserted id : {}".format(last_inserted_id))
+			rowPosition = self.parent.tbListTask.rowCount()
+			self.parent.tbListTask.insertRow(rowPosition)
+			self.parent.tbListTask.setItem(rowPosition , 0, QTableWidgetItem(str(last_inserted_id)))
+			self.parent.tbListTask.setItem(rowPosition , 1, QTableWidgetItem(self.cbSite.currentText()))
+			self.parent.tbListTask.setItem(rowPosition , 2, QTableWidgetItem(self.txtLink.text()))
+			self.parent.tbListTask.setItem(rowPosition , 3, QTableWidgetItem(self.txtAccount.text()))
 			self.close()
 
 	def update_task(self):
@@ -92,6 +102,11 @@ class NewTask(QtWidgets.QDialog):
 		if not query.exec():
 			QMessageBox.critical(self, "Rabbit - Error!", 'Database Error: %s' % query.lastError().text(),)
 		else:
+			# udpate table
+			row = self.parent.tbListTask.currentRow()
+			self.parent.tbListTask.item(row, 1).setText(self.cbSite.currentText())
+			self.parent.tbListTask.item(row, 2).setText(self.txtLink.text())
+			self.parent.tbListTask.item(row, 3).setText(self.txtAccount.text())
 			self.close()
 
 	def btnAccountAddClicked(self):
