@@ -18,6 +18,11 @@
   <property name="windowTitle">
    <string>New Task</string>
   </property>
+  <property name="windowIcon">
+   <iconset>
+    <activeon>../../images/rabbit.png</activeon>
+   </iconset>
+  </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="6" column="4">
     <widget class="QDialogButtonBox" name="buttonBox">

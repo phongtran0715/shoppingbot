@@ -18,6 +18,11 @@
   <property name="windowTitle">
    <string>Account Manager</string>
   </property>
+  <property name="windowIcon">
+   <iconset>
+    <activeon>../../images/rabbit.png</activeon>
+   </iconset>
+  </property>
   <widget class="QWidget" name="centralwidget">
    <widget class="QPushButton" name="btnAdd">
     <property name="geometry">

@@ -32,13 +32,9 @@ class Walmart:
 		self.captcha_wait_condition = polling_wait_condition
 		self.wait_poll_signal = wait_poll_signal
 		#################################################
-		self.dont_buy = True
-		if self.config.getint('general', 'dev_mode') == 0:
-			self.dont_buy = False
-
 		# create database connection
 		self.db_conn = QSqlDatabase.addDatabase("QSQLITE", "walmart_db_conn_" + str(task_model.get_task_id()))
-		self.db_conn.setDatabaseName('/home/jack/Documents/SourceCode/shopping_bot/rabbit/data/rabbit_db.sqlite')
+		self.db_conn.setDatabaseName(os.path.join('data', 'rabbit_db.sqlite'))
 		if not self.db_conn.isOpen():
 			if not self.db_conn.open():
 				logger.error("Walmart | Task id {} - Open conection false!".format(self.task_id))
@@ -47,6 +43,10 @@ class Walmart:
 		# create config parse
 		self.config = ConfigParser()
 		self.config.read(os.path.join('data', 'config.ini'))
+
+		self.dont_buy = True
+		if self.config.getint('general', 'dev_mode') == 0:
+			self.dont_buy = False
 
 		self.session = requests.Session()
 

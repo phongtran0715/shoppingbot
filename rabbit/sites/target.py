@@ -30,7 +30,7 @@ class Target:
 
         # create database connection
         self.db_conn = QSqlDatabase.addDatabase("QSQLITE", "target_db_conn_" + str(task_mode.get_task_id()))
-        self.db_conn.setDatabaseName('/home/jack/Documents/SourceCode/shopping_bot/rabbit/data/rabbit_db.sqlite')
+        self.db_conn.setDatabaseName(os.path.join('data', 'rabbit_db.sqlite'))
         if not self.db_conn.open():
             logger.error("Target | Task id {}- Open conection false!".format(self.task_id))
 

@@ -23,7 +23,8 @@
   </property>
   <property name="windowIcon">
    <iconset>
-    <normaloff>../../../../../../.designer/backup/C:/Users/Admin/Downloads/34649764Untitled-3-512.png</normaloff>../../../../../../.designer/backup/C:/Users/Admin/Downloads/34649764Untitled-3-512.png</iconset>
+    <normaloff>../../../../../.designer/backup/C:/Users/Admin/Downloads/34649764Untitled-3-512.png</normaloff>
+    <activeon>../../images/rabbit.png</activeon>../../../../../.designer/backup/C:/Users/Admin/Downloads/34649764Untitled-3-512.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QHBoxLayout" name="_2">
@@ -44,183 +45,6 @@
       <property name="alignment">
        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
       </property>
-      <widget class="QWidget" name="widget" native="true">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>35</y>
-         <width>171</width>
-         <height>51</height>
-        </rect>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">background-color: rgb(136, 138, 133);
-font: 11pt &quot;Cantarell&quot;;</string>
-       </property>
-       <widget class="QLabel" name="label">
-        <property name="geometry">
-         <rect>
-          <x>80</x>
-          <y>20</y>
-          <width>81</width>
-          <height>20</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Total Tasks</string>
-        </property>
-       </widget>
-       <widget class="QLabel" name="lbTotalTask">
-        <property name="geometry">
-         <rect>
-          <x>50</x>
-          <y>20</y>
-          <width>21</width>
-          <height>20</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>0</string>
-        </property>
-       </widget>
-       <widget class="QLabel" name="lbIconTotalTask">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>10</y>
-          <width>31</width>
-          <height>31</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="pixmap">
-         <pixmap>../../images/tasks.png</pixmap>
-        </property>
-        <property name="scaledContents">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </widget>
-      <widget class="QWidget" name="widget_2" native="true">
-       <property name="geometry">
-        <rect>
-         <x>200</x>
-         <y>35</y>
-         <width>171</width>
-         <height>51</height>
-        </rect>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">background-color: rgb(136, 138, 133);
-font: 11pt &quot;Cantarell&quot;;</string>
-       </property>
-       <widget class="QLabel" name="label_4">
-        <property name="geometry">
-         <rect>
-          <x>80</x>
-          <y>20</y>
-          <width>81</width>
-          <height>20</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Total Carts</string>
-        </property>
-       </widget>
-       <widget class="QLabel" name="lbTotalCarts">
-        <property name="geometry">
-         <rect>
-          <x>50</x>
-          <y>20</y>
-          <width>21</width>
-          <height>20</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>0</string>
-        </property>
-       </widget>
-       <widget class="QLabel" name="label_6">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>10</y>
-          <width>31</width>
-          <height>31</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="pixmap">
-         <pixmap>../../images/cart.png</pixmap>
-        </property>
-        <property name="scaledContents">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </widget>
-      <widget class="QWidget" name="widget_3" native="true">
-       <property name="geometry">
-        <rect>
-         <x>380</x>
-         <y>35</y>
-         <width>171</width>
-         <height>51</height>
-        </rect>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">background-color: rgb(136, 138, 133);
-font: 11pt &quot;Cantarell&quot;;</string>
-       </property>
-       <widget class="QLabel" name="label_7">
-        <property name="geometry">
-         <rect>
-          <x>80</x>
-          <y>20</y>
-          <width>81</width>
-          <height>20</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Checkouts</string>
-        </property>
-       </widget>
-       <widget class="QLabel" name="lbTotalCheckouts">
-        <property name="geometry">
-         <rect>
-          <x>50</x>
-          <y>20</y>
-          <width>21</width>
-          <height>20</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>0</string>
-        </property>
-       </widget>
-       <widget class="QLabel" name="label_9">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>10</y>
-          <width>31</width>
-          <height>31</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="pixmap">
-         <pixmap>../../images/success.png</pixmap>
-        </property>
-        <property name="scaledContents">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </widget>
       <widget class="QWidget" name="widget_4" native="true">
        <property name="geometry">
         <rect>
@@ -242,6 +66,11 @@ font: 11pt &quot;Cantarell&quot;;</string>
           <height>41</height>
          </rect>
         </property>
+        <property name="font">
+         <font>
+          <pointsize>11</pointsize>
+         </font>
+        </property>
         <property name="text">
          <string>New Task</string>
         </property>
@@ -259,6 +88,11 @@ font: 11pt &quot;Cantarell&quot;;</string>
           <width>121</width>
           <height>41</height>
          </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>11</pointsize>
+         </font>
         </property>
         <property name="text">
          <string>Start All</string>
@@ -278,6 +112,11 @@ font: 11pt &quot;Cantarell&quot;;</string>
           <height>41</height>
          </rect>
         </property>
+        <property name="font">
+         <font>
+          <pointsize>11</pointsize>
+         </font>
+        </property>
         <property name="text">
          <string>Stop All</string>
         </property>
@@ -295,6 +134,11 @@ font: 11pt &quot;Cantarell&quot;;</string>
           <width>121</width>
           <height>41</height>
          </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>11</pointsize>
+         </font>
         </property>
         <property name="text">
          <string>Delete All</string>
@@ -319,10 +163,14 @@ font: 11pt &quot;Cantarell&quot;;</string>
         <string>Tasks</string>
        </property>
        <layout class="QGridLayout" name="gridLayout">
-        <item row="1" column="0">
+        <item row="0" column="0">
          <widget class="QTableWidget" name="tbListTask">
           <property name="enabled">
            <bool>true</bool>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">font: 11pt &quot;MS Shell Dlg 2&quot;;
+border-color: rgb(255, 170, 0);</string>
           </property>
           <property name="editTriggers">
            <set>QAbstractItemView::NoEditTriggers</set>
@@ -455,6 +303,196 @@ font: 11pt &quot;Cantarell&quot;;</string>
         </iconset>
        </property>
       </widget>
+      <widget class="QWidget" name="widget_5" native="true">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>30</y>
+         <width>561</width>
+         <height>61</height>
+        </rect>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(233, 185, 110);</string>
+       </property>
+       <widget class="QWidget" name="widget" native="true">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>10</y>
+          <width>171</width>
+          <height>41</height>
+         </rect>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">font: 11pt &quot;Cantarell&quot;;</string>
+        </property>
+        <widget class="QLabel" name="label">
+         <property name="geometry">
+          <rect>
+           <x>70</x>
+           <y>10</y>
+           <width>81</width>
+           <height>20</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Total Tasks</string>
+         </property>
+        </widget>
+        <widget class="QLabel" name="lbTotalTask">
+         <property name="geometry">
+          <rect>
+           <x>50</x>
+           <y>10</y>
+           <width>21</width>
+           <height>20</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>0</string>
+         </property>
+        </widget>
+        <widget class="QLabel" name="lbIconTotalTask">
+         <property name="geometry">
+          <rect>
+           <x>0</x>
+           <y>0</y>
+           <width>41</width>
+           <height>41</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="pixmap">
+          <pixmap>../../images/tasks.png</pixmap>
+         </property>
+         <property name="scaledContents">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </widget>
+       <widget class="QWidget" name="widget_2" native="true">
+        <property name="geometry">
+         <rect>
+          <x>200</x>
+          <y>10</y>
+          <width>171</width>
+          <height>41</height>
+         </rect>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">font: 11pt &quot;Cantarell&quot;;</string>
+        </property>
+        <widget class="QLabel" name="label_4">
+         <property name="geometry">
+          <rect>
+           <x>70</x>
+           <y>10</y>
+           <width>81</width>
+           <height>20</height>
+          </rect>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">font: 75 11pt &quot;MS Shell Dlg 2&quot;;</string>
+         </property>
+         <property name="text">
+          <string>Total Carts</string>
+         </property>
+        </widget>
+        <widget class="QLabel" name="lbTotalCarts">
+         <property name="geometry">
+          <rect>
+           <x>50</x>
+           <y>10</y>
+           <width>21</width>
+           <height>20</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>0</string>
+         </property>
+        </widget>
+        <widget class="QLabel" name="label_6">
+         <property name="geometry">
+          <rect>
+           <x>0</x>
+           <y>0</y>
+           <width>41</width>
+           <height>41</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="pixmap">
+          <pixmap>../../images/cart.png</pixmap>
+         </property>
+         <property name="scaledContents">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </widget>
+       <widget class="QWidget" name="widget_3" native="true">
+        <property name="geometry">
+         <rect>
+          <x>380</x>
+          <y>10</y>
+          <width>171</width>
+          <height>41</height>
+         </rect>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">font: 11pt &quot;Cantarell&quot;;</string>
+        </property>
+        <widget class="QLabel" name="label_7">
+         <property name="geometry">
+          <rect>
+           <x>70</x>
+           <y>10</y>
+           <width>81</width>
+           <height>20</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Checkouts</string>
+         </property>
+        </widget>
+        <widget class="QLabel" name="lbTotalCheckouts">
+         <property name="geometry">
+          <rect>
+           <x>50</x>
+           <y>10</y>
+           <width>21</width>
+           <height>20</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>0</string>
+         </property>
+        </widget>
+        <widget class="QLabel" name="label_9">
+         <property name="geometry">
+          <rect>
+           <x>0</x>
+           <y>0</y>
+           <width>41</width>
+           <height>41</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="pixmap">
+          <pixmap>../../images/success.png</pixmap>
+         </property>
+         <property name="scaledContents">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </widget>
+      </widget>
      </widget>
     </item>
    </layout>
@@ -465,7 +503,7 @@ font: 11pt &quot;Cantarell&quot;;</string>
      <x>0</x>
      <y>0</y>
      <width>1239</width>
-     <height>25</height>
+     <height>26</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFIle">
@@ -509,6 +547,11 @@ font: 11pt &quot;Cantarell&quot;;</string>
    <property name="text">
     <string>Exit</string>
    </property>
+   <property name="font">
+    <font>
+     <pointsize>11</pointsize>
+    </font>
+   </property>
   </action>
   <action name="actionCheck_for_update">
    <property name="icon">
@@ -518,6 +561,11 @@ font: 11pt &quot;Cantarell&quot;;</string>
    </property>
    <property name="text">
     <string>Check for update</string>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>11</pointsize>
+    </font>
    </property>
   </action>
   <action name="actionAbout">
@@ -529,6 +577,11 @@ font: 11pt &quot;Cantarell&quot;;</string>
    <property name="text">
     <string>About</string>
    </property>
+   <property name="font">
+    <font>
+     <pointsize>11</pointsize>
+    </font>
+   </property>
   </action>
   <action name="actionAccount">
    <property name="icon">
@@ -538,6 +591,11 @@ font: 11pt &quot;Cantarell&quot;;</string>
    </property>
    <property name="text">
     <string>Account</string>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>11</pointsize>
+    </font>
    </property>
   </action>
   <action name="actionBilling_Profile">
@@ -549,6 +607,11 @@ font: 11pt &quot;Cantarell&quot;;</string>
    <property name="text">
     <string>Billing Profile</string>
    </property>
+   <property name="font">
+    <font>
+     <pointsize>11</pointsize>
+    </font>
+   </property>
   </action>
   <action name="actionProxies">
    <property name="icon">
@@ -559,6 +622,11 @@ font: 11pt &quot;Cantarell&quot;;</string>
    <property name="text">
     <string>Proxies</string>
    </property>
+   <property name="font">
+    <font>
+     <pointsize>11</pointsize>
+    </font>
+   </property>
   </action>
   <action name="actionSetting">
    <property name="icon">
@@ -568,6 +636,11 @@ font: 11pt &quot;Cantarell&quot;;</string>
    </property>
    <property name="text">
     <string>Setting</string>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>11</pointsize>
+    </font>
    </property>
   </action>
  </widget>
@@ -586,6 +659,22 @@ font: 11pt &quot;Cantarell&quot;;</string>
     <hint type="destinationlabel">
      <x>689</x>
      <y>649</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionExit</sender>
+   <signal>triggered()</signal>
+   <receiver>mainWindow</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>619</x>
+     <y>349</y>
     </hint>
    </hints>
   </connection>

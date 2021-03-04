@@ -48,7 +48,7 @@ class BestBuy:
 
 		# create database connection
 		self.db_conn = QSqlDatabase.addDatabase("QSQLITE", "bestbuy_db_conn_" + str(task_model.get_task_id()))
-		self.db_conn.setDatabaseName('/home/jack/Documents/SourceCode/shopping_bot/rabbit/data/rabbit_db.sqlite')
+		self.db_conn.setDatabaseName(os.path.join('data', 'rabbit_db.sqlite'))
 		if not self.db_conn.open():
 			logger.error("BestBuy | Task id : {} - Open conection false!".format(self.task_id))
 			return

@@ -18,6 +18,11 @@
   <property name="windowTitle">
    <string>Add new account</string>
   </property>
+  <property name="windowIcon">
+   <iconset>
+    <activeon>../../images/rabbit.png</activeon>
+   </iconset>
+  </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="3">
     <widget class="QComboBox" name="cbSite">
