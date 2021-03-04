@@ -18,6 +18,12 @@ class NewTask(QtWidgets.QDialog):
 		self.show()
 		self.center()
 
+		self.onlyInt = QtGui.QIntValidator()
+		self.txtMaxPrice.setValidator(self.onlyInt)
+		self.txtMaxQuantity.setValidator(self.onlyInt)
+		self.txtMonitorDelay.setValidator(self.onlyInt)
+		self.txtErrorDelay.setValidator(self.onlyInt)
+
 		# create signal for button
 		self.btnAccountAdd.clicked.connect(self.btnAccountAddClicked)
 		self.txtLink.textChanged.connect(self.txtLinkChanged)
@@ -77,7 +83,6 @@ class NewTask(QtWidgets.QDialog):
 		else:
 			# add new row to table
 			last_inserted_id = query.lastInsertId()
-			print("jack | inserted id : {}".format(last_inserted_id))
 			rowPosition = self.parent.tbListTask.rowCount()
 			self.parent.tbListTask.insertRow(rowPosition)
 			self.parent.tbListTask.setItem(rowPosition , 0, QTableWidgetItem(str(last_inserted_id)))

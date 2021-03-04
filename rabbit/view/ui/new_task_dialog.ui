@@ -33,7 +33,11 @@
     <widget class="QComboBox" name="cbAccount"/>
    </item>
    <item row="2" column="4">
-    <widget class="QLineEdit" name="txtMaxPrice"/>
+    <widget class="QLineEdit" name="txtMaxPrice">
+     <property name="text">
+      <string>0</string>
+     </property>
+    </widget>
    </item>
    <item row="0" column="1" colspan="4">
     <widget class="QLineEdit" name="txtLink"/>
@@ -62,7 +66,11 @@
     </widget>
    </item>
    <item row="3" column="4">
-    <widget class="QLineEdit" name="txtMaxQuantity"/>
+    <widget class="QLineEdit" name="txtMaxQuantity">
+     <property name="text">
+      <string>0</string>
+     </property>
+    </widget>
    </item>
    <item row="1" column="4">
     <widget class="QComboBox" name="cbMonitorProxy">

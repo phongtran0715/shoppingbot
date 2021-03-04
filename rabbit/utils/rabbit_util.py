@@ -10,7 +10,7 @@ from selenium.webdriver import Chrome, ChromeOptions
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from notification.webhook import DiscordWebhook, DiscordEmbed
 from chromedriver_py import binary_path as driver_path
-import json, platform, random, threading, hashlib, base64, string, re
+import json, platform, random, threading, hashlib, base64, string, re, os
 import logging
 from PyQt5.QtSql import QSqlDatabase, QSqlTableModel, QSqlQuery
 
@@ -120,8 +120,8 @@ class RabbitUtil():
 
 	@staticmethod
 	def send_webhook(webhook_type, site, profile, task_id, image_url):
-		self.config = ConfigParser()
-		self.config.read(os.path.join('data', 'config.ini'))
+		config = ConfigParser()
+		config.read(os.path.join('data', 'config.ini'))
 		if config.get('notification', 'webhook') is not None and config.get('notification', 'webhook') != "":
 			webhook = DiscordWebhook(url=config.get('notification', 'webhook'), username="Rabbit Bot",
 									 avatar_url="https://i.imgur.com/60G42xE.png")

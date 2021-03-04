@@ -23,6 +23,7 @@ class ProxiesManager(QtWidgets.QMainWindow):
 		self.tbProxies.setSelectionBehavior(QAbstractItemView.SelectRows)
 		self.tbProxies.setEditTriggers(QtWidgets.QTableWidget.NoEditTriggers)
 		self.tbProxies.setColumnHidden(0, True);
+		self.setFixedSize(613, 375)
 		self.loadProxyData()
 
 	def center(self):

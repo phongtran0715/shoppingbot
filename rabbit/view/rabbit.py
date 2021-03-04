@@ -77,6 +77,8 @@ class MainWindow(QtWidgets.QMainWindow):
 		self.tbListTask.setColumnWidth(2, 600)
 		self.tbListTask.setColumnWidth(3, 200)
 
+		self.setFixedSize(1220, 700)
+
 		self.dict_tasks = {}
 
 	def center(self):
@@ -267,8 +269,10 @@ class MainWindow(QtWidgets.QMainWindow):
 			if msg['task_id'] == self.tbListTask.item(index, 0).text():
 				self.tbListTask.item(index, 4).setText(msg['message'])
 				if msg['status'] == 'normal':
+					logger.info("Task id {} - {}".format(msg['task_id'], msg['message']))
 					self.tbListTask.item(index, 4).setBackground(QtGui.QColor('green'))
 				else:
+					logger.error("Task id {} - {}".format(msg['task_id'], msg['message']))
 					self.tbListTask.item(index, 4).setBackground(QtGui.QColor('red'))
 				break
 

@@ -10,29 +10,34 @@ from utils.selenium_utils import change_driver
 import time
 from model.task_model import TaskModel
 from configparser import ConfigParser
+import logging
 
+logger = logging.getLogger(__name__)
 
 class Target:
     def __init__(self, status_signal, image_signal, task_model):
-        self.db_conn = QSqlDatabase.addDatabase("QSQLITE", "target_db_conn_" + str(task_mode.get_task_id()))
-        self.db_conn.setDatabaseName('/home/jack/Documents/SourceCode/shopping_bot/rabbit/data/rabbit_db.sqlite')
-        if not self.db_conn.open():
-            print("jack | gamestop open conection false!")
-        else:
-            print("jack | gamestop open conection ok!")
-        self.task_id = task_id
+        
+        self.task_id = task_model.get_task_id()
         self.status_signal = status_signal
         self.image_signal = image_signal
         self.product = task_model.get_product()
-        self.task_id = task_model.get_task_id()
+        
         self.monitor_delay = float(task_model.get_monitor_delay())
         self.error_delay = float(task_model.get_error_delay())
         self.monitor_proxies = task_model.get_monitor_proxy()
         self.account = task_model.get_account()
         self.max_quantity = task_model.get_max_quantity()
-        account_item = RabbitUtil.get_account(self.account, self.db_conn)
+
+        # create database connection
+        self.db_conn = QSqlDatabase.addDatabase("QSQLITE", "target_db_conn_" + str(task_mode.get_task_id()))
+        self.db_conn.setDatabaseName('/home/jack/Documents/SourceCode/shopping_bot/rabbit/data/rabbit_db.sqlite')
+        if not self.db_conn.open():
+            logger.error("Target | Task id {}- Open conection false!".format(self.task_id))
+
+        account_item = RabbitUtil.get_account(self.account, self.db_con)
         self.profile = RabbitUtil.get_profile(account_item['profile'], self.db_conn)
 
+        # create config parser
         self.config = ConfigParser()
         self.config.read(os.path.join('data', 'config.ini'))
 

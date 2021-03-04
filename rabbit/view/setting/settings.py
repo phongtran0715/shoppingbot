@@ -17,8 +17,10 @@ class SettingManager(QtWidgets.QMainWindow):
 		self.config = ConfigParser()
 		self.config.read(os.path.join('data', 'config.ini'))
 		self.loadSettingData()
+		self.setFixedSize(526, 380)
 
 		self.btnSave.clicked.connect(self.btnSave_clicked)
+
 
 	def center(self):
 		qr = self.frameGeometry()

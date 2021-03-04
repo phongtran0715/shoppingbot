@@ -1,12 +1,6 @@
 import os, sys, requests
-from products import Productions
-from bs4 import BeautifulSoup
+from utils.rabbit_util import RabbitUtil
 
 
 if __name__ == "__main__":
-	url = 'https://www.supremenewyork.com/shop/shirts/mh1a0x7bk'
-	url_soldout = 'https://www.supremenewyork.com/shop/shirts/x5xog8iuv'
-	product = Productions()
-	result = product.add_to_cart(url)
-	# if result:
-	# 	product.checkout()
+	RabbitUtil.send_webhook("OP", "GameStop", "phongtran0715", "100", "")

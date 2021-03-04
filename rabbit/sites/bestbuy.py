@@ -35,12 +35,6 @@ DEFAULT_HEADERS = {
 class BestBuy:
 
 	def __init__(self, status_signal, image_signal, task_model):
-		self.db_conn = QSqlDatabase.addDatabase("QSQLITE", "bestbuy_db_conn_" + str(task_model.get_task_id()))
-		self.db_conn.setDatabaseName('/home/jack/Documents/SourceCode/shopping_bot/rabbit/data/rabbit_db.sqlite')
-		if not self.db_conn.open():
-			print("jack | gamestop open conection false!")
-		else:
-			print("jack | gamestop open conection ok!")
 		self.status_signal = status_signal
 		self.image_signal = image_signal
 		self.product = task_model.get_product()
@@ -52,6 +46,14 @@ class BestBuy:
 		self.max_quantity = task_model.get_max_quantity()
 		self.is_login = True
 
+		# create database connection
+		self.db_conn = QSqlDatabase.addDatabase("QSQLITE", "bestbuy_db_conn_" + str(task_model.get_task_id()))
+		self.db_conn.setDatabaseName('/home/jack/Documents/SourceCode/shopping_bot/rabbit/data/rabbit_db.sqlite')
+		if not self.db_conn.open():
+			logger.error("BestBuy | Task id : {} - Open conection false!".format(self.task_id))
+			return
+
+		# create confif parser
 		self.config = ConfigParser()
 		self.config.read(os.path.join('data', 'config.ini'))
 

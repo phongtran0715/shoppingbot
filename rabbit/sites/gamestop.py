@@ -21,12 +21,6 @@ logger = logging.getLogger(__name__)
 
 class GameStop:
 	def __init__(self, status_signal, image_signal, task_model):
-		self.db_conn = QSqlDatabase.addDatabase("QSQLITE", "gamestop_db_conn_" + str(task_model.get_task_id()))
-		self.db_conn.setDatabaseName('/home/jack/Documents/SourceCode/shopping_bot/rabbit/data/rabbit_db.sqlite')
-		if not self.db_conn.open():
-			print("jack | gamestop open conection false!")
-		else:
-			print("jack | gamestop open conection ok!")
 
 		self.status_signal = status_signal
 		self.image_signal = image_signal
@@ -42,18 +36,24 @@ class GameStop:
 		starting_msg = "Starting GameStop"
 		self.product_image = None
 
-		self.config = ConfigParser()
-		self.config.read(os.path.join('data', 'config.ini'))
-
 		self.SHORT_TIMEOUT = 5
 		self.LONG_TIMEOUT = 20
 		self.MONITOR_DELAY = 15
+
+		# create datacase connection
+		self.db_conn = QSqlDatabase.addDatabase("QSQLITE", "gamestop_db_conn_" + str(task_model.get_task_id()))
+		self.db_conn.setDatabaseName('/home/jack/Documents/SourceCode/shopping_bot/rabbit/data/rabbit_db.sqlite')
+		if not self.db_conn.open():
+			logger.error("Walmart | Task id {} -  Open conection false!".format(self.task_id))
+			return
+
+		# create config parser
+		self.config = ConfigParser()
+		self.config.read(os.path.join('data', 'config.ini'))
 		
 		self.dont_buy = True
 		if self.config.getint('general', 'dev_mode') == 0:
 			self.dont_buy = False
-		# if self.dont_buy:
-		# 	starting_msg = "Starting GameStop in dev mode; will not actually checkout."
 
 		self.status_signal.emit(RabbitUtil.create_msg(starting_msg, "normal", self.task_id))
 		self.monitor()

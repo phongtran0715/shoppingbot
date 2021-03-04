@@ -14,6 +14,12 @@ class AccountModel():
 	def set_account_id(self, account_id):
 		self.account_id = account_id
 
+	def get_account_name(self):
+		return self.account_name
+
+	def set_account_name(self, account_name):
+		self.account_name = account_name
+
 	def get_site(self):
 		return self.site
 

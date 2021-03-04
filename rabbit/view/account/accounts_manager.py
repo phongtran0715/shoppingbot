@@ -23,6 +23,7 @@ class AccountManager(QtWidgets.QMainWindow):
 		self.tbAccount.setSelectionBehavior(QAbstractItemView.SelectRows)
 		self.tbAccount.setEditTriggers(QtWidgets.QTableWidget.NoEditTriggers)
 		self.tbAccount.setColumnHidden(0, True);
+		self.setFixedSize(915, 409)
 
 		self.loadAccountData()
 

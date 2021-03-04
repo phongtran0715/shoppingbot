@@ -16,12 +16,7 @@ logger = logging.getLogger(__name__)
 
 class Walmart:
 	def __init__(self, status_signal, image_signal, wait_poll_signal, polling_wait_condition, task_model):
-		self.db_conn = QSqlDatabase.addDatabase("QSQLITE", "walmart_db_conn_" + str(task_model.get_task_id()))
-		self.db_conn.setDatabaseName('/home/jack/Documents/SourceCode/shopping_bot/rabbit/data/rabbit_db.sqlite')
-		if not self.db_conn.open():
-			print("jack | gamestop open conection false!")
-		else:
-			print("jack | gamestop open conection ok!")
+
 		self.status_signal = status_signal
 		self.image_signal = image_signal
 		self.product = task_model.get_product()
@@ -37,18 +32,25 @@ class Walmart:
 		self.captcha_wait_condition = polling_wait_condition
 		self.wait_poll_signal = wait_poll_signal
 		#################################################
-		self.config = ConfigParser()
-		self.config.read(os.path.join('data', 'config.ini'))
 		self.dont_buy = True
 		if self.config.getint('general', 'dev_mode') == 0:
 			self.dont_buy = False
 
-		self.session = requests.Session()
-		# shopping_proxy = get_proxy(self.shopping_proxies)
-		# if shopping_proxy is not None and shopping_proxy != "":
-		# 	self.session.proxies.update(shopping_proxy)
+		# create database connection
+		self.db_conn = QSqlDatabase.addDatabase("QSQLITE", "walmart_db_conn_" + str(task_model.get_task_id()))
+		self.db_conn.setDatabaseName('/home/jack/Documents/SourceCode/shopping_bot/rabbit/data/rabbit_db.sqlite')
+		if not self.db_conn.isOpen():
+			if not self.db_conn.open():
+				logger.error("Walmart | Task id {} - Open conection false!".format(self.task_id))
+				return
 
-		if self.max_quantity is None or self.max_quantity == "":
+		# create config parse
+		self.config = ConfigParser()
+		self.config.read(os.path.join('data', 'config.ini'))
+
+		self.session = requests.Session()
+
+		if self.max_quantity is None or int(self.max_quantity) == 0:
 			self.max_quantity = 1
 
 		starting_msg = "Starting"
@@ -60,7 +62,7 @@ class Walmart:
 			account_item = RabbitUtil.get_account(account_name, self.db_conn)
 			if account_item is None:
 				continue
-			logger.info("Processing for account : {}".format(account_name))
+			logger.info("Walmart | Task id {} - Processing for account : {}".format(self.task_id, account_name))
 			did_add = self.atc(offer_id, account_item)
 			count_add = 1
 			while did_add is False and count_add <= 3:
@@ -94,7 +96,7 @@ class Walmart:
 				monitor_proxy = RabbitUtil.get_proxy(self.monitor_proxies, self.db_conn)
 				if monitor_proxy is not None and monitor_proxy != "":
 					self.session.proxies.update(monitor_proxy)
-					logger.info("Monitoring by proxy : {}".format(monitor_proxy))
+					logger.info("Walmart | Task id {} - Monitoring by proxy : {}".format(self.task_id, monitor_proxy))
 
 				r = self.session.get(self.product, headers=headers)
 				if r.status_code == 200:
@@ -115,7 +117,7 @@ class Walmart:
 						image_found = True
 					price = float(doc.xpath('//span[@itemprop="price"]/@content')[0])
 					if "add to cart" in r.text.lower():
-						if self.max_price != "":
+						if self.max_price != "" and int(self.max_price) > 0:
 							if float(self.max_price) < price:
 								self.status_signal.emit({"message": "Waiting For Price Restock", "status": "normal", "task_id" : self.task_id})
 								self.session.cookies.clear()
@@ -377,8 +379,7 @@ class Walmart:
 			"cardType": profile.get_card_type().upper(),
 			"isGuest": True
 		}
-		count = 0
-		while count <= 3:
+		while True:
 			self.status_signal.emit({"message": "Submitting Payment", "status": "normal", "task_id" : self.task_id})
 			try:
 				r = self.session.post("https://www.walmart.com/api/checkout-customer/:CID/credit-card", json=body,
@@ -397,7 +398,6 @@ class Walmart:
 				self.status_signal.emit({"message": "Error Submitting Payment (line {} {} {})".format(
 					sys.exc_info()[-1].tb_lineno, type(e).__name__, e), "status": "error", "task_id" : self.task_id})
 				time.sleep(self.error_delay)
-				count += 1
 
 	def submit_billing(self, pi_hash, account):
 		headers = {
@@ -449,8 +449,8 @@ class Walmart:
 					except:
 						pass
 				self.status_signal.emit({"message": "Error Submitting Billing", "status": "error","task_id" : self.task_id})
-				if self.check_browser(account):
-					return
+				# if self.check_browser(account):
+				# 	return
 				time.sleep(self.error_delay)
 			except Exception as e:
 				self.status_signal.emit({"message": "Error Submitting Billing (line {} {} {})".format(
@@ -481,6 +481,7 @@ class Walmart:
 				r = self.session.put("https://www.walmart.com/api/checkout/v3/contract/:PCID/order", json={},
 									 headers=headers)
 				try:
+					logger.info(r.text)
 					json.loads(r.text)["order"]
 					self.status_signal.emit({"message": "Order Placed", "status": "success", "task_id" : self.task_id})
 					RabbitUtil.send_webhook("OP", "Walmart", account.get_account_name(), self.task_id, self.product_image)
@@ -489,9 +490,9 @@ class Walmart:
 					self.status_signal.emit({"message": "Payment Failed", "status": "error", "task_id" : self.task_id})
 
 					# open the page for checkout if failed to auto submit
-					self.handle_captcha("https://www.walmart.com/checkout/#/payment")
-					if self.check_browser(account):
-						return
+					# self.handle_captcha("https://www.walmart.com/checkout/#/payment")
+					# if self.check_browser(account):
+					# 	return
 
 					RabbitUtil.send_webhook("PF", "Walmart", account.get_account_name(), self.task_id, self.product_image)
 					# delay for next time
