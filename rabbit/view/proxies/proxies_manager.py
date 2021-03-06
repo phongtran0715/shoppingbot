@@ -4,6 +4,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtSql import QSqlDatabase, QSqlTableModel, QSqlQuery
 from view.proxies.new_proxy_dialog import NewProxy
 from view.ui.proxies_manager import Ui_formProfileManager
+from resource import source
 
 
 class ProxiesManager(QtWidgets.QMainWindow):

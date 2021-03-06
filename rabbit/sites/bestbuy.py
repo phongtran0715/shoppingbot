@@ -130,9 +130,9 @@ class BestBuy:
 		monitor_browser = self.init_monitor_driver()
 
 		while True:
-			self.status_signal.emit(RabbitUtil.create_msg("Monitoring Product ..", "normal", self.task_id))
-			monitor_browser.get(self.product)
 			try:
+				self.status_signal.emit(RabbitUtil.create_msg("Monitoring Product ..", "normal", self.task_id))
+				monitor_browser.get(self.product)
 				wait(monitor_browser, self.LONG_TIMEOUT).until(EC.element_to_be_clickable((By.XPATH, '//button[text()="Add to Cart"]')))
 				add_to_cart_btn = monitor_browser.find_element_by_xpath('//button[text()="Add to Cart"]')
 				if add_to_cart_btn is not None:

@@ -4,6 +4,7 @@ from PyQt5.QtWidgets import *
 from utils.rabbit_util import RabbitUtil
 from PyQt5.QtSql import QSqlDatabase, QSqlTableModel, QSqlQuery
 from view.ui.new_proxy_dialog import Ui_Dialog
+from resource import source
 
 
 class NewProxy(QtWidgets.QDialog):

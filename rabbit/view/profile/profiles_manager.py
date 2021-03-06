@@ -4,6 +4,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtSql import QSqlDatabase, QSqlTableModel, QSqlQuery
 from view.profile.new_profile import NewProfile
 from view.ui.billing_profile_manager import Ui_formProfileManager
+from resource import source
 
 
 class ProfileManager(QtWidgets.QMainWindow):

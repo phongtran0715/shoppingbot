@@ -20,7 +20,7 @@
   </property>
   <property name="windowIcon">
    <iconset>
-    <activeon>../../images/rabbit.png</activeon>
+    <activeon>:/newPrefix/rabbit.ico</activeon>
    </iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
@@ -43,7 +43,7 @@
     </property>
     <property name="icon">
      <iconset>
-      <selectedon>../../images/24x24/add_24x24.png</selectedon>
+      <selectedon>:/icon_24x24/icon_24x24/add_24x24.png</selectedon>
      </iconset>
     </property>
    </widget>
@@ -61,7 +61,7 @@
     </property>
     <property name="icon">
      <iconset>
-      <selectedon>../../images/edit.png</selectedon>
+      <selectedon>:/icon_512x512/icon_512x512/edit.png</selectedon>
      </iconset>
     </property>
    </widget>
@@ -79,7 +79,7 @@
     </property>
     <property name="icon">
      <iconset>
-      <selectedon>../../images/24x24/trash_24x24.png</selectedon>
+      <selectedon>:/icon_24x24/icon_24x24/trash-circle-red-5121.png</selectedon>
      </iconset>
     </property>
    </widget>
@@ -88,7 +88,7 @@
      <rect>
       <x>500</x>
       <y>360</y>
-      <width>80</width>
+      <width>91</width>
       <height>28</height>
      </rect>
     </property>
@@ -97,7 +97,7 @@
     </property>
     <property name="icon">
      <iconset>
-      <selectedon>../../images/24x24/trash-circle-red-5121.png</selectedon>
+      <selectedon>:/icon_24x24/icon_24x24/trash_24x24.png</selectedon>
      </iconset>
     </property>
    </widget>
@@ -139,7 +139,9 @@
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
- <resources/>
+ <resources>
+  <include location="../../resource/source.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>tbProfile</sender>

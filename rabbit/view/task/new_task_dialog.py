@@ -3,6 +3,7 @@ from PyQt5 import QtWidgets, QtGui, QtCore
 from PyQt5.QtWidgets import *
 from PyQt5.QtSql import QSqlDatabase, QSqlTableModel, QSqlQuery
 from view.ui.new_task_dialog import Ui_Dialog
+from resource import source
 
 
 class NewTask(QtWidgets.QDialog):

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file './billing_profile_manager.ui'
+# Form implementation generated from reading ui file 'billing_profile_manager.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.2
 #
@@ -19,7 +19,7 @@ class Ui_formProfileManager(object):
         font.setPointSize(11)
         formProfileManager.setFont(font)
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("./../../images/rabbit.png"), QtGui.QIcon.Active, QtGui.QIcon.On)
+        icon.addPixmap(QtGui.QPixmap(":/newPrefix/rabbit.ico"), QtGui.QIcon.Active, QtGui.QIcon.On)
         formProfileManager.setWindowIcon(icon)
         self.centralwidget = QtWidgets.QWidget(formProfileManager)
         self.centralwidget.setObjectName("centralwidget")
@@ -29,25 +29,25 @@ class Ui_formProfileManager(object):
         font.setPointSize(11)
         self.btnAdd.setFont(font)
         icon1 = QtGui.QIcon()
-        icon1.addPixmap(QtGui.QPixmap("./../../images/24x24/add_24x24.png"), QtGui.QIcon.Selected, QtGui.QIcon.On)
+        icon1.addPixmap(QtGui.QPixmap(":/icon_24x24/icon_24x24/add_24x24.png"), QtGui.QIcon.Selected, QtGui.QIcon.On)
         self.btnAdd.setIcon(icon1)
         self.btnAdd.setObjectName("btnAdd")
         self.btnEdit = QtWidgets.QPushButton(self.centralwidget)
         self.btnEdit.setGeometry(QtCore.QRect(320, 360, 80, 28))
         icon2 = QtGui.QIcon()
-        icon2.addPixmap(QtGui.QPixmap("./../../images/edit.png"), QtGui.QIcon.Selected, QtGui.QIcon.On)
+        icon2.addPixmap(QtGui.QPixmap(":/icon_512x512/icon_512x512/edit.png"), QtGui.QIcon.Selected, QtGui.QIcon.On)
         self.btnEdit.setIcon(icon2)
         self.btnEdit.setObjectName("btnEdit")
         self.btnDelete = QtWidgets.QPushButton(self.centralwidget)
         self.btnDelete.setGeometry(QtCore.QRect(410, 360, 80, 28))
         icon3 = QtGui.QIcon()
-        icon3.addPixmap(QtGui.QPixmap("./../../images/24x24/trash_24x24.png"), QtGui.QIcon.Selected, QtGui.QIcon.On)
+        icon3.addPixmap(QtGui.QPixmap(":/icon_24x24/icon_24x24/trash-circle-red-5121.png"), QtGui.QIcon.Selected, QtGui.QIcon.On)
         self.btnDelete.setIcon(icon3)
         self.btnDelete.setObjectName("btnDelete")
         self.btnDeleteAll = QtWidgets.QPushButton(self.centralwidget)
-        self.btnDeleteAll.setGeometry(QtCore.QRect(500, 360, 80, 28))
+        self.btnDeleteAll.setGeometry(QtCore.QRect(500, 360, 91, 28))
         icon4 = QtGui.QIcon()
-        icon4.addPixmap(QtGui.QPixmap("./../../images/24x24/trash-circle-red-5121.png"), QtGui.QIcon.Selected, QtGui.QIcon.On)
+        icon4.addPixmap(QtGui.QPixmap(":/icon_24x24/icon_24x24/trash_24x24.png"), QtGui.QIcon.Selected, QtGui.QIcon.On)
         self.btnDeleteAll.setIcon(icon4)
         self.btnDeleteAll.setObjectName("btnDeleteAll")
         self.tbProfile = QtWidgets.QTableWidget(self.centralwidget)

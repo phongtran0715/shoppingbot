@@ -23,8 +23,8 @@
   </property>
   <property name="windowIcon">
    <iconset>
-    <normaloff>../../../../../.designer/backup/C:/Users/Admin/Downloads/34649764Untitled-3-512.png</normaloff>
-    <activeon>../../images/rabbit.png</activeon>../../../../../.designer/backup/C:/Users/Admin/Downloads/34649764Untitled-3-512.png</iconset>
+    <activeon>:/newPrefix/rabbit.ico</activeon>
+   </iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QHBoxLayout" name="_2">
@@ -54,9 +54,6 @@
          <height>61</height>
         </rect>
        </property>
-       <property name="styleSheet">
-        <string notr="true">background-color: rgb(233, 185, 110);</string>
-       </property>
        <widget class="QPushButton" name="btnNewTask">
         <property name="geometry">
          <rect>
@@ -76,7 +73,8 @@
         </property>
         <property name="icon">
          <iconset>
-          <selectedon>../../images/tasks.png</selectedon>
+          <activeon>:/icon_24x24/icon_24x24/user_24.png</activeon>
+          <selectedon>:/newPrefix/24x24/user_24.png</selectedon>
          </iconset>
         </property>
        </widget>
@@ -99,7 +97,8 @@
         </property>
         <property name="icon">
          <iconset>
-          <selectedon>../../images/play.png</selectedon>
+          <activeon>:/icon_24x24/icon_24x24/continue_24.png</activeon>
+          <selectedon>:/newPrefix/24x24/continue_24.png</selectedon>
          </iconset>
         </property>
        </widget>
@@ -122,7 +121,8 @@
         </property>
         <property name="icon">
          <iconset>
-          <selectedon>../../images/stop.png</selectedon>
+          <activeon>:/icon_24x24/icon_24x24/pause_24.png</activeon>
+          <selectedon>:/newPrefix/24x24/pause_24.png</selectedon>
          </iconset>
         </property>
        </widget>
@@ -145,7 +145,8 @@
         </property>
         <property name="icon">
          <iconset>
-          <selectedon>../../images/trash.png</selectedon>
+          <activeon>:/icon_24x24/icon_24x24/trash-circle-red-5121.png</activeon>
+          <selectedon>:/newPrefix/24x24/trash-circle-red-5121.png</selectedon>
          </iconset>
         </property>
        </widget>
@@ -245,7 +246,8 @@ border-color: rgb(255, 170, 0);</string>
        </property>
        <property name="icon">
         <iconset>
-         <selectedon>../../images/play.png</selectedon>
+         <activeon>:/icon_24x24/icon_24x24/continue_24.png</activeon>
+         <selectedon>:/newPrefix/play.png</selectedon>
         </iconset>
        </property>
       </widget>
@@ -263,7 +265,8 @@ border-color: rgb(255, 170, 0);</string>
        </property>
        <property name="icon">
         <iconset>
-         <selectedon>../../images/trash.png</selectedon>
+         <activeon>:/icon_24x24/icon_24x24/pause_24.png</activeon>
+         <selectedon>:/newPrefix/trash.png</selectedon>
         </iconset>
        </property>
       </widget>
@@ -281,7 +284,8 @@ border-color: rgb(255, 170, 0);</string>
        </property>
        <property name="icon">
         <iconset>
-         <selectedon>../../images/edit.png</selectedon>
+         <activeon>:/icon_512x512/icon_512x512/edit.png</activeon>
+         <selectedon>:/newPrefix/edit.png</selectedon>
         </iconset>
        </property>
       </widget>
@@ -299,7 +303,8 @@ border-color: rgb(255, 170, 0);</string>
        </property>
        <property name="icon">
         <iconset>
-         <selectedon>../../images/trash.png</selectedon>
+         <activeon>:/icon_24x24/icon_24x24/trash-circle-red-5121.png</activeon>
+         <selectedon>:/newPrefix/trash.png</selectedon>
         </iconset>
        </property>
       </widget>
@@ -311,9 +316,6 @@ border-color: rgb(255, 170, 0);</string>
          <width>561</width>
          <height>61</height>
         </rect>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">background-color: rgb(233, 185, 110);</string>
        </property>
        <widget class="QWidget" name="widget" native="true">
         <property name="geometry">
@@ -366,7 +368,7 @@ border-color: rgb(255, 170, 0);</string>
           <string/>
          </property>
          <property name="pixmap">
-          <pixmap>../../images/tasks.png</pixmap>
+          <pixmap resource="../../resource/source.qrc">:/icon_512x512/icon_512x512/tasks.png</pixmap>
          </property>
          <property name="scaledContents">
           <bool>true</bool>
@@ -427,7 +429,7 @@ border-color: rgb(255, 170, 0);</string>
           <string/>
          </property>
          <property name="pixmap">
-          <pixmap>../../images/cart.png</pixmap>
+          <pixmap resource="../../resource/source.qrc">:/icon_512x512/icon_512x512/cart.png</pixmap>
          </property>
          <property name="scaledContents">
           <bool>true</bool>
@@ -485,7 +487,7 @@ border-color: rgb(255, 170, 0);</string>
           <string/>
          </property>
          <property name="pixmap">
-          <pixmap>../../images/success.png</pixmap>
+          <pixmap resource="../../resource/source.qrc">:/icon_512x512/icon_512x512/success.png</pixmap>
          </property>
          <property name="scaledContents">
           <bool>true</bool>
@@ -644,7 +646,9 @@ border-color: rgb(255, 170, 0);</string>
    </property>
   </action>
  </widget>
- <resources/>
+ <resources>
+  <include location="../../resource/source.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>tbListTask</sender>

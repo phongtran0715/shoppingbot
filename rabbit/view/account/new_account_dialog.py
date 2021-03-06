@@ -5,6 +5,8 @@ from utils.rabbit_util import RabbitUtil
 from PyQt5.QtSql import QSqlDatabase, QSqlTableModel, QSqlQuery
 from view.ui.new_account_dialog import Ui_Dialog
 
+from resource import source
+
 
 class NewAccount(QtWidgets.QDialog):
 	def __init__(self, modifyMode=False, account_id=None):

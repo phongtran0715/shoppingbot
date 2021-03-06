@@ -1,0 +1,51 @@
+<RCC>
+  <qresource prefix="icon_24x24">
+    <file>icon_24x24/add_24x24.png</file>
+    <file>icon_24x24/all_24.png</file>
+    <file>icon_24x24/backup_24.png</file>
+    <file>icon_24x24/Button-First-icon_24.png</file>
+    <file>icon_24x24/Button-Forward-icon_24.png</file>
+    <file>icon_24x24/Button-Last-icon_24.png</file>
+    <file>icon_24x24/Button-Rewind-icon_24.png</file>
+    <file>icon_24x24/camera_24.png</file>
+    <file>icon_24x24/checked_24x24.png</file>
+    <file>icon_24x24/continue_24.png</file>
+    <file>icon_24x24/delete_24x24.png</file>
+    <file>icon_24x24/down.png</file>
+    <file>icon_24x24/export_24x24.png</file>
+    <file>icon_24x24/list_24x24.png</file>
+    <file>icon_24x24/open_icon_24x24.png</file>
+    <file>icon_24x24/pause_24.png</file>
+    <file>icon_24x24/question_24x24.png</file>
+    <file>icon_24x24/refresh_24x24.png</file>
+    <file>icon_24x24/trash_24x24.png</file>
+    <file>icon_24x24/trash-circle-red-5121.png</file>
+    <file>icon_24x24/up.png</file>
+    <file>icon_24x24/user_24.png</file>
+    <file>icon_24x24/user_24x24.png</file>
+  </qresource>
+  <qresource prefix="newPrefix">
+    <file>rabbit.ico</file>
+    <file>rabbit.jpg</file>
+  </qresource>
+  <qresource prefix="icon_512x512">
+    <file>icon_512x512/cart.png</file>
+    <file>icon_512x512/down_icon.png</file>
+    <file>icon_512x512/downarrow_icon.png</file>
+    <file>icon_512x512/edit.png</file>
+    <file>icon_512x512/home.png</file>
+    <file>icon_512x512/home_alt.png</file>
+    <file>icon_512x512/play.png</file>
+    <file>icon_512x512/profiles.png</file>
+    <file>icon_512x512/profiles_alt.png</file>
+    <file>icon_512x512/proxies.png</file>
+    <file>icon_512x512/proxies_alt.png</file>
+    <file>icon_512x512/settings.png</file>
+    <file>icon_512x512/settings_alt.png</file>
+    <file>icon_512x512/stop.png</file>
+    <file>icon_512x512/success.png</file>
+    <file>icon_512x512/tasks.png</file>
+    <file>icon_512x512/trash.png</file>
+    <file>icon_512x512/uparrow_icon.png</file>
+  </qresource>
+</RCC>

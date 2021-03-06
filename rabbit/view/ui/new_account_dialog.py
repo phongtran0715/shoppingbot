@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file './new_account_dialog.ui'
+# Form implementation generated from reading ui file 'new_account_dialog.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.2
 #
@@ -19,7 +19,7 @@ class Ui_Dialog(object):
         font.setPointSize(11)
         Dialog.setFont(font)
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("./../../images/rabbit.png"), QtGui.QIcon.Active, QtGui.QIcon.On)
+        icon.addPixmap(QtGui.QPixmap(":/newPrefix/rabbit.ico"), QtGui.QIcon.Active, QtGui.QIcon.On)
         Dialog.setWindowIcon(icon)
         self.gridLayout = QtWidgets.QGridLayout(Dialog)
         self.gridLayout.setObjectName("gridLayout")

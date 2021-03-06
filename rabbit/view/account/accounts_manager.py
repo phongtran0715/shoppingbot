@@ -5,6 +5,8 @@ from PyQt5.QtSql import QSqlDatabase, QSqlTableModel, QSqlQuery
 from view.account.new_account_dialog import NewAccount
 from view.ui.account_manager import Ui_formProfileManager
 
+from resource import source
+
 
 class AccountManager(QtWidgets.QMainWindow):
 	def __init__(self):

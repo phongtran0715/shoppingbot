@@ -5,6 +5,7 @@ from PyQt5.QtSql import QSqlDatabase, QSqlTableModel, QSqlQuery
 from view.profile.new_profile import NewProfile
 from configparser import ConfigParser
 from view.ui.setting_manager import Ui_formProfileManager
+from resource import source
 
 
 

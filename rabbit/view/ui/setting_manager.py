@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file './setting_manager.ui'
+# Form implementation generated from reading ui file 'setting_manager.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.2
 #
@@ -19,7 +19,7 @@ class Ui_formProfileManager(object):
         font.setPointSize(11)
         formProfileManager.setFont(font)
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("./../../images/rabbit.png"), QtGui.QIcon.Active, QtGui.QIcon.On)
+        icon.addPixmap(QtGui.QPixmap(":/newPrefix/rabbit.ico"), QtGui.QIcon.Active, QtGui.QIcon.On)
         formProfileManager.setWindowIcon(icon)
         self.centralwidget = QtWidgets.QWidget(formProfileManager)
         self.centralwidget.setObjectName("centralwidget")
@@ -55,9 +55,15 @@ class Ui_formProfileManager(object):
         self.btnStopAll.setObjectName("btnStopAll")
         self.btnSave = QtWidgets.QPushButton(self.centralwidget)
         self.btnSave.setGeometry(QtCore.QRect(160, 320, 84, 28))
+        icon1 = QtGui.QIcon()
+        icon1.addPixmap(QtGui.QPixmap(":/icon_24x24/icon_24x24/checked_24x24.png"), QtGui.QIcon.Active, QtGui.QIcon.On)
+        self.btnSave.setIcon(icon1)
         self.btnSave.setObjectName("btnSave")
         self.btnCancel = QtWidgets.QPushButton(self.centralwidget)
         self.btnCancel.setGeometry(QtCore.QRect(260, 320, 84, 28))
+        icon2 = QtGui.QIcon()
+        icon2.addPixmap(QtGui.QPixmap(":/icon_24x24/icon_24x24/delete_24x24.png"), QtGui.QIcon.Active, QtGui.QIcon.On)
+        self.btnCancel.setIcon(icon2)
         self.btnCancel.setObjectName("btnCancel")
         formProfileManager.setCentralWidget(self.centralwidget)
         self.statusbar = QtWidgets.QStatusBar(formProfileManager)

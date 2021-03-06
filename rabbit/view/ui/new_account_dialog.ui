@@ -20,7 +20,7 @@
   </property>
   <property name="windowIcon">
    <iconset>
-    <activeon>../../images/rabbit.png</activeon>
+    <activeon>:/newPrefix/rabbit.ico</activeon>
    </iconset>
   </property>
   <layout class="QGridLayout" name="gridLayout">
@@ -189,7 +189,9 @@
   <tabstop>txtUsername</tabstop>
   <tabstop>txtPassword</tabstop>
  </tabstops>
- <resources/>
+ <resources>
+  <include location="../../resource/source.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>buttonBox</sender>

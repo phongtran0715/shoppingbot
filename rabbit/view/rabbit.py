@@ -22,6 +22,8 @@ from view.ui.rabbit import Ui_mainWindow
 from model.task_model import TaskModel
 import logging
 
+from resource import source
+
 
 logger = logging.getLogger(__name__)
 

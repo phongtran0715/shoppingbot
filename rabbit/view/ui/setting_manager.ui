@@ -20,7 +20,7 @@
   </property>
   <property name="windowIcon">
    <iconset>
-    <activeon>../../images/rabbit.png</activeon>
+    <activeon>:/newPrefix/rabbit.ico</activeon>
    </iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
@@ -163,6 +163,11 @@
     <property name="text">
      <string>Save</string>
     </property>
+    <property name="icon">
+     <iconset>
+      <activeon>:/icon_24x24/icon_24x24/checked_24x24.png</activeon>
+     </iconset>
+    </property>
    </widget>
    <widget class="QPushButton" name="btnCancel">
     <property name="geometry">
@@ -176,10 +181,17 @@
     <property name="text">
      <string>Cancel</string>
     </property>
+    <property name="icon">
+     <iconset>
+      <activeon>:/icon_24x24/icon_24x24/delete_24x24.png</activeon>
+     </iconset>
+    </property>
    </widget>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
- <resources/>
+ <resources>
+  <include location="../../resource/source.qrc"/>
+ </resources>
  <connections/>
 </ui>
