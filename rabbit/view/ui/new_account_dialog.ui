@@ -25,7 +25,7 @@
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="3">
-    <widget class="QComboBox" name="cbType">
+    <widget class="QComboBox" name="cbSite">
      <property name="editable">
       <bool>false</bool>
      </property>

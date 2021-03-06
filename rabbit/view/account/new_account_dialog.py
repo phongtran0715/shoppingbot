@@ -1,8 +1,9 @@
 import os
-from PyQt5 import QtWidgets, uic, QtGui, QtCore
+from PyQt5 import QtWidgets, QtGui, QtCore
 from PyQt5.QtWidgets import *
 from utils.rabbit_util import RabbitUtil
 from PyQt5.QtSql import QSqlDatabase, QSqlTableModel, QSqlQuery
+from view.ui.new_account_dialog import Ui_Dialog
 
 
 class NewAccount(QtWidgets.QDialog):
@@ -10,7 +11,10 @@ class NewAccount(QtWidgets.QDialog):
 		super(NewAccount, self).__init__()
 		self.db_conn = QSqlDatabase.database("rabbit_db_conn", open=False)
 		dirname = os.path.dirname(__file__)
-		uic.loadUi(os.path.join(dirname, "../ui", "new_account.ui"), self)
+		# uic.loadUi(os.path.join(dirname, "../ui", "new_account.ui"), self)
+		self.ui = Ui_Dialog()
+		self.ui.setupUi(self)
+		
 		self.center()
 		self.account_id = account_id
 		self.init_data()
@@ -27,30 +31,30 @@ class NewAccount(QtWidgets.QDialog):
 	def init_data(self):
 		query = QSqlQuery("SELECT id, profile_name FROM profile", self.db_conn)
 		while query.next():
-			self.cbProfile.addItem(query.value(1))
+			self.ui.cbProfile.addItem(query.value(1))
 
 		query = QSqlQuery("SELECT id, name FROM proxies", self.db_conn)
 		while query.next():
-			self.cbProxy.addItem(query.value(1))
+			self.ui.cbProxy.addItem(query.value(1))
 
 	def load_edit_data(self):
 		query = QSqlQuery("SELECT * FROM account WHERE id = " + str(self.account_id), self.db_conn)
 		if query.next():
-			index = self.cbSite.findText(query.value(1), QtCore.Qt.MatchFixedString)
+			index = self.ui.cbSite.findText(query.value(1), QtCore.Qt.MatchFixedString)
 			if index >= 0:
-				self.cbSite.setCurrentIndex(index)
+				self.ui.cbSite.setCurrentIndex(index)
 
-			self.txtName.setText(query.value(2))
-			self.txtUsername.setText(query.value(3))
-			self.txtPassword.setText(query.value(4))
+			self.ui.txtName.setText(query.value(2))
+			self.ui.txtUsername.setText(query.value(3))
+			self.ui.txtPassword.setText(query.value(4))
 
-			index = self.cbProxy.findText(query.value(5), QtCore.Qt.MatchFixedString)
+			index = self.ui.cbProxy.findText(query.value(5), QtCore.Qt.MatchFixedString)
 			if index >= 0:
-				self.cbProxy.setCurrentIndex(index)
+				self.ui.cbProxy.setCurrentIndex(index)
 
-			index = self.cbProfile.findText(query.value(6), QtCore.Qt.MatchFixedString)
+			index = self.ui.cbProfile.findText(query.value(6), QtCore.Qt.MatchFixedString)
 			if index >= 0:
-				self.cbProfile.setCurrentIndex(index)
+				self.ui.cbProfile.setCurrentIndex(index)
 
 	def update_account(self):
 		query = QSqlQuery(self.db_conn)
@@ -66,13 +70,13 @@ class NewAccount(QtWidgets.QDialog):
 				WHERE id = ?
 				"""
 			)
-		query.addBindValue(self.cbSite.currentText())
+		query.addBindValue(self.ui.cbSite.currentText())
 
-		query.addBindValue(self.txtName.text())
-		query.addBindValue(self.txtUsername.text())
-		query.addBindValue(self.txtPassword.text())
-		query.addBindValue(self.cbProxy.currentText())
-		query.addBindValue(self.cbProfile.currentText())
+		query.addBindValue(self.ui.txtName.text())
+		query.addBindValue(self.ui.txtUsername.text())
+		query.addBindValue(self.ui.txtPassword.text())
+		query.addBindValue(self.ui.cbProxy.currentText())
+		query.addBindValue(self.ui.cbProfile.currentText())
 		query.addBindValue(str(self.account_id))
 		if not query.exec():
 			QMessageBox.critical(self, "Rabbit - Error!", 'Database Error: %s' % query.lastError().text(),)
@@ -94,13 +98,13 @@ class NewAccount(QtWidgets.QDialog):
 				VALUES (?, ?, ?, ?, ?, ?)
 				"""
 			)
-		query.addBindValue(self.cbSite.currentText())
+		query.addBindValue(self.ui.cbSite.currentText())
 
-		query.addBindValue(self.txtName.text())
-		query.addBindValue(self.txtUsername.text())
-		query.addBindValue(self.txtPassword.text())
-		query.addBindValue(self.cbProxy.currentText())
-		query.addBindValue(self.cbProfile.currentText())
+		query.addBindValue(self.ui.txtName.text())
+		query.addBindValue(self.ui.txtUsername.text())
+		query.addBindValue(self.ui.txtPassword.text())
+		query.addBindValue(self.ui.cbProxy.currentText())
+		query.addBindValue(self.ui.cbProfile.currentText())
 		if not query.exec():
 			QMessageBox.critical(self, "Rabbit - Error!", 'Database Error: %s' % query.lastError().text(),)
 		else:

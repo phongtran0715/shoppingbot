@@ -1,9 +1,10 @@
 import os
-from PyQt5 import QtWidgets, uic, QtGui, QtCore
+from PyQt5 import QtWidgets, QtGui, QtCore
 from PyQt5.QtWidgets import *
 from PyQt5.QtSql import QSqlDatabase, QSqlTableModel, QSqlQuery
 from view.profile.new_profile import NewProfile
 from configparser import ConfigParser
+from view.ui.setting_manager import Ui_formProfileManager
 
 
 
@@ -11,7 +12,9 @@ class SettingManager(QtWidgets.QMainWindow):
 	def __init__(self):
 		super(SettingManager, self).__init__()
 		dirname = os.path.dirname(__file__)
-		uic.loadUi(os.path.join(dirname, "../ui", "setting_manager.ui"), self)
+		# uic.loadUi(os.path.join(dirname, "../ui", "setting_manager.ui"), self)
+		self.ui = Ui_formProfileManager()
+		self.ui.setupUi(self)
 		self.center()
 
 		self.config = ConfigParser()
@@ -19,7 +22,7 @@ class SettingManager(QtWidgets.QMainWindow):
 		self.loadSettingData()
 		self.setFixedSize(526, 380)
 
-		self.btnSave.clicked.connect(self.btnSave_clicked)
+		self.ui.btnSave.clicked.connect(self.btnSave_clicked)
 
 
 	def center(self):
@@ -29,49 +32,49 @@ class SettingManager(QtWidgets.QMainWindow):
 		self.move(qr.topLeft())
 
 	def loadSettingData(self):
-		self.txtWebhook.setText(self.config.get('notification', 'webhook'))
-		self.btnBrowerOpened.setChecked(self.config.getint('notification', 'browser_opened'))
-		self.btnOrderPlaced.setChecked(self.config.getint('notification', 'order_placed'))
-		self.btnPaymentFalse.setChecked(self.config.getint('notification', 'payment_failed'))
+		self.ui.txtWebhook.setText(self.config.get('notification', 'webhook'))
+		self.ui.btnBrowerOpened.setChecked(self.config.getint('notification', 'browser_opened'))
+		self.ui.btnOrderPlaced.setChecked(self.config.getint('notification', 'order_placed'))
+		self.ui.btnPaymentFalse.setChecked(self.config.getint('notification', 'payment_failed'))
 
-		self.btnBrowserPaymentFalse.setChecked(self.config.getint('general', 'open_browser_payment_false'))
-		self.btnStopAll.setChecked(self.config.getint('general', 'stop_all_after_success'))
-		self.btnDevMode.setChecked(self.config.getint('general', 'dev_mode'))
+		self.ui.btnBrowserPaymentFalse.setChecked(self.config.getint('general', 'open_browser_payment_false'))
+		self.ui.btnStopAll.setChecked(self.config.getint('general', 'stop_all_after_success'))
+		self.ui.btnDevMode.setChecked(self.config.getint('general', 'dev_mode'))
 
 	def btnSave_clicked(self):
 		parser = ConfigParser()
 		
 		parser.add_section('notification')
-		parser.set('notification', 'webhook', self.txtWebhook.text())
+		parser.set('notification', 'webhook', self.ui.txtWebhook.text())
 
-		if self.btnBrowerOpened.isChecked():
+		if self.ui.btnBrowerOpened.isChecked():
 			parser.set('notification', 'browser_opened', '1')
 		else:
 			parser.set('notification', 'browser_opened', '0')
 
-		if self.btnOrderPlaced.isChecked():
+		if self.ui.btnOrderPlaced.isChecked():
 			parser.set('notification', 'order_placed', '1')
 		else:
 			parser.set('notification', 'order_placed', '0')
 
-		if self.btnPaymentFalse.isChecked():
+		if self.ui.btnPaymentFalse.isChecked():
 			parser.set('notification', 'payment_failed', '1')
 		else:
 			parser.set('notification', 'payment_failed', '0')
 
 
 		parser.add_section('general')
-		if self.btnBrowserPaymentFalse.isChecked():
+		if self.ui.btnBrowserPaymentFalse.isChecked():
 			parser.set('general', 'open_browser_payment_false', '1')
 		else:
 			parser.set('general', 'open_browser_payment_false', '0')
 
-		if self.btnStopAll.isChecked():
+		if self.ui.btnStopAll.isChecked():
 			parser.set('general', 'stop_all_after_success', '1')
 		else:
 			parser.set('general', 'stop_all_after_success', '0')
 
-		if self.btnDevMode.isChecked():
+		if self.ui.btnDevMode.isChecked():
 			parser.set('general', 'dev_mode', '1')
 		else:
 			parser.set('general', 'dev_mode', '0')

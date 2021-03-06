@@ -1,14 +1,18 @@
 import os
-from PyQt5 import QtWidgets, uic, QtGui, QtCore, Qt
+from PyQt5 import QtWidgets, QtGui, QtCore, Qt
 from PyQt5.QtWidgets import *
 from PyQt5.QtSql import QSqlDatabase, QSqlTableModel, QSqlQuery
+from view.ui.new_billing_profile_dialog import Ui_Dialog
 
 
 class NewProfile(QtWidgets.QDialog):
 	def __init__(self, modifyMode=False, profile_id=None):
 		super(NewProfile, self).__init__()
-		dirname = os.path.dirname(__file__)
-		uic.loadUi(os.path.join(dirname, "../ui", "new_billing_profile_dialog.ui"), self)
+		# dirname = os.path.dirname(__file__)
+		# uic.loadUi(os.path.join(dirname, "../ui", "new_billing_profile_dialog.ui"), self)
+		self.ui = Ui_Dialog()
+		self.ui.setupUi(self)
+
 		self.center()
 		self.db_conn = QSqlDatabase.database("rabbit_db_conn", open=False)
 		self.modifyMode = modifyMode
@@ -17,7 +21,7 @@ class NewProfile(QtWidgets.QDialog):
 			self.loadEditData()
 
 		# connect signal
-		self.cbSameAsShipping.stateChanged.connect(self.cbSameAsShippingClicked)
+		self.ui.cbSameAsShipping.stateChanged.connect(self.cbSameAsShippingClicked)
 
 	def center(self):
 		qr = self.frameGeometry()
@@ -28,56 +32,56 @@ class NewProfile(QtWidgets.QDialog):
 	def loadEditData(self):
 		query = QSqlQuery("SELECT * FROM profile WHERE id = " + str(self.profile_id), self.db_conn)
 		if query.next():
-			self.txtProfileName.setText(query.value(1))
-			self.txtShippingFirstName.setText(query.value(2))
-			self.txtShippingLastName.setText(query.value(3))
-			self.txtShippingEmail.setText(query.value(4))
-			self.txtsShippingPhone.setText(query.value(5))
-			self.txtShippingAddress1.setText(query.value(6))
-			self.txtShippingAddress2.setText(query.value(7))
-			self.txtShippingCity.setText(query.value(8))
-			self.txtShippingZipcode.setText(query.value(9))
+			self.ui.txtProfileName.setText(query.value(1))
+			self.ui.txtShippingFirstName.setText(query.value(2))
+			self.ui.txtShippingLastName.setText(query.value(3))
+			self.ui.txtShippingEmail.setText(query.value(4))
+			self.ui.txtsShippingPhone.setText(query.value(5))
+			self.ui.txtShippingAddress1.setText(query.value(6))
+			self.ui.txtShippingAddress2.setText(query.value(7))
+			self.ui.txtShippingCity.setText(query.value(8))
+			self.ui.txtShippingZipcode.setText(query.value(9))
 			
-			index = self.cbShippingState.findText(query.value(10), QtCore.Qt.MatchFixedString)
+			index = self.ui.cbShippingState.findText(query.value(10), QtCore.Qt.MatchFixedString)
 			if index >= 0:
-				self.cbShippingState.setCurrentIndex(index)
+				self.ui.cbShippingState.setCurrentIndex(index)
 
-			index = self.cbShippingCountry.findText(query.value(11), QtCore.Qt.MatchFixedString)
+			index = self.ui.cbShippingCountry.findText(query.value(11), QtCore.Qt.MatchFixedString)
 			if index >= 0:
-				self.cbShippingCountry.setCurrentIndex(index)
+				self.ui.cbShippingCountry.setCurrentIndex(index)
 
-			self.txtBillingFirstName.setText(query.value(12))
-			self.txtBillingLastName.setText(query.value(13))
-			self.txtBillingEmail.setText(query.value(14))
-			self.txtsBillingPhone.setText(query.value(15))
-			self.txtBillingAddress1.setText(query.value(16))
-			self.txtBillingAddress2.setText(query.value(17))
-			self.txtBillingCity.setText(query.value(18))
-			self.txtBillingZipcode.setText(query.value(19))
+			self.ui.txtBillingFirstName.setText(query.value(12))
+			self.ui.txtBillingLastName.setText(query.value(13))
+			self.ui.txtBillingEmail.setText(query.value(14))
+			self.ui.txtsBillingPhone.setText(query.value(15))
+			self.ui.txtBillingAddress1.setText(query.value(16))
+			self.ui.txtBillingAddress2.setText(query.value(17))
+			self.ui.txtBillingCity.setText(query.value(18))
+			self.ui.txtBillingZipcode.setText(query.value(19))
 
-			index = self.cbBillingState.findText(query.value(20), QtCore.Qt.MatchFixedString)
+			index = self.ui.cbBillingState.findText(query.value(20), QtCore.Qt.MatchFixedString)
 			if index >= 0:
-				self.cbBillingState.setCurrentIndex(index)
+				self.ui.cbBillingState.setCurrentIndex(index)
 
-			index = self.cbBillingCountry.findText(query.value(21), QtCore.Qt.MatchFixedString)
+			index = self.ui.cbBillingCountry.findText(query.value(21), QtCore.Qt.MatchFixedString)
 			if index >= 0:
-				self.cbBillingCountry.setCurrentIndex(index)
+				self.ui.cbBillingCountry.setCurrentIndex(index)
 
-			index = self.cbCardType.findText(query.value(22), QtCore.Qt.MatchFixedString)
+			index = self.ui.cbCardType.findText(query.value(22), QtCore.Qt.MatchFixedString)
 			if index >= 0:
-				self.cbCardType.setCurrentIndex(index)
+				self.ui.cbCardType.setCurrentIndex(index)
 
-			self.txtCardName.setText(query.value(23))
-			self.txtCardNumber.setText(query.value(24))
-			self.txtCvv.setText(query.value(25))
+			self.ui.txtCardName.setText(query.value(23))
+			self.ui.txtCardNumber.setText(query.value(24))
+			self.ui.txtCvv.setText(query.value(25))
 
-			index = self.cbExpiryMonth.findText(query.value(26), QtCore.Qt.MatchFixedString)
+			index = self.ui.cbExpiryMonth.findText(query.value(26), QtCore.Qt.MatchFixedString)
 			if index >= 0:
-				self.cbExpiryMonth.setCurrentIndex(index)
+				self.ui.cbExpiryMonth.setCurrentIndex(index)
 
-			index = self.cbExpiryYear.findText(query.value(27), QtCore.Qt.MatchFixedString)
+			index = self.ui.cbExpiryYear.findText(query.value(27), QtCore.Qt.MatchFixedString)
 			if index >= 0:
-				self.cbExpiryYear.setCurrentIndex(index)
+				self.ui.cbExpiryYear.setCurrentIndex(index)
 
 	def create_profile(self):
 		query = QSqlQuery(self.db_conn)
@@ -115,36 +119,36 @@ class NewProfile(QtWidgets.QDialog):
 				VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 				"""
 			)
-		query.addBindValue(self.txtProfileName.text())
+		query.addBindValue(self.ui.txtProfileName.text())
 
-		query.addBindValue(self.txtShippingFirstName.text())
-		query.addBindValue(self.txtShippingLastName.text())
-		query.addBindValue(self.txtShippingEmail.text())
-		query.addBindValue(self.txtsShippingPhone.text())
-		query.addBindValue(self.txtShippingAddress1.text())
-		query.addBindValue(self.txtShippingAddress2.text())
-		query.addBindValue(self.txtShippingCity.text())
-		query.addBindValue(self.txtShippingZipcode.text())
-		query.addBindValue(self.cbShippingState.currentText())
-		query.addBindValue(self.cbShippingCountry.currentText())
+		query.addBindValue(self.ui.txtShippingFirstName.text())
+		query.addBindValue(self.ui.txtShippingLastName.text())
+		query.addBindValue(self.ui.txtShippingEmail.text())
+		query.addBindValue(self.ui.txtsShippingPhone.text())
+		query.addBindValue(self.ui.txtShippingAddress1.text())
+		query.addBindValue(self.ui.txtShippingAddress2.text())
+		query.addBindValue(self.ui.txtShippingCity.text())
+		query.addBindValue(self.ui.txtShippingZipcode.text())
+		query.addBindValue(self.ui.cbShippingState.currentText())
+		query.addBindValue(self.ui.cbShippingCountry.currentText())
 
-		query.addBindValue(self.txtBillingFirstName.text())
-		query.addBindValue(self.txtBillingLastName.text())
-		query.addBindValue(self.txtBillingEmail.text())
-		query.addBindValue(self.txtsBillingPhone.text())
-		query.addBindValue(self.txtBillingAddress1.text())
-		query.addBindValue(self.txtBillingAddress2.text())
-		query.addBindValue(self.txtBillingCity.text())
-		query.addBindValue(self.txtBillingZipcode.text())
-		query.addBindValue(self.cbBillingState.currentText())
-		query.addBindValue(self.cbBillingCountry.currentText())
+		query.addBindValue(self.ui.txtBillingFirstName.text())
+		query.addBindValue(self.ui.txtBillingLastName.text())
+		query.addBindValue(self.ui.txtBillingEmail.text())
+		query.addBindValue(self.ui.txtsBillingPhone.text())
+		query.addBindValue(self.ui.txtBillingAddress1.text())
+		query.addBindValue(self.ui.txtBillingAddress2.text())
+		query.addBindValue(self.ui.txtBillingCity.text())
+		query.addBindValue(self.ui.txtBillingZipcode.text())
+		query.addBindValue(self.ui.cbBillingState.currentText())
+		query.addBindValue(self.ui.cbBillingCountry.currentText())
 
-		query.addBindValue(self.cbCardType.currentText())
-		query.addBindValue(self.txtCardName.text())
-		query.addBindValue(self.txtCardNumber.text())
-		query.addBindValue(self.txtCvv.text())
-		query.addBindValue(self.cbExpiryMonth.currentText())
-		query.addBindValue(self.cbExpiryYear.currentText())
+		query.addBindValue(self.ui.cbCardType.currentText())
+		query.addBindValue(self.ui.txtCardName.text())
+		query.addBindValue(self.ui.txtCardNumber.text())
+		query.addBindValue(self.ui.txtCvv.text())
+		query.addBindValue(self.ui.cbExpiryMonth.currentText())
+		query.addBindValue(self.ui.cbExpiryYear.currentText())
 		if not query.exec():
 			QMessageBox.critical(self, "Rabbit - Error!", 'Database Error: %s' % query.lastError().text(),)
 		else:
@@ -185,36 +189,36 @@ class NewProfile(QtWidgets.QDialog):
 				WHERE id = ?
 				"""
 			)
-		query.addBindValue(self.txtProfileName.text())
+		query.addBindValue(self.ui.txtProfileName.text())
 
-		query.addBindValue(self.txtShippingFirstName.text())
-		query.addBindValue(self.txtShippingLastName.text())
-		query.addBindValue(self.txtShippingEmail.text())
-		query.addBindValue(self.txtsShippingPhone.text())
-		query.addBindValue(self.txtShippingAddress1.text())
-		query.addBindValue(self.txtShippingAddress2.text())
-		query.addBindValue(self.txtShippingCity.text())
-		query.addBindValue(self.txtShippingZipcode.text())
-		query.addBindValue(self.cbShippingState.currentText())
-		query.addBindValue(self.cbShippingCountry.currentText())
+		query.addBindValue(self.ui.txtShippingFirstName.text())
+		query.addBindValue(self.ui.txtShippingLastName.text())
+		query.addBindValue(self.ui.txtShippingEmail.text())
+		query.addBindValue(self.ui.txtsShippingPhone.text())
+		query.addBindValue(self.ui.txtShippingAddress1.text())
+		query.addBindValue(self.ui.txtShippingAddress2.text())
+		query.addBindValue(self.ui.txtShippingCity.text())
+		query.addBindValue(self.ui.txtShippingZipcode.text())
+		query.addBindValue(self.ui.cbShippingState.currentText())
+		query.addBindValue(self.ui.cbShippingCountry.currentText())
 
-		query.addBindValue(self.txtBillingFirstName.text())
-		query.addBindValue(self.txtBillingLastName.text())
-		query.addBindValue(self.txtBillingEmail.text())
-		query.addBindValue(self.txtsBillingPhone.text())
-		query.addBindValue(self.txtBillingAddress1.text())
-		query.addBindValue(self.txtBillingAddress2.text())
-		query.addBindValue(self.txtBillingCity.text())
-		query.addBindValue(self.txtBillingZipcode.text())
-		query.addBindValue(self.cbBillingState.currentText())
-		query.addBindValue(self.cbBillingCountry.currentText())
+		query.addBindValue(self.ui.txtBillingFirstName.text())
+		query.addBindValue(self.ui.txtBillingLastName.text())
+		query.addBindValue(self.ui.txtBillingEmail.text())
+		query.addBindValue(self.ui.txtsBillingPhone.text())
+		query.addBindValue(self.ui.txtBillingAddress1.text())
+		query.addBindValue(self.ui.txtBillingAddress2.text())
+		query.addBindValue(self.ui.txtBillingCity.text())
+		query.addBindValue(self.ui.txtBillingZipcode.text())
+		query.addBindValue(self.ui.cbBillingState.currentText())
+		query.addBindValue(self.ui.cbBillingCountry.currentText())
 
-		query.addBindValue(self.cbCardType.currentText())
-		query.addBindValue(self.txtCardName.text())
-		query.addBindValue(self.txtCardNumber.text())
-		query.addBindValue(self.txtCvv.text())
-		query.addBindValue(self.cbExpiryMonth.currentText())
-		query.addBindValue(self.cbExpiryYear.currentText())
+		query.addBindValue(self.ui.cbCardType.currentText())
+		query.addBindValue(self.ui.txtCardName.text())
+		query.addBindValue(self.ui.txtCardNumber.text())
+		query.addBindValue(self.ui.txtCvv.text())
+		query.addBindValue(self.ui.cbExpiryMonth.currentText())
+		query.addBindValue(self.ui.cbExpiryYear.currentText())
 
 		query.addBindValue(str(self.profile_id))
 		if not query.exec():
@@ -224,20 +228,20 @@ class NewProfile(QtWidgets.QDialog):
 
 	def cbSameAsShippingClicked(self,state):
 		if state == QtCore.Qt.Checked:
-			self.txtBillingFirstName.setText(self.txtShippingFirstName.text())
-			self.txtBillingLastName.setText(self.txtShippingLastName.text())
-			self.txtBillingEmail.setText(self.txtShippingEmail.text())
-			self.txtsBillingPhone.setText(self.txtsShippingPhone.text())
-			self.txtBillingAddress1.setText(self.txtShippingAddress1.text())
-			self.txtBillingAddress2.setText(self.txtShippingAddress2.text())
-			self.txtBillingCity.setText(self.txtShippingCity.text())
+			self.ui.txtBillingFirstName.setText(self.ui.txtShippingFirstName.text())
+			self.ui.txtBillingLastName.setText(self.ui.txtShippingLastName.text())
+			self.ui.txtBillingEmail.setText(self.ui.txtShippingEmail.text())
+			self.ui.txtsBillingPhone.setText(self.ui.txtsShippingPhone.text())
+			self.ui.txtBillingAddress1.setText(self.ui.txtShippingAddress1.text())
+			self.ui.txtBillingAddress2.setText(self.ui.txtShippingAddress2.text())
+			self.ui.txtBillingCity.setText(self.ui.txtShippingCity.text())
 
-			index = self.cbBillingState.findText(self.cbShippingState.currentText(), QtCore.Qt.MatchFixedString)
+			index = self.ui.cbBillingState.findText(self.ui.cbShippingState.currentText(), QtCore.Qt.MatchFixedString)
 			if index >= 0:
-				self.cbBillingState.setCurrentIndex(index)
+				self.ui.cbBillingState.setCurrentIndex(index)
 
-			self.txtBillingZipcode.setText(self.txtShippingZipcode.text())
+			self.ui.txtBillingZipcode.setText(self.ui.txtShippingZipcode.text())
 
-			index = self.cbBillingCountry.findText(self.cbShippingCountry.currentText(), QtCore.Qt.MatchFixedString)
+			index = self.ui.cbBillingCountry.findText(self.ui.cbShippingCountry.currentText(), QtCore.Qt.MatchFixedString)
 			if index >= 0:
-				self.cbBillingCountry.setCurrentIndex(index)
+				self.ui.cbBillingCountry.setCurrentIndex(index)

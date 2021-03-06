@@ -1,7 +1,7 @@
 import sys
 import os
 import logging
-from PyQt5 import QtWidgets, uic, QtGui, QtCore, Qt
+from PyQt5 import QtWidgets, QtGui, QtCore, Qt
 from PyQt5.QtWidgets import *
 from PyQt5.QtSql import QSqlDatabase, QSqlTableModel, QSqlQuery
 
@@ -18,6 +18,7 @@ from sites.bestbuy import BestBuy
 from sites.target import Target
 from sites.gamestop import GameStop
 
+from view.ui.rabbit import Ui_mainWindow
 from model.task_model import TaskModel
 import logging
 
@@ -50,32 +51,34 @@ class MainWindow(QtWidgets.QMainWindow):
 	def __init__(self):
 		super(MainWindow, self).__init__()
 		dirname = os.path.dirname(__file__)
-		uic.loadUi(os.path.join(dirname, "ui", "rabbit.ui"), self)
+		# uic.loadUi(os.path.join(dirname, "ui", "rabbit.ui"), self)
+		self.ui = Ui_mainWindow()
+		self.ui.setupUi(self)
 		self.db_conn = QSqlDatabase.database("rabbit_db_conn", open=False)
 		self.center()
 
 		# create connection for button
-		self.btnNewTask.clicked.connect(self.btnNewTaskClicked)
-		self.btnStartAll.clicked.connect(self.btnStartAllClicked)
-		self.btnStopAll.clicked.connect(self.btnStopAllClicked)
-		self.btnDeleteAll.clicked.connect(self.btnDeleteAllClicked)
+		self.ui.btnNewTask.clicked.connect(self.btnNewTaskClicked)
+		self.ui.btnStartAll.clicked.connect(self.btnStartAllClicked)
+		self.ui.btnStopAll.clicked.connect(self.btnStopAllClicked)
+		self.ui.btnDeleteAll.clicked.connect(self.btnDeleteAllClicked)
 
-		self.btnStart.clicked.connect(self.btnStartClicked)
-		self.btnStop.clicked.connect(self.btnStopClicked)
-		self.btnEdit.clicked.connect(self.btnEditClicked)
-		self.btnDelete.clicked.connect(self.btnDeleteClicked)
+		self.ui.btnStart.clicked.connect(self.btnStartClicked)
+		self.ui.btnStop.clicked.connect(self.btnStopClicked)
+		self.ui.btnEdit.clicked.connect(self.btnEditClicked)
+		self.ui.btnDelete.clicked.connect(self.btnDeleteClicked)
 
-		self.actionAccount.triggered.connect(self.actionAccountClicked)
-		self.actionBilling_Profile.triggered.connect(self.actionBilling_ProfileClicked)
-		self.actionProxies.triggered.connect(self.actionProxiesClicked)
-		self.actionSetting.triggered.connect(self.actionSettingClicked)
+		self.ui.actionAccount.triggered.connect(self.actionAccountClicked)
+		self.ui.actionBilling_Profile.triggered.connect(self.actionBilling_ProfileClicked)
+		self.ui.actionProxies.triggered.connect(self.actionProxiesClicked)
+		self.ui.actionSetting.triggered.connect(self.actionSettingClicked)
 
 		self.loadTaskData()
 
-		self.tbListTask.setColumnWidth(0, 50)
-		self.tbListTask.setColumnWidth(1, 100)
-		self.tbListTask.setColumnWidth(2, 600)
-		self.tbListTask.setColumnWidth(3, 200)
+		self.ui.tbListTask.setColumnWidth(0, 50)
+		self.ui.tbListTask.setColumnWidth(1, 100)
+		self.ui.tbListTask.setColumnWidth(2, 600)
+		self.ui.tbListTask.setColumnWidth(3, 200)
 
 		self.setFixedSize(1220, 700)
 
@@ -88,19 +91,19 @@ class MainWindow(QtWidgets.QMainWindow):
 		self.move(qr.topLeft())
 
 	def loadTaskData(self):
-		self.tbListTask.setRowCount(0)
+		self.ui.tbListTask.setRowCount(0)
 		query = QSqlQuery("SELECT id, site, product, account FROM task", self.db_conn)
 		while query.next():
-			rows = self.tbListTask.rowCount()
-			self.tbListTask.setRowCount(rows + 1)
-			self.tbListTask.setItem(rows, 0, QTableWidgetItem(str(query.value(0))))
-			self.tbListTask.setItem(rows, 1, QTableWidgetItem(query.value(1)))
-			self.tbListTask.setItem(rows, 2, QTableWidgetItem(query.value(2)))
-			self.tbListTask.setItem(rows, 3, QTableWidgetItem(query.value(3)))
-			self.tbListTask.setItem(rows, 4, QTableWidgetItem("Stop"))
+			rows = self.ui.tbListTask.rowCount()
+			self.ui.tbListTask.setRowCount(rows + 1)
+			self.ui.tbListTask.setItem(rows, 0, QTableWidgetItem(str(query.value(0))))
+			self.ui.tbListTask.setItem(rows, 1, QTableWidgetItem(query.value(1)))
+			self.ui.tbListTask.setItem(rows, 2, QTableWidgetItem(query.value(2)))
+			self.ui.tbListTask.setItem(rows, 3, QTableWidgetItem(query.value(3)))
+			self.ui.tbListTask.setItem(rows, 4, QTableWidgetItem("Stop"))
 
 		# update total task label
-		self.lbTotalTask.setText(str(self.tbListTask.rowCount()))
+		self.ui.lbTotalTask.setText(str(self.ui.tbListTask.rowCount()))
 
 	def actionAccountClicked(self):
 		self.accountFrm = AccountManager()
@@ -119,10 +122,10 @@ class MainWindow(QtWidgets.QMainWindow):
 		self.settingFrm.show()
 
 	def btnStartClicked(self):
-		index = self.tbListTask.currentRow()
+		index = self.ui.tbListTask.currentRow()
 		if index >= 0:
-			task_id = self.tbListTask.item(index, 0).text()
-			task_status = self.tbListTask.item(index, 4).text()
+			task_id = self.ui.tbListTask.item(index, 0).text()
+			task_status = self.ui.tbListTask.item(index, 4).text()
 			if task_status == 'Running':
 				QMessageBox.critical(self, "Rabbit", 'Task have already running!',)
 			else:
@@ -151,9 +154,9 @@ class MainWindow(QtWidgets.QMainWindow):
 		ret = QMessageBox.question(self, 'MessageBox', "Do you want to start all task?", QMessageBox.Yes | QMessageBox.No )
 		if ret == QMessageBox.Yes:
 			# update database
-			for row in range(self.tbListTask.rowCount()): 
-				task_id = self.tbListTask.item(row, 0).text()
-				task_status = self.tbListTask.item(row, 4).text()
+			for row in range(self.ui.tbListTask.rowCount()): 
+				task_id = self.ui.tbListTask.item(row, 0).text()
+				task_status = self.ui.tbListTask.item(row, 4).text()
 				if task_status == 'Stop':
 					query = QSqlQuery("SELECT * FROM task WHERE id = " + task_id, self.db_conn)
 					if query.next():
@@ -176,10 +179,10 @@ class MainWindow(QtWidgets.QMainWindow):
 						print("Could not found task")
 						
 	def btnStopClicked(self):
-		index = self.tbListTask.currentRow()
+		index = self.ui.tbListTask.currentRow()
 		if index >= 0:
-			task_id = self.tbListTask.item(index, 0).text()
-			task_status = self.tbListTask.item(index, 4).text()
+			task_id = self.ui.tbListTask.item(index, 0).text()
+			task_status = self.ui.tbListTask.item(index, 4).text()
 			if task_status == 'Stop':
 				QMessageBox.critical(self, "Rabbit", 'Task have already stopped!',)
 			else:
@@ -197,9 +200,9 @@ class MainWindow(QtWidgets.QMainWindow):
 		ret = QMessageBox.question(self, 'MessageBox', "Do you want to stop all task?", QMessageBox.Yes | QMessageBox.No )
 		if ret == QMessageBox.Yes:
 			# stop all task
-			for row in range(self.tbListTask.rowCount()): 
-				task_id = self.tbListTask.item(row, 0).text()
-				task_status = self.tbListTask.item(row, 4).text()
+			for row in range(self.ui.tbListTask.rowCount()): 
+				task_id = self.ui.tbListTask.item(row, 0).text()
+				task_status = self.ui.tbListTask.item(row, 4).text()
 				if task_status != 'Stop':
 					try:
 						# TODO: validate process before stop
@@ -214,9 +217,9 @@ class MainWindow(QtWidgets.QMainWindow):
 						print("Can not stop task id : {}".format(task_id))
 
 	def btnEditClicked(self):
-		index = self.tbListTask.currentRow()
+		index = self.ui.tbListTask.currentRow()
 		if index >= 0:
-			task_id = self.tbListTask.item(index, 0).text()
+			task_id = self.ui.tbListTask.item(index, 0).text()
 			self.edittask_frm = NewTask(True, task_id, self)
 			if self.edittask_frm.exec_() == QtWidgets.QDialog.Accepted:
 				self.edittask_frm.update_task()
@@ -224,10 +227,10 @@ class MainWindow(QtWidgets.QMainWindow):
 			QMessageBox.critical(self, "Rabbit", 'You must select one task!',)
 
 	def btnDeleteClicked(self):
-		index = self.tbListTask.currentRow()
+		index = self.ui.tbListTask.currentRow()
 		if index >= 0:
-			task_id = self.tbListTask.item(index, 0).text()
-			task_status = self.tbListTask.item(index, 4).text()
+			task_id = self.ui.tbListTask.item(index, 0).text()
+			task_status = self.ui.tbListTask.item(index, 4).text()
 			if task_status == 'Running':
 				QMessageBox.critical(self, "Rabbit", 'task is running. You must stop task before close')
 				return
@@ -238,8 +241,8 @@ class MainWindow(QtWidgets.QMainWindow):
 				QMessageBox.critical(self, "Rabbit - Error!", 'Database Error: %s' % query.lastError().text(),)
 				logging.info("Delete task id {} false".format(task_id))
 			else:
-				row = self.tbListTask.currentRow()
-				self.tbListTask.removeRow(row)
+				row = self.ui.tbListTask.currentRow()
+				self.ui.tbListTask.removeRow(row)
 				logging.info("Delete task id {} successful".format(task_id))
 		else:
 			QMessageBox.critical(self, "Rabbit - Error!", 'You must select one task to delete!',)
@@ -265,15 +268,15 @@ class MainWindow(QtWidgets.QMainWindow):
 		self.close()
 
 	def update_status(self, msg):
-		for index in range(self.tbListTask.rowCount()):
-			if msg['task_id'] == self.tbListTask.item(index, 0).text():
-				self.tbListTask.item(index, 4).setText(msg['message'])
+		for index in range(self.ui.tbListTask.rowCount()):
+			if msg['task_id'] == self.ui.tbListTask.item(index, 0).text():
+				self.ui.tbListTask.item(index, 4).setText(msg['message'])
 				if msg['status'] == 'normal':
 					logger.info("Task id {} - {}".format(msg['task_id'], msg['message']))
-					self.tbListTask.item(index, 4).setBackground(QtGui.QColor('green'))
+					self.ui.tbListTask.item(index, 4).setBackground(QtGui.QColor('green'))
 				else:
 					logger.error("Task id {} - {}".format(msg['task_id'], msg['message']))
-					self.tbListTask.item(index, 4).setBackground(QtGui.QColor('red'))
+					self.ui.tbListTask.item(index, 4).setBackground(QtGui.QColor('red'))
 				break
 
 	def update_image(self,image_url):

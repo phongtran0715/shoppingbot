@@ -1,28 +1,31 @@
 import os
-from PyQt5 import QtWidgets, uic, QtGui, QtCore
+from PyQt5 import QtWidgets, QtGui, QtCore
 from PyQt5.QtWidgets import *
 from PyQt5.QtSql import QSqlDatabase, QSqlTableModel, QSqlQuery
 from view.profile.new_profile import NewProfile
+from view.ui.billing_profile_manager import Ui_formProfileManager
 
 
 class ProfileManager(QtWidgets.QMainWindow):
 	def __init__(self):
 		super(ProfileManager, self).__init__()
 		dirname = os.path.dirname(__file__)
-		uic.loadUi(os.path.join(dirname, "../ui", "billing_profile_manager.ui"), self)
+		# uic.loadUi(os.path.join(dirname, "../ui", "billing_profile_manager.ui"), self)
+		self.ui = Ui_formProfileManager()
+		self.ui.setupUi(self)
 		self.center()
 
 		self.db_conn = QSqlDatabase.database("rabbit_db_conn", open=False)
 		
 		# # create connection for button
-		self.btnAdd.clicked.connect(self.btnAdd_clicked)
-		self.btnEdit.clicked.connect(self.btnEdit_clicked)
-		self.btnDelete.clicked.connect(self.btnDelete_clicked)
-		self.btnDeleteAll.clicked.connect(self.btnDeleteAll_clicked)
+		self.ui.btnAdd.clicked.connect(self.btnAdd_clicked)
+		self.ui.btnEdit.clicked.connect(self.btnEdit_clicked)
+		self.ui.btnDelete.clicked.connect(self.btnDelete_clicked)
+		self.ui.btnDeleteAll.clicked.connect(self.btnDeleteAll_clicked)
 
-		self.tbProfile.setSelectionBehavior(QAbstractItemView.SelectRows)
-		self.tbProfile.setEditTriggers(QtWidgets.QTableWidget.NoEditTriggers)
-		self.tbProfile.setColumnHidden(0, True);
+		self.ui.tbProfile.setSelectionBehavior(QAbstractItemView.SelectRows)
+		self.ui.tbProfile.setEditTriggers(QtWidgets.QTableWidget.NoEditTriggers)
+		self.ui.tbProfile.setColumnHidden(0, True);
 		self.setFixedSize(806, 416)
 
 		self.loadProfileData()
@@ -34,13 +37,13 @@ class ProfileManager(QtWidgets.QMainWindow):
 		self.move(qr.topLeft())
 
 	def loadProfileData(self):
-		self.tbProfile.setRowCount(0)
+		self.ui.tbProfile.setRowCount(0)
 		query = QSqlQuery("SELECT id, profile_name FROM profile", self.db_conn)
 		while query.next():
-			rows = self.tbProfile.rowCount()
-			self.tbProfile.setRowCount(rows + 1)
-			self.tbProfile.setItem(rows, 0, QTableWidgetItem(str(query.value(0))))
-			self.tbProfile.setItem(rows, 1, QTableWidgetItem(query.value(1)))
+			rows = self.ui.tbProfile.rowCount()
+			self.ui.tbProfile.setRowCount(rows + 1)
+			self.ui.tbProfile.setItem(rows, 0, QTableWidgetItem(str(query.value(0))))
+			self.ui.tbProfile.setItem(rows, 1, QTableWidgetItem(query.value(1)))
 
 	def btnAdd_clicked(self):
 		self.createProfileFrm = NewProfile()
@@ -49,9 +52,9 @@ class ProfileManager(QtWidgets.QMainWindow):
 			self.loadProfileData()
 
 	def btnEdit_clicked(self):
-		index = self.tbProfile.currentRow()
+		index = self.ui.tbProfile.currentRow()
 		if index >= 0:
-			profile_id = self.tbProfile.item(index, 0).text()
+			profile_id = self.ui.tbProfile.item(index, 0).text()
 			self.editProfileFrm = NewProfile(True, profile_id)
 			if self.editProfileFrm.exec_() == QtWidgets.QDialog.Accepted:
 				self.editProfileFrm.update_profile()
@@ -60,9 +63,9 @@ class ProfileManager(QtWidgets.QMainWindow):
 			QMessageBox.critical(self, "Rabbit", 'You must select one profile!',)
 
 	def btnDelete_clicked(self):
-		index = self.tbProfile.currentRow()
+		index = self.ui.tbProfile.currentRow()
 		if index >= 0:
-			profile_id = self.tbProfile.item(index, 0).text()
+			profile_id = self.ui.tbProfile.item(index, 0).text()
 			query = QSqlQuery(self.db_conn)
 			query.prepare("DELETE FROM profile WHERE id = ?")
 			query.addBindValue(profile_id)

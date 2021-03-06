@@ -1,28 +1,31 @@
 import os
-from PyQt5 import QtWidgets, uic, QtGui, QtCore
+from PyQt5 import QtWidgets, QtGui, QtCore
 from PyQt5.QtWidgets import *
 from PyQt5.QtSql import QSqlDatabase, QSqlTableModel, QSqlQuery
 from view.proxies.new_proxy_dialog import NewProxy
+from view.ui.proxies_manager import Ui_formProfileManager
 
 
 class ProxiesManager(QtWidgets.QMainWindow):
 	def __init__(self):
 		super(ProxiesManager, self).__init__()
 		dirname = os.path.dirname(__file__)
-		uic.loadUi(os.path.join(dirname, "../ui", "proxies_manager.ui"), self)
+		# uic.loadUi(os.path.join(dirname, "../ui", "proxies_manager.ui"), self)
+		self.ui = Ui_formProfileManager()
+		self.ui.setupUi(self)
 		self.center()
 
 		self.db_conn = QSqlDatabase.database("rabbit_db_conn", open=False)
 		
 		# create connection for button
-		self.btnAdd.clicked.connect(self.btnAdd_clicked)
-		self.btnEdit.clicked.connect(self.btnEdit_clicked)
-		self.btnDelete.clicked.connect(self.btnDelete_clicked)
-		self.btnDeleteAll.clicked.connect(self.btnDeleteAll_clicked)
+		self.ui.btnAdd.clicked.connect(self.btnAdd_clicked)
+		self.ui.btnEdit.clicked.connect(self.btnEdit_clicked)
+		self.ui.btnDelete.clicked.connect(self.btnDelete_clicked)
+		self.ui.btnDeleteAll.clicked.connect(self.btnDeleteAll_clicked)
 
-		self.tbProxies.setSelectionBehavior(QAbstractItemView.SelectRows)
-		self.tbProxies.setEditTriggers(QtWidgets.QTableWidget.NoEditTriggers)
-		self.tbProxies.setColumnHidden(0, True);
+		self.ui.tbProxies.setSelectionBehavior(QAbstractItemView.SelectRows)
+		self.ui.tbProxies.setEditTriggers(QtWidgets.QTableWidget.NoEditTriggers)
+		self.ui.tbProxies.setColumnHidden(0, True);
 		self.setFixedSize(613, 375)
 		self.loadProxyData()
 
@@ -33,14 +36,14 @@ class ProxiesManager(QtWidgets.QMainWindow):
 		self.move(qr.topLeft())
 
 	def loadProxyData(self):
-		self.tbProxies.setRowCount(0)
+		self.ui.tbProxies.setRowCount(0)
 		query = QSqlQuery("SELECT * FROM proxies", self.db_conn)
 		while query.next():
-			rows = self.tbProxies.rowCount()
-			self.tbProxies.setRowCount(rows + 1)
-			self.tbProxies.setItem(rows, 0, QTableWidgetItem(str(query.value(0))))
-			self.tbProxies.setItem(rows, 1, QTableWidgetItem(query.value(1)))
-			self.tbProxies.setItem(rows, 2, QTableWidgetItem(query.value(2)))
+			rows = self.ui.tbProxies.rowCount()
+			self.ui.tbProxies.setRowCount(rows + 1)
+			self.ui.tbProxies.setItem(rows, 0, QTableWidgetItem(str(query.value(0))))
+			self.ui.tbProxies.setItem(rows, 1, QTableWidgetItem(query.value(1)))
+			self.ui.tbProxies.setItem(rows, 2, QTableWidgetItem(query.value(2)))
 
 	def btnAdd_clicked(self):
 		self.new_proxy_frm = NewProxy()
@@ -49,9 +52,9 @@ class ProxiesManager(QtWidgets.QMainWindow):
 			self.loadProxyData()
 
 	def btnEdit_clicked(self):
-		index = self.tbProxies.currentRow()
+		index = self.ui.tbProxies.currentRow()
 		if index >= 0:
-			proxy_id = self.tbProxies.item(index, 0).text()
+			proxy_id = self.ui.tbProxies.item(index, 0).text()
 			self.edit_proxy_frm = NewProxy(True, proxy_id)
 			if self.edit_proxy_frm.exec_() == QtWidgets.QDialog.Accepted:
 				self.edit_proxy_frm.update_proxy()
@@ -60,9 +63,9 @@ class ProxiesManager(QtWidgets.QMainWindow):
 			QMessageBox.critical(self, "Rabbit", 'You must select one proxy!',)
 
 	def btnDelete_clicked(self):
-		index = self.tbProxies.currentRow()
+		index = self.ui.tbProxies.currentRow()
 		if index >= 0:
-			proxy_id = self.tbProxies.item(index, 0).text()
+			proxy_id = self.ui.tbProxies.item(index, 0).text()
 			query = QSqlQuery(self.db_conn)
 			query.prepare("DELETE FROM Proxies WHERE id = ?")
 			query.addBindValue(proxy_id)
