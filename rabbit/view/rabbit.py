@@ -273,7 +273,7 @@ class MainWindow(QtWidgets.QMainWindow):
 		for index in range(self.ui.tbListTask.rowCount()):
 			if msg['task_id'] == self.ui.tbListTask.item(index, 0).text():
 				self.ui.tbListTask.item(index, 4).setText(msg['message'])
-				if msg['status'] == 'normal':
+				if msg['status'] == 'normal' or msg['status'] == 'success':
 					logger.info("Task id {} - {}".format(msg['task_id'], msg['message']))
 					self.ui.tbListTask.item(index, 4).setBackground(QtGui.QColor('green'))
 				else:

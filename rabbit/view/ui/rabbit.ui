@@ -23,7 +23,7 @@
   </property>
   <property name="windowIcon">
    <iconset>
-    <activeon>:/newPrefix/rabbit.ico</activeon>
+    <activeon>:/newPrefix/rabbit.jpg</activeon>
    </iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
@@ -543,7 +543,7 @@ border-color: rgb(255, 170, 0);</string>
   <action name="actionExit">
    <property name="icon">
     <iconset>
-     <activeon>../../images/24x24/export_24x24.png</activeon>
+     <activeon>:/icon_24x24/icon_24x24/export_24x24.png</activeon>
     </iconset>
    </property>
    <property name="text">
@@ -558,7 +558,7 @@ border-color: rgb(255, 170, 0);</string>
   <action name="actionCheck_for_update">
    <property name="icon">
     <iconset>
-     <activeon>../../images/24x24/refresh_24x24.png</activeon>
+     <activeon>:/icon_24x24/icon_24x24/refresh_24x24.png</activeon>
     </iconset>
    </property>
    <property name="text">
@@ -573,7 +573,7 @@ border-color: rgb(255, 170, 0);</string>
   <action name="actionAbout">
    <property name="icon">
     <iconset>
-     <activeon>../../images/24x24/question_24x24.png</activeon>
+     <activeon>:/icon_24x24/icon_24x24/question_24x24.png</activeon>
     </iconset>
    </property>
    <property name="text">
@@ -588,7 +588,7 @@ border-color: rgb(255, 170, 0);</string>
   <action name="actionAccount">
    <property name="icon">
     <iconset>
-     <activeon>../../images/tasks.png</activeon>
+     <activeon>:/icon_24x24/icon_24x24/user_24.png</activeon>
     </iconset>
    </property>
    <property name="text">
@@ -603,7 +603,7 @@ border-color: rgb(255, 170, 0);</string>
   <action name="actionBilling_Profile">
    <property name="icon">
     <iconset>
-     <activeon>../../images/profiles_alt.png</activeon>
+     <activeon>:/icon_512x512/icon_512x512/profiles_alt.png</activeon>
     </iconset>
    </property>
    <property name="text">
@@ -618,7 +618,7 @@ border-color: rgb(255, 170, 0);</string>
   <action name="actionProxies">
    <property name="icon">
     <iconset>
-     <activeon>../../images/proxies_alt.png</activeon>
+     <activeon>:/icon_512x512/icon_512x512/proxies_alt.png</activeon>
     </iconset>
    </property>
    <property name="text">
@@ -633,7 +633,7 @@ border-color: rgb(255, 170, 0);</string>
   <action name="actionSetting">
    <property name="icon">
     <iconset>
-     <activeon>../../images/settings_alt.png</activeon>
+     <activeon>:/icon_512x512/icon_512x512/settings_alt.png</activeon>
     </iconset>
    </property>
    <property name="text">
@@ -647,6 +647,7 @@ border-color: rgb(255, 170, 0);</string>
   </action>
  </widget>
  <resources>
+  <include location="../../resource/source.qrc"/>
   <include location="../../resource/source.qrc"/>
  </resources>
  <connections>
