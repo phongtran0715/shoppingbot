@@ -1,7 +1,10 @@
 import sys
 import os
 import logging
-from PyQt5 import QtWidgets, QtGui, QtCore, Qt
+from PyQt5 import QtWidgets, QtGui, QtCore
+from selenium import webdriver
+from webdriver_manager.firefox import GeckoDriverManager
+
 from PyQt5.QtWidgets import *
 from PyQt5.QtSql import QSqlDatabase, QSqlTableModel, QSqlQuery
 
@@ -81,6 +84,10 @@ class MainWindow(QtWidgets.QMainWindow):
 		self.ui.tbListTask.setColumnWidth(1, 100)
 		self.ui.tbListTask.setColumnWidth(2, 600)
 		self.ui.tbListTask.setColumnWidth(3, 200)
+
+		# Allow popup menu
+		self.ui.tbListTask.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+		self.ui.tbListTask.customContextMenuRequested.connect(self.generateMenu)
 
 		self.setFixedSize(1220, 700)
 
@@ -286,3 +293,29 @@ class MainWindow(QtWidgets.QMainWindow):
 		# self.image_thread = ImageThread(image_url)
 		# self.image_thread.finished_signal.connect(self.set_image)
 		# self.image_thread.start()
+
+	def generateMenu(self, pos):
+		for i in self.ui.tbListTask.selectionModel().selection().indexes():
+			rowNum = i.row()
+
+		menu = QMenu()
+		item1 = menu.addAction("Start")
+		item2 = menu.addAction("Stop")
+		item3 = menu.addAction("Edit")
+		item4 = menu.addAction("Delete")
+		item5 = menu.addAction("View product on web")
+		# Make the menu display in the normal position
+		screenPos = self.ui.tbListTask.mapToGlobal(pos)
+		action = menu.exec(screenPos)
+		if action == item1:
+			self.btnStartClicked()
+		elif action == item2:
+			self.btnStopClicked()
+		elif action == item3:
+			self.btnEditClicked()
+		elif action == item4:
+			self.btnDeleteClicked()
+		elif  action == item5:
+			browser = webdriver.Firefox(executable_path=GeckoDriverManager().install())
+			index = self.ui.tbListTask.currentRow()
+			browser.get(self.ui.tbListTask.item(index, 2).text())

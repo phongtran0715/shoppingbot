@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'setting_manager.ui'
+# Form implementation generated from reading ui file './setting_manager.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.2
 #
@@ -71,6 +71,7 @@ class Ui_formProfileManager(object):
         formProfileManager.setStatusBar(self.statusbar)
 
         self.retranslateUi(formProfileManager)
+        self.btnCancel.clicked.connect(formProfileManager.close)
         QtCore.QMetaObject.connectSlotsByName(formProfileManager)
 
     def retranslateUi(self, formProfileManager):

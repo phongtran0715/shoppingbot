@@ -169,6 +169,9 @@
           <property name="enabled">
            <bool>true</bool>
           </property>
+          <property name="contextMenuPolicy">
+           <enum>Qt::ActionsContextMenu</enum>
+          </property>
           <property name="styleSheet">
            <string notr="true">font: 11pt &quot;MS Shell Dlg 2&quot;;
 border-color: rgb(255, 170, 0);</string>
@@ -505,7 +508,7 @@ border-color: rgb(255, 170, 0);</string>
      <x>0</x>
      <y>0</y>
      <width>1239</width>
-     <height>26</height>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFIle">
@@ -550,9 +553,7 @@ border-color: rgb(255, 170, 0);</string>
     <string>Exit</string>
    </property>
    <property name="font">
-    <font>
-     <pointsize>11</pointsize>
-    </font>
+    <font/>
    </property>
   </action>
   <action name="actionCheck_for_update">
@@ -565,9 +566,7 @@ border-color: rgb(255, 170, 0);</string>
     <string>Check for update</string>
    </property>
    <property name="font">
-    <font>
-     <pointsize>11</pointsize>
-    </font>
+    <font/>
    </property>
   </action>
   <action name="actionAbout">
@@ -580,9 +579,7 @@ border-color: rgb(255, 170, 0);</string>
     <string>About</string>
    </property>
    <property name="font">
-    <font>
-     <pointsize>11</pointsize>
-    </font>
+    <font/>
    </property>
   </action>
   <action name="actionAccount">
@@ -595,9 +592,7 @@ border-color: rgb(255, 170, 0);</string>
     <string>Account</string>
    </property>
    <property name="font">
-    <font>
-     <pointsize>11</pointsize>
-    </font>
+    <font/>
    </property>
   </action>
   <action name="actionBilling_Profile">
@@ -610,9 +605,7 @@ border-color: rgb(255, 170, 0);</string>
     <string>Billing Profile</string>
    </property>
    <property name="font">
-    <font>
-     <pointsize>11</pointsize>
-    </font>
+    <font/>
    </property>
   </action>
   <action name="actionProxies">
@@ -625,9 +618,7 @@ border-color: rgb(255, 170, 0);</string>
     <string>Proxies</string>
    </property>
    <property name="font">
-    <font>
-     <pointsize>11</pointsize>
-    </font>
+    <font/>
    </property>
   </action>
   <action name="actionSetting">
@@ -640,9 +631,7 @@ border-color: rgb(255, 170, 0);</string>
     <string>Setting</string>
    </property>
    <property name="font">
-    <font>
-     <pointsize>11</pointsize>
-    </font>
+    <font/>
    </property>
   </action>
  </widget>

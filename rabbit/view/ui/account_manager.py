@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'account_manager.ui'
+# Form implementation generated from reading ui file './account_manager.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.2
 #

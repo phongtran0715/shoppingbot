@@ -193,5 +193,22 @@
  <resources>
   <include location="../../resource/source.qrc"/>
  </resources>
- <connections/>
+ <connections>
+  <connection>
+   <sender>btnCancel</sender>
+   <signal>clicked()</signal>
+   <receiver>formProfileManager</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>301</x>
+     <y>333</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>262</x>
+     <y>189</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

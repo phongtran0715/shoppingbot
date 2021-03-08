@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'rabbit.ui'
+# Form implementation generated from reading ui file './rabbit.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.2
 #
@@ -83,6 +83,7 @@ class Ui_mainWindow(object):
         self.gridLayout.setObjectName("gridLayout")
         self.tbListTask = QtWidgets.QTableWidget(self.groupBox_3)
         self.tbListTask.setEnabled(True)
+        self.tbListTask.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
         self.tbListTask.setStyleSheet("font: 11pt \"MS Shell Dlg 2\";\n"
 "border-color: rgb(255, 170, 0);")
         self.tbListTask.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
@@ -190,7 +191,7 @@ class Ui_mainWindow(object):
         self._2.addWidget(self.groupBox)
         mainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(mainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 1239, 26))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1239, 25))
         self.menubar.setObjectName("menubar")
         self.menuFIle = QtWidgets.QMenu(self.menubar)
         self.menuFIle.setObjectName("menuFIle")
@@ -209,7 +210,6 @@ class Ui_mainWindow(object):
         icon9.addPixmap(QtGui.QPixmap(":/icon_24x24/icon_24x24/export_24x24.png"), QtGui.QIcon.Active, QtGui.QIcon.On)
         self.actionExit.setIcon(icon9)
         font = QtGui.QFont()
-        font.setPointSize(11)
         self.actionExit.setFont(font)
         self.actionExit.setObjectName("actionExit")
         self.actionCheck_for_update = QtWidgets.QAction(mainWindow)
@@ -217,7 +217,6 @@ class Ui_mainWindow(object):
         icon10.addPixmap(QtGui.QPixmap(":/icon_24x24/icon_24x24/refresh_24x24.png"), QtGui.QIcon.Active, QtGui.QIcon.On)
         self.actionCheck_for_update.setIcon(icon10)
         font = QtGui.QFont()
-        font.setPointSize(11)
         self.actionCheck_for_update.setFont(font)
         self.actionCheck_for_update.setObjectName("actionCheck_for_update")
         self.actionAbout = QtWidgets.QAction(mainWindow)
@@ -225,7 +224,6 @@ class Ui_mainWindow(object):
         icon11.addPixmap(QtGui.QPixmap(":/icon_24x24/icon_24x24/question_24x24.png"), QtGui.QIcon.Active, QtGui.QIcon.On)
         self.actionAbout.setIcon(icon11)
         font = QtGui.QFont()
-        font.setPointSize(11)
         self.actionAbout.setFont(font)
         self.actionAbout.setObjectName("actionAbout")
         self.actionAccount = QtWidgets.QAction(mainWindow)
@@ -233,7 +231,6 @@ class Ui_mainWindow(object):
         icon12.addPixmap(QtGui.QPixmap(":/icon_24x24/icon_24x24/user_24.png"), QtGui.QIcon.Active, QtGui.QIcon.On)
         self.actionAccount.setIcon(icon12)
         font = QtGui.QFont()
-        font.setPointSize(11)
         self.actionAccount.setFont(font)
         self.actionAccount.setObjectName("actionAccount")
         self.actionBilling_Profile = QtWidgets.QAction(mainWindow)
@@ -241,7 +238,6 @@ class Ui_mainWindow(object):
         icon13.addPixmap(QtGui.QPixmap(":/icon_512x512/icon_512x512/profiles_alt.png"), QtGui.QIcon.Active, QtGui.QIcon.On)
         self.actionBilling_Profile.setIcon(icon13)
         font = QtGui.QFont()
-        font.setPointSize(11)
         self.actionBilling_Profile.setFont(font)
         self.actionBilling_Profile.setObjectName("actionBilling_Profile")
         self.actionProxies = QtWidgets.QAction(mainWindow)
@@ -249,7 +245,6 @@ class Ui_mainWindow(object):
         icon14.addPixmap(QtGui.QPixmap(":/icon_512x512/icon_512x512/proxies_alt.png"), QtGui.QIcon.Active, QtGui.QIcon.On)
         self.actionProxies.setIcon(icon14)
         font = QtGui.QFont()
-        font.setPointSize(11)
         self.actionProxies.setFont(font)
         self.actionProxies.setObjectName("actionProxies")
         self.actionSetting = QtWidgets.QAction(mainWindow)
@@ -257,7 +252,6 @@ class Ui_mainWindow(object):
         icon15.addPixmap(QtGui.QPixmap(":/icon_512x512/icon_512x512/settings_alt.png"), QtGui.QIcon.Active, QtGui.QIcon.On)
         self.actionSetting.setIcon(icon15)
         font = QtGui.QFont()
-        font.setPointSize(11)
         self.actionSetting.setFont(font)
         self.actionSetting.setObjectName("actionSetting")
         self.menuFIle.addAction(self.actionSetting)

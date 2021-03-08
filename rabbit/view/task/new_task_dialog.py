@@ -120,7 +120,13 @@ class NewTask(QtWidgets.QDialog):
 			self.close()
 
 	def btnAccountAddClicked(self):
-		account = self.txtAccount.text()
+		# TODO : check account is existed or not
+		account = self.ui.txtAccount.text()
+		current_accounts = self.ui.txtAccount.text()
+		for acc in current_accounts.split(','):
+			if acc == account:
+				QMessageBox.information(self, "Rabbit!", 'This account: {} had already selected.'.format(account))
+				return
 		if account is None or account == "":
 			account += self.ui.cbAccount.currentText()
 		else:

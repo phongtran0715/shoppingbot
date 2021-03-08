@@ -88,6 +88,7 @@ class GameStop:
 			}
 			browser = webdriver.Firefox(executable_path=GeckoDriverManager().install(),capabilities=firefox_capabilities)
 		else:
+			logger.warning("Gamestop | TASK {} - Shopping without proxy")
 			browser = webdriver.Firefox(executable_path=GeckoDriverManager().install())
 
 		return browser

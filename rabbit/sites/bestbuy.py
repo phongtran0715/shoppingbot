@@ -173,7 +173,7 @@ class BestBuy:
 			add_to_cart_btn.click()
 			time.sleep(self.SHORT_TIMEOUT)
 			result = True
-			self.status_signal.emit(RabbitUtil.create_msg("Added to cart", "normal", self.task_id))
+			self.status_signal.emit(RabbitUtil.create_msg("Added To Cart", "normal", self.task_id))
 		except Exception as e:
 			self.status_signal.emit({"message": "Error Adding to card (line {} {} {})".format(
 					sys.exc_info()[-1].tb_lineno, type(e).__name__, e), "status": "error", "task_id" : self.task_id})
