@@ -10,6 +10,7 @@ from PyQt5.QtSql import QSqlDatabase
 from utils.rabbit_util import RabbitUtil
 from utils.twocaptcha_utils import solve_captcha
 from configparser import ConfigParser
+import pickle
 
 
 logger = logging.getLogger(__name__)
@@ -98,6 +99,13 @@ class Walmart:
 					self.session.proxies.update(monitor_proxy)
 					logger.info("Walmart | Task id {} - Monitoring by proxy : {}".format(self.task_id, monitor_proxy))
 
+				# set cookies for session
+				if os.path.isfile('walmart_cookies.pkl'):
+					cookies = pickle.load(open("walmart_cookies.pkl", "rb"))
+					for c in cookies:
+						if c['name'] not in [x.name for x in self.session.cookies]:
+							self.session.cookies.set(c['name'], c['value'], path=c['path'], domain=c['domain'])
+
 				r = self.session.get(self.product, headers=headers)
 				if r.status_code == 200:
 					# check for captcha page
@@ -125,12 +133,14 @@ class Walmart:
 								continue
 						offer_id = json.loads(doc.xpath('//script[@id="item"]/text()')[0])["item"]["product"]["buyBox"][
 							"products"][0]["offerId"]
+						logger.info("Found product")
 						return product_image, offer_id
 					self.status_signal.emit({"message": "Waiting For Restock", "status": "normal", "task_id" : self.task_id})
 					self.session.cookies.clear()
 					time.sleep(self.monitor_delay)
 				else:
-					self.status_signal.emit({"message": "Product Not Found", "status": "normal", "task_id" : self.task_id})
+					logger.error("Status code {}".format(r.status_code))
+					self.status_signal.emit({"message": "Error Loading Product Page", "status": "error", "task_id" : self.task_id})
 					time.sleep(self.monitor_delay)
 			except Exception as e:
 				self.status_signal.emit({"message": "Error Loading Product Page (line {} {} {})".format(
@@ -164,6 +174,13 @@ class Walmart:
 				else:
 					logger.info("Walmart | Task id : {} - Shopping without proxy".format(self.task_id))
 
+				# set cookies for session
+				if os.path.isfile('walmart_cookies.pkl'):
+					cookies = pickle.load(open("walmart_cookies.pkl", "rb"))
+					for c in cookies:
+						if c['name'] not in [x.name for x in self.session.cookies]:
+							self.session.cookies.set(c['name'], c['value'], path=c['path'], domain=c['domain'])
+				
 				r = self.session.post("https://www.walmart.com/api/v3/cart/guest/:CID/items", json=body,
 									  headers=headers)
 
@@ -178,16 +195,18 @@ class Walmart:
 					return True
 				else:
 					logger.info("Walmart | Task id : {} - status code : {}".format(self.task_id, r.status_code))
-					blocked_url = "https://www.walmart.com" + json.loads(r.text)["redirectUrl"]
-					self.handle_captcha(blocked_url)
-					self.status_signal.emit({"message": "Error Adding To Cart", "status": "error","task_id" : self.task_id})
-					time.sleep(self.error_delay)
-					return False
+					logger.error(r.text)
+					if 'redirectUrl' in r.text:
+						blocked_url = "https://www.walmart.com" + json.loads(r.text)["redirectUrl"]
+						self.handle_captcha(blocked_url)
+						self.status_signal.emit({"message": "Error Adding To Cart", "status": "error","task_id" : self.task_id})
+						time.sleep(self.error_delay)
+					else:
+						self.status_signal.emit({"message": "Error Adding To Cart", "status": "error","task_id" : self.task_id})
 			except Exception as e:
 				self.status_signal.emit({"message": "Error Adding To Cart (line {} {} {})".format(
 					sys.exc_info()[-1].tb_lineno, type(e).__name__, e), "status": "error", "task_id" : self.task_id})
 				time.sleep(self.error_delay)
-				return False
 
 	def check_cart_items(self, account):
 		headers = {
@@ -471,7 +490,7 @@ class Walmart:
 		profile = RabbitUtil.get_profile(account.get_profile(), self.db_conn)
 		if self.dont_buy is True:
 			# TODO: this used to open the page up with everything filled out but only works for some users
-			self.status_signal.emit({"message":"Mock Opening Checkout Page","status":"alt", "task_id" : self.task_id})
+			self.status_signal.emit({"message":"Mock Opening Checkout Page","status":"success", "task_id" : self.task_id})
 			RabbitUtil.send_webhook("OP", "Walmart", account.get_account_name(), self.task_id, self.product_image)
 			return             
 
@@ -547,6 +566,8 @@ class Walmart:
 		for c in browser.get_cookies():
 			if c['name'] not in [x.name for x in self.session.cookies]:
 				self.session.cookies.set(c['name'], c['value'], path=c['path'], domain=c['domain'])
+
+		pickle.dump(browser.get_cookies() , open("walmart_cookies.pkl","wb"))
 
 		if close_window_after:
 			browser.quit()
