@@ -41,7 +41,7 @@ class NewProxy(QtWidgets.QDialog):
 		query.addBindValue(self.ui.txtContent.toPlainText())
 		query.addBindValue(int(self.proxy_id))
 		if not query.exec():
-			QMessageBox.critical(self, "Rabbit - Error!", 'Database Error: %s' % query.lastError().databaseText(),)
+			QMessageBox.critical(self, "Rabbit - Error!", 'Database Error: %s' % query.lastError().text(),)
 		else:
 			self.close()
 
@@ -51,7 +51,7 @@ class NewProxy(QtWidgets.QDialog):
 		query.addBindValue(self.ui.txtName.text())
 		query.addBindValue(self.ui.txtContent.toPlainText())
 		if not query.exec():
-			QMessageBox.critical(self, "Rabbit - Error!", 'Database Error: %s' % query.lastError().databaseText(),)
+			QMessageBox.critical(self, "Rabbit - Error!", 'Database Error: %s' % query.lastError().text(),)
 		else:
 			self.close()
 		

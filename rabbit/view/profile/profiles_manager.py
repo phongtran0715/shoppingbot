@@ -71,7 +71,7 @@ class ProfileManager(QtWidgets.QMainWindow):
 			query.prepare("DELETE FROM profile WHERE id = ?")
 			query.addBindValue(profile_id)
 			if not query.exec():
-				QMessageBox.critical(self, "Rabbit - Error!", 'Database Error: %s' % self.query.lastError().databaseText(),)
+				QMessageBox.critical(self, "Rabbit - Error!", 'Database Error: %s' % self.query.lastError().text(),)
 			else:
 				self.loadProfileData()
 		else:
@@ -83,7 +83,7 @@ class ProfileManager(QtWidgets.QMainWindow):
 			query = QSqlQuery(self.db_conn)
 			query.prepare("DELETE FROM profile")
 			if not query.exec():
-				QMessageBox.critical(self, "Rabbit - Error!", 'Database Error: %s' % self.query.lastError().databaseText(),)
+				QMessageBox.critical(self, "Rabbit - Error!", 'Database Error: %s' % self.query.lastError().text(),)
 			else:
 				self.loadProfileData()
 

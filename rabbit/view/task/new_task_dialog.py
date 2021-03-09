@@ -121,18 +121,20 @@ class NewTask(QtWidgets.QDialog):
 
 	def btnAccountAddClicked(self):
 		# TODO : check account is existed or not
-		account = self.ui.txtAccount.text()
+		account = self.ui.cbAccount.currentText()
 		current_accounts = self.ui.txtAccount.text()
+		print("account : {}".format(account))
+		print("selected acc : {}".format(current_accounts.split(',')))
 		for acc in current_accounts.split(','):
 			if acc == account:
 				QMessageBox.information(self, "Rabbit!", 'This account: {} had already selected.'.format(account))
 				return
 		if account is None or account == "":
-			account += self.ui.cbAccount.currentText()
+			current_accounts += self.ui.cbAccount.currentText()
 		else:
-			account += "," + self.ui.cbAccount.currentText()
+			current_accounts += "," + self.ui.cbAccount.currentText()
 
-		self.ui.txtAccount.setText(account)
+		self.ui.txtAccount.setText(current_accounts)
 
 	def txtLinkChanged(self):
 		product = self.ui.txtLink.text()

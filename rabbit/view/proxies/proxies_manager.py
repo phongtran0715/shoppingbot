@@ -71,7 +71,7 @@ class ProxiesManager(QtWidgets.QMainWindow):
 			query.prepare("DELETE FROM Proxies WHERE id = ?")
 			query.addBindValue(proxy_id)
 			if not query.exec():
-				QMessageBox.critical(self, "Rabbit - Error!", 'Database Error: %s' % self.query.lastError().databaseText(),)
+				QMessageBox.critical(self, "Rabbit - Error!", 'Database Error: %s' % self.query.lastError().text(),)
 			else:
 				self.loadProxyData()
 		else:
@@ -83,7 +83,7 @@ class ProxiesManager(QtWidgets.QMainWindow):
 			query = QSqlQuery(self.db_conn)
 			query.prepare("DELETE FROM proxies")
 			if not query.exec():
-				QMessageBox.critical(self, "Rabbit - Error!", 'Database Error: %s' % self.query.lastError().databaseText(),)
+				QMessageBox.critical(self, "Rabbit - Error!", 'Database Error: %s' % self.query.lastError().text(),)
 			else:
 				self.loadProxyData()
 

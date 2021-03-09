@@ -78,7 +78,7 @@ class KeywordManager(QtWidgets.QDialog):
 			query.addBindValue(self.txtProxy.text())
 			query.addBindValue('Stop')
 			if not query.exec():
-				QMessageBox.critical(self, "Rabbit - Error!", 'Database Error: {}'.format(query.lastError().databaseText()),)
+				QMessageBox.critical(self, "Rabbit - Error!", 'Database Error: {}'.format(query.lastError().text()),)
 			else:
 				self.close()
 		else:
@@ -107,6 +107,6 @@ class KeywordManager(QtWidgets.QDialog):
 			query.addBindValue(self.cbStatus.currentText())
 			query.addBindValue(self.task_id)
 			if not query.exec():
-				QMessageBox.critical(self, "Rabbit - Error!", 'Database Error: %s' % self.query.lastError().databaseText(),)
+				QMessageBox.critical(self, "Rabbit - Error!", 'Database Error: %s' % self.query.lastError().text(),)
 			else:
 				self.close()

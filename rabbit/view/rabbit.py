@@ -279,13 +279,18 @@ class MainWindow(QtWidgets.QMainWindow):
 	def update_status(self, msg):
 		for index in range(self.ui.tbListTask.rowCount()):
 			if msg['task_id'] == self.ui.tbListTask.item(index, 0).text():
+				logger.info("Task id {} - {}".format(msg['task_id'], msg['message']))
 				self.ui.tbListTask.item(index, 4).setText(msg['message'])
-				if msg['status'] == 'normal' or msg['status'] == 'success':
-					logger.info("Task id {} - {}".format(msg['task_id'], msg['message']))
+				if msg['status'] == 'normal':
+					self.ui.tbListTask.item(index, 4).setBackground(QtGui.QColor('white'))
+				elif msg['status'] == 'success':
 					self.ui.tbListTask.item(index, 4).setBackground(QtGui.QColor('green'))
-				else:
-					logger.error("Task id {} - {}".format(msg['task_id'], msg['message']))
+				elif msg['status'] == 'warning':
+					self.ui.tbListTask.item(index, 4).setBackground(QtGui.QColor('yellow'))
+				elif msg['status'] == 'error':
 					self.ui.tbListTask.item(index, 4).setBackground(QtGui.QColor('red'))
+				else:
+					self.ui.tbListTask.item(index, 4).setBackground(QtGui.QColor('white'))
 				break
 
 	def update_image(self,image_url):
