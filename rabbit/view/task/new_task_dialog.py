@@ -94,6 +94,7 @@ class NewTask(QtWidgets.QDialog):
 			self.parent.ui.tbListTask.setItem(rowPosition , 1, QTableWidgetItem(self.ui.cbSite.currentText()))
 			self.parent.ui.tbListTask.setItem(rowPosition , 2, QTableWidgetItem(self.ui.txtLink.text()))
 			self.parent.ui.tbListTask.setItem(rowPosition , 3, QTableWidgetItem(self.ui.txtAccount.text()))
+			self.parent.ui.tbListTask.setItem(rowPosition , 4, QTableWidgetItem("Stop"))
 			self.close()
 
 	def update_task(self):
@@ -120,7 +121,6 @@ class NewTask(QtWidgets.QDialog):
 			self.close()
 
 	def btnAccountAddClicked(self):
-		# TODO : check account is existed or not
 		account = self.ui.cbAccount.currentText()
 		current_accounts = self.ui.txtAccount.text()
 		print("account : {}".format(account))
@@ -129,7 +129,7 @@ class NewTask(QtWidgets.QDialog):
 			if acc == account:
 				QMessageBox.information(self, "Rabbit!", 'This account: {} had already selected.'.format(account))
 				return
-		if account is None or account == "":
+		if current_accounts is None or current_accounts == "":
 			current_accounts += self.ui.cbAccount.currentText()
 		else:
 			current_accounts += "," + self.ui.cbAccount.currentText()

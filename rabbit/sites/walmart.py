@@ -36,10 +36,9 @@ class Walmart:
 		# create database connection
 		self.db_conn = QSqlDatabase.addDatabase("QSQLITE", "walmart_db_conn_" + str(task_model.get_task_id()))
 		self.db_conn.setDatabaseName(os.path.join('data', 'rabbit_db.sqlite'))
-		if not self.db_conn.isOpen():
-			if not self.db_conn.open():
-				logger.error("Walmart | Task id {} - Open conection false!".format(self.task_id))
-				return
+		if not self.db_conn.open():
+			logger.error("Walmart | Task id {} - Open conection false!".format(self.task_id))
+			return
 
 		# create config parse
 		self.config = ConfigParser()
