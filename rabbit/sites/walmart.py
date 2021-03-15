@@ -10,10 +10,22 @@ from PyQt5.QtSql import QSqlDatabase
 from utils.rabbit_util import RabbitUtil
 from utils.twocaptcha_utils import solve_captcha
 from configparser import ConfigParser
-import pickle
+import pickle, random
 
 
 logger = logging.getLogger(__name__)
+
+monitor_user_agent_list = [
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36',
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36',
+    'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:40.0) Gecko/20100101 Firefox/40.1',
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.157 Safari/537.36',
+    'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:54.0) Gecko/20100101 Firefox/54.0',
+]
+
+shopping_user_agent_list = [
+	'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.182 Safari/537.36'
+]
 
 class Walmart:
 	def __init__(self, status_signal, image_signal, wait_poll_signal, polling_wait_condition, task_model):
@@ -63,6 +75,7 @@ class Walmart:
 			if account_item is None:
 				continue
 			logger.info("Walmart | Task id {} - Processing for account : {}".format(self.task_id, account_name))
+			self.user_agent = random.choice(shopping_user_agent_list)
 			did_add = self.atc(offer_id, account_item)
 			count_add = 1
 			while did_add is False and count_add <= 3:
@@ -86,7 +99,7 @@ class Walmart:
 			"accept-language": "en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7",
 			"cache-control": "max-age=0",
 			"upgrade-insecure-requests": "1",
-			"user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.20 Safari/537.36"
+			"user-agent": random.choice(monitor_user_agent_list)
 		}
 		image_found = False
 		product_image = ""
@@ -94,23 +107,18 @@ class Walmart:
 			self.status_signal.emit({"message": "Monitoring Product Page", "status": "normal", "task_id" : self.task_id})
 			try:
 				monitor_proxy = RabbitUtil.get_proxy(self.monitor_proxies, self.db_conn)
+				monitor_session = requests.Session()
 				if monitor_proxy is not None and monitor_proxy != "":
-					self.session.proxies.update(monitor_proxy)
+					monitor_session.proxies.update(monitor_proxy)
 					logger.info("Walmart | Task id {} - Monitoring by proxy : {}".format(self.task_id, monitor_proxy))
 
-				# set cookies for session
-				if os.path.isfile('walmart_cookies.pkl'):
-					cookies = pickle.load(open("walmart_cookies.pkl", "rb"))
-					for c in cookies:
-						if c['name'] not in [x.name for x in self.session.cookies]:
-							self.session.cookies.set(c['name'], c['value'], path=c['path'], domain=c['domain'])
-
-				r = self.session.get(self.product, headers=headers)
+				r = monitor_session.get(self.product, headers=headers)
 				if r.status_code == 200:
 					# check for captcha page
 					if self.is_captcha(r.text):
 						self.status_signal.emit({"message": "CAPTCHA - Opening Product Page", "status": "error", "task_id" : self.task_id})
-						self.handle_captcha(self.product)
+						# No need to handle captcha - we have multiple proxy
+						# self.handle_captcha(self.product)
 						continue
 
 					doc = lxml.html.fromstring(r.text)
@@ -127,7 +135,7 @@ class Walmart:
 						if self.max_price != "" and int(self.max_price) > 0:
 							if float(self.max_price) < price:
 								self.status_signal.emit({"message": "Waiting For Price Restock", "status": "normal", "task_id" : self.task_id})
-								self.session.cookies.clear()
+								monitor_session.cookies.clear()
 								time.sleep(self.monitor_delay)
 								continue
 						offer_id = json.loads(doc.xpath('//script[@id="item"]/text()')[0])["item"]["product"]["buyBox"][
@@ -135,7 +143,7 @@ class Walmart:
 						logger.info("Found product")
 						return product_image, offer_id
 					self.status_signal.emit({"message": "Waiting For Restock", "status": "normal", "task_id" : self.task_id})
-					self.session.cookies.clear()
+					monitor_session.cookies.clear()
 					time.sleep(self.monitor_delay)
 				else:
 					logger.error("Status code {}".format(r.status_code))
@@ -154,7 +162,7 @@ class Walmart:
 			"content-type": "application/json",
 			"origin": "https://www.walmart.com",
 			"referer": self.product,
-			"user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.20 Safari/537.36",
+			"user-agent": self.user_agent,
 			"wm_offer_id": offer_id
 		}
 		profile = RabbitUtil.get_profile(account.get_profile(), self.db_conn)
@@ -215,7 +223,7 @@ class Walmart:
 			"content-type": "application/json",
 			"origin": "https://www.walmart.com",
 			"referer": "https://www.walmart.com/checkout/",
-			"user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.20 Safari/537.36",
+			"user-agent": self.user_agent,
 			"wm_vertical_id": "0",
 			"wm_cvv_in_session": "true",
 		}
@@ -261,7 +269,7 @@ class Walmart:
 			"content-type": "application/json",
 			"origin": "https://www.walmart.com",
 			"referer": "https://www.walmart.com/checkout/",
-			"user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.20 Safari/537.36",
+			"user-agent": self.user_agent,
 			"wm_vertical_id": "0"
 		}
 		body = {"groups": [{"fulfillmentOption": fulfillment_option, "itemIds": [item_id], "shipMethod": ship_method}]}
@@ -293,7 +301,7 @@ class Walmart:
 			"inkiru_precedence": "false",
 			"origin": "https://www.walmart.com",
 			"referer": "https://www.walmart.com/checkout/",
-			"user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.20 Safari/537.36",
+			"user-agent": self.user_agent,
 			"wm_vertical_id": "0"
 		}
 		profile = RabbitUtil.get_profile(account.get_profile(), self.db_conn)
@@ -340,7 +348,7 @@ class Walmart:
 			"Connection": "keep-alive",
 			"Host": "securedataweb.walmart.com",
 			"Referer": "https://www.walmart.com/",
-			"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.20 Safari/537.36"
+			"User-Agent": self.user_agent
 		}
 		profile = RabbitUtil.get_profile(account.get_profile(), self.db_conn)
 		while True:
@@ -374,7 +382,7 @@ class Walmart:
 			"content-type": "application/json",
 			"origin": "https://www.walmart.com",
 			"referer": "https://www.walmart.com/checkout/",
-			"user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.20 Safari/537.36"
+			"user-agent": self.user_agent
 		}
 		# "inkiru_precedence": "false",
 		profile = RabbitUtil.get_profile(account.get_profile(), self.db_conn)
@@ -425,7 +433,7 @@ class Walmart:
 			"content-type": "application/json",
 			"origin": "https://www.walmart.com",
 			"referer": "https://www.walmart.com/checkout/",
-			"user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.20 Safari/537.36",
+			"user-agent": self.user_agent,
 			"wm_vertical_id": "0"
 		}
 
@@ -483,7 +491,7 @@ class Walmart:
 			"content-type": "application/json",
 			"origin": "https://www.walmart.com",
 			"referer": "https://www.walmart.com/checkout/",
-			"user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.20 Safari/537.36",
+			"user-agent": self.user_agent,
 			"wm_vertical_id": "0"
 		}
 		profile = RabbitUtil.get_profile(account.get_profile(), self.db_conn)
